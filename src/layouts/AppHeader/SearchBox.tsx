@@ -15,7 +15,7 @@ export function SearchBox({ ...props }: DialogProps) {
   return (
     <>
       <Button
-        className="border border-violet-200 hover:bg-secondary"
+        className="hover:bg-secondary"
         variant="secondary"
         size="sm"
         onClick={() => setOpen(true)}

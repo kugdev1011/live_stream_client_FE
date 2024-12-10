@@ -1,10 +1,78 @@
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from 'react-router-dom';
+import History from './pages/History';
 import Home from './pages/Home';
+import Subscriptions from './pages/Subscriptions';
+import LikedVideos from './pages/LikedVideos';
+import SavedVideos from './pages/SavedVideos';
+import NotFound from './pages/NotFound';
+import {
+  HISTORY_PATH,
+  HOME_PATH,
+  LIKED_VIDEOS_PATH,
+  LOGIN_PATH,
+  LOGOUT_PATH,
+  PRIVACY_DOCS_PATH,
+  REGISTRATION_PATH,
+  SAVED_VIDEOS_PATH,
+  SUBSCRIPTIONS_PATH,
+  TERMS_OF_SERVICES_DOCS_PATH,
+  TEST_LIVE_STREAM_PATH,
+} from './data/route';
+import Register from './pages/Auth/Register';
+import Login from './pages/Auth/Login';
+import ProtectedRoute from './components/ProtectedRoute';
+import Privacy from './pages/Privacy';
+import TermsOfServices from './pages/TermsOfServices';
+import TestLiveStream from './pages/TestLiveStream';
+import LogoutPage from './pages/Auth/Logout';
 
 function App() {
   return (
-    <>
-      <Home />
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Navigate to={LOGIN_PATH} />} />
+
+        <Route
+          path={HOME_PATH}
+          element={<ProtectedRoute element={<Home />} />}
+        />
+        <Route
+          path={SUBSCRIPTIONS_PATH}
+          element={<ProtectedRoute element={<Subscriptions />} />}
+        />
+        <Route
+          path={HISTORY_PATH}
+          element={<ProtectedRoute element={<History />} />}
+        />
+        <Route
+          path={LIKED_VIDEOS_PATH}
+          element={<ProtectedRoute element={<LikedVideos />} />}
+        />
+        <Route
+          path={SAVED_VIDEOS_PATH}
+          element={<ProtectedRoute element={<SavedVideos />} />}
+        />
+        <Route path={LOGOUT_PATH} element={<LogoutPage />} />
+
+        {/* Testings */}
+        <Route path={TEST_LIVE_STREAM_PATH} element={<TestLiveStream />} />
+
+        <Route path={LOGIN_PATH} element={<Login />} />
+        <Route path={REGISTRATION_PATH} element={<Register />} />
+        <Route path={PRIVACY_DOCS_PATH} element={<Privacy />} />
+        <Route
+          path={TERMS_OF_SERVICES_DOCS_PATH}
+          element={<TermsOfServices />}
+        />
+
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
   );
 }
 

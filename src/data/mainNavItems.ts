@@ -1,35 +1,49 @@
 import { NavItems } from '@/types/ui/navItem';
-import { Frame, History, Import, Rss, ThumbsUp } from 'lucide-react';
+import { Frame, History, Import, Podcast, Rss, ThumbsUp } from 'lucide-react';
+import {
+  HISTORY_PATH,
+  HOME_PATH,
+  LIKED_VIDEOS_PATH,
+  SAVED_VIDEOS_PATH,
+  SUBSCRIPTIONS_PATH,
+  TEST_LIVE_STREAM_PATH,
+} from './route';
 
 export const navItems: NavItems[] = [
   {
     name: 'Home',
-    url: '/',
+    url: HOME_PATH,
     icon: Frame,
     isActive: true,
   },
   {
     name: 'Subscriptions',
-    url: '/subscriptions',
+    url: SUBSCRIPTIONS_PATH,
     icon: Rss,
     isActive: false,
   },
   {
     name: 'History',
-    url: '/feed/history',
+    url: HISTORY_PATH,
     icon: History,
     isActive: false,
   },
   {
     name: 'Liked Videos',
-    url: '/feed/liked',
+    url: LIKED_VIDEOS_PATH,
     icon: ThumbsUp,
     isActive: false,
   },
   {
     name: 'Saved Videos',
-    url: '/feed/saved',
+    url: SAVED_VIDEOS_PATH,
     icon: Import,
+    isActive: false,
+  },
+  {
+    name: 'Test Live Stream',
+    url: TEST_LIVE_STREAM_PATH,
+    icon: Podcast,
     isActive: false,
   },
 ];
