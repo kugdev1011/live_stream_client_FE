@@ -36,8 +36,8 @@ const liveStreamApi = async (request: ApiRequest): Promise<ApiResponse> => {
 
   let success = false,
     apiResponse = null,
-    errorCode = null,
-    errorMsg = null;
+    code = null,
+    message = null;
   if (authToken) {
     if (secret) {
       switch (service) {
@@ -46,11 +46,11 @@ const liveStreamApi = async (request: ApiRequest): Promise<ApiResponse> => {
           break;
       }
     } else {
-      errorCode = API_ERROR_CODE.UNAUTHORIZED;
+      code = API_ERROR_CODE.UNAUTHORIZED;
     }
   }
 
-  if (!errorCode) {
+  if (!code) {
     try {
       const config: AxiosRequestConfig = {
         url,
@@ -76,13 +76,10 @@ const liveStreamApi = async (request: ApiRequest): Promise<ApiResponse> => {
       success = false;
 
       if (e instanceof AxiosError) {
-        const errorResponse = e.response?.data;
+        const errorResponse = e.response?.data; // message, code
         if (errorResponse) {
-          const errorData = errorResponse.error;
-          if (errorData) {
-            errorCode = errorData.name;
-            errorMsg = errorData.message;
-          }
+          code = errorResponse?.code;
+          message = errorResponse.message;
         }
       } else if (e instanceof Error) {
         console.error(`Unexpected error: ${e.message}`);
@@ -90,9 +87,9 @@ const liveStreamApi = async (request: ApiRequest): Promise<ApiResponse> => {
         console.error('An unknown error occurred.');
       }
 
-      if (!errorCode) {
-        errorCode = API_ERROR_CODE.SERVER_ERROR;
-        errorMsg = 'Please try again later.';
+      if (!code) {
+        code = API_ERROR_CODE.SERVER_ERROR;
+        message = 'Please try again later.';
       }
     }
   }
@@ -100,8 +97,8 @@ const liveStreamApi = async (request: ApiRequest): Promise<ApiResponse> => {
   return {
     success,
     data: apiResponse,
-    errorCode,
-    errorMsg,
+    code,
+    message,
   };
 };
 

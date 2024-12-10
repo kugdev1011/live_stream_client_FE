@@ -42,23 +42,27 @@ export type ApiResult<T> = {
   data: T;
   message: string;
   code: API_ERROR | number;
-  error: API_ERROR | string | number | undefined;
+  error?: API_ERROR | string | number | undefined;
 };
 
-export type ApiResponse<T> = {
+// export type ApiResponse = {
+//   success: boolean;
+//   data: undefined;
+//   errorCode: API_ERROR;
+//   errorMsg?: string;
+// };
+export type ApiResponse = {
   success: boolean;
-  data?: {
-    data: T;
-    message: string;
-    code: number;
-  };
-  errorCode?: API_ERROR | number;
-  errorMsg?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: any;
+  message: string;
+  code: number;
 };
 
 export type ServiceResponse<T, S extends string> = {
   data?: T;
   errors?: Record<S, boolean>;
+  message?: string;
 };
 
 export type OptionData<T> = {

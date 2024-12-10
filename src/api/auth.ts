@@ -1,16 +1,11 @@
-import {
-  API_METHOD,
-  ApiRequest,
-  ApiResponse,
-  ApiResult,
-  ApiService,
-} from '@/data/api';
-import { LoginUserResponse } from '@/data/dto/auth';
+import { API_METHOD, ApiRequest, ApiResult, ApiService } from '@/data/api';
+import { LoginUserResponse, RegisterUserResponse } from '@/data/dto/auth';
 import { liveStreamApi } from './utils';
+import { RegisterAccountFields } from '@/types/auth';
 
 const AUTH_API = '/auth';
 const LOGIN_API = AUTH_API + '/login';
-// const REGISTER_API = AUTH_API + '/register';
+const REGISTER_API = AUTH_API + '/register';
 
 export const apiLogin = async (
   emailOrUsername: string,
@@ -29,27 +24,53 @@ export const apiLogin = async (
     authToken: false,
   };
 
-  const apiResponse: ApiResponse<LoginUserResponse> = await liveStreamApi(
-    request
-  );
-  const { success, data: responseData, errorCode } = apiResponse;
-
-  console.log('abc => ', apiResponse);
+  const apiResponse = await liveStreamApi(request);
+  const { success, data: responseData, code, message } = apiResponse;
 
   let rp: LoginUserResponse = {} as LoginUserResponse;
-  let message = 'An error occurred';
-  let code = errorCode ?? 500;
-
-  if (success && responseData) {
-    rp = responseData.data;
-    message = responseData.message ?? 'Success';
-    code = responseData.code ?? 200;
+  if (success) {
+    rp = responseData?.data;
   }
 
   return {
     data: rp,
     message,
     code,
-    error: errorCode,
+  };
+};
+
+export const apiRegister = async ({
+  email,
+  username,
+  displayName,
+  password,
+}: RegisterAccountFields): Promise<ApiResult<RegisterUserResponse>> => {
+  const requestBody = {
+    email,
+    username,
+    display_name: displayName,
+    password,
+  };
+
+  const request: ApiRequest = {
+    service: ApiService.liveStream,
+    url: REGISTER_API,
+    method: API_METHOD.POST,
+    data: requestBody,
+    authToken: false,
+  };
+
+  const apiResponse = await liveStreamApi(request);
+  const { success, data: responseData, code, message } = apiResponse;
+
+  let rp: RegisterUserResponse = {} as RegisterUserResponse;
+  if (success) {
+    rp = responseData?.data;
+  }
+
+  return {
+    data: rp,
+    message,
+    code,
   };
 };

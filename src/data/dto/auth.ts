@@ -8,3 +8,8 @@ interface UserResponse {
 export interface LoginUserResponse extends UserResponse {
   token: string;
 }
+
+export interface RegisterUserResponse extends UserResponse {
+  token: string;
+  expirationTime?: string;
+}
