@@ -5,6 +5,7 @@ import { LoginUserResponse, RegisterUserResponse } from '@/data/dto/auth';
 import { authAccount } from '@/data/model/userAccount';
 import { RegisterAccountFields } from '@/types/auth';
 import { PasswordRules } from '@/data/validations';
+import moment from 'moment';
 
 export enum LoginError {
   INVALID_USERNAME = 'INVALID_USERNAME',
@@ -40,15 +41,37 @@ export const login = async (
     const { data, message, error } = await apiLogin(emailOrUsername, pwd);
     if (!error && !_.isEmpty(data)) {
       errors = {};
-      const { id, email, roleType, username, token } = data;
-
-      authAccount(id || '', username, email, roleType, token);
-      result = {
-        token,
+      const {
         id,
-        username,
         email,
-        roleType,
+        username,
+        display_name,
+        avatar_file_name,
+        role_type,
+        token,
+        expiration_time,
+      } = data;
+
+      authAccount(
+        id || '',
+        email,
+        username,
+        display_name,
+        avatar_file_name,
+        role_type,
+        token,
+        moment(expiration_time)
+      );
+      result = {
+        id,
+        email,
+        username,
+        display_name,
+        avatar_file_name,
+        role_type,
+
+        token,
+        expiration_time,
       };
     } else {
       msg = message;
@@ -113,15 +136,37 @@ export const register = async ({
     });
     if (!error && !_.isEmpty(data)) {
       errors = {};
-      const { id, email, roleType, username, token } = data; // code, message, data
-
-      authAccount(id || '', username, email, roleType, token);
-      result = {
-        token,
+      const {
         id,
-        username,
         email,
-        roleType,
+        username,
+        display_name,
+        avatar_file_name,
+        role_type,
+        token,
+        expiration_time,
+      } = data; // code, message, data
+
+      authAccount(
+        id || '',
+        email,
+        username,
+        display_name,
+        avatar_file_name,
+        role_type,
+        token,
+        moment(expiration_time)
+      );
+      result = {
+        id,
+        email,
+        username,
+        display_name,
+        avatar_file_name,
+        role_type,
+
+        token,
+        expiration_time,
       };
     } else {
       msg = message;

@@ -5,44 +5,50 @@ const STORAGE_KEY = 'authInfo';
 
 export type UserAccountModel = {
   id: string | null;
-  username: string | null;
   email: string | null;
-  roleType: string | null;
+  username: string | null;
+  display_name: string | null;
+  avatar_file_name: string | null;
+  role_type: string | null;
   token: string | null;
 
-  expiration?: moment.Moment | null;
+  expiration_time?: moment.Moment | null;
   expired?: boolean | null;
   createdAt?: string | null;
 };
 
 let data: UserAccountModel = {
   id: null,
-  username: null,
   email: null,
-  roleType: null,
+  username: null,
+  display_name: null,
+  avatar_file_name: null,
+  role_type: null,
   token: null,
 
-  expiration: null,
+  expiration_time: null,
   expired: false,
   createdAt: null,
 };
 
 interface AccountStorage {
   id: string;
-  username: string;
   email: string;
-  roleType: string;
+  username: string;
+  display_name: string;
+  avatar_file_name: string;
+  role_type: string;
   token: string;
 
-  expiration?: string;
+  expiration_time?: string;
   createdAt?: string;
 }
 
 export const retrieveAuthToken = (): string | null => {
-  const { expiration, token } = data;
+  const { expiration_time, token } = data;
   const nowMm = moment().add(2, 'minutes');
 
-  if (!!expiration && expiration.isAfter(nowMm)) return token;
+  if (!!expiration_time && expiration_time.isAfter(nowMm)) return token;
 
   onAuthExpired();
 
@@ -61,14 +67,15 @@ export const invalidateAccount = (): void => {
 const clearData = (): void => {
   data = {
     id: null,
-    username: null,
     email: null,
-    roleType: null,
+    username: null,
+    display_name: null,
+    avatar_file_name: null,
+    role_type: null,
     token: null,
 
-    expiration: null,
+    expiration_time: null,
     expired: false,
-    createdAt: null,
   };
 
   localStorage.removeItem(STORAGE_KEY);
@@ -76,32 +83,43 @@ const clearData = (): void => {
 
 export const authAccount = (
   id: string,
-  username: string,
   email: string,
-  roleType: string,
-  token: string
+  username: string,
+  display_name: string,
+  avatar_file_name: string,
+  role_type: string,
+  token: string,
+  expiration_time: moment.Moment
 ): void => {
   data = {
     id,
-    username,
     email,
-    roleType,
+    username,
+    display_name,
+    avatar_file_name,
+    role_type,
+
     token,
+    expiration_time,
     expired: false,
   };
 
+  const utc = expiration_time.toISOString();
   const dataStorage: AccountStorage = {
     id,
-    username,
     email,
-    roleType,
+    username,
+    display_name,
+    avatar_file_name,
+    role_type,
     token,
+    expiration_time: utc,
   };
 
   const storageStr = JSON.stringify(dataStorage);
   localStorage.setItem(STORAGE_KEY, storageStr);
 
-  // onAccountChange();
+  onAccountChange();
 };
 
 export const isAuthenticated = (): boolean => {
@@ -116,18 +134,37 @@ const onAccountChange = (): void => {
 const loadStorage = (): void => {
   const dataStr = localStorage.getItem(STORAGE_KEY);
   if (dataStr) {
-    const { id, email, username, roleType, token }: AccountStorage =
-      JSON.parse(dataStr);
-
-    data = {
+    const {
       id,
-      token,
-      username,
       email,
-      roleType,
-    };
+      username,
+      display_name,
+      avatar_file_name,
+      role_type,
+      token,
+      expiration_time: expirationStr,
+    }: AccountStorage = JSON.parse(dataStr);
 
-    onAccountChange();
+    const nowMm = moment().add(2, 'minutes');
+    const expirationMm = expirationStr ? moment(expirationStr) : null;
+    if (expirationMm !== null && expirationMm.isAfter(nowMm)) {
+      data = {
+        id,
+        email,
+        username,
+        display_name,
+        avatar_file_name,
+        role_type,
+
+        token,
+        expired: false,
+        expiration_time: expirationMm,
+      };
+
+      onAccountChange();
+    } else {
+      clearData();
+    }
   }
 };
 loadStorage();

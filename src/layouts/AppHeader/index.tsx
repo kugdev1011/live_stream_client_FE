@@ -17,14 +17,6 @@ const AppHeader = () => {
         <div className="ml-auto flex gap-3 items-center">
           <SearchBox />
           <Separator orientation="vertical" className="h-4" />
-
-          {/* <Button variant="secondary" size="sm">
-            <Link to={LOGIN_PATH}>Login</Link>
-          </Button>
-          <Button size="sm">
-            <Link to={REGISTRATION_PATH}>Register</Link>
-          </Button> */}
-
           <UserAvatar />
         </div>
       </div>

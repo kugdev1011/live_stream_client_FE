@@ -32,7 +32,7 @@ const UserAvatar = () => {
       <PopoverTrigger asChild>
         <Avatar className="w-8 h-8 cursor-pointer">
           <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarFallback>PF</AvatarFallback>
         </Avatar>
       </PopoverTrigger>
       <PopoverContent
@@ -47,8 +47,8 @@ const UserAvatar = () => {
                 <AvatarFallback>PF</AvatarFallback>
               </Avatar>
               <div className="flex flex-col gap-1">
-                <p className="text-sm">{currentUser.username}</p>
-                {/* <p className="text-xs -mt-1">Login to platform</p> */}
+                <p className="text-sm">{currentUser.display_name}</p>
+                <p className="text-xs -mt-1">@{currentUser.username}</p>
               </div>
             </div>
             <Separator />
