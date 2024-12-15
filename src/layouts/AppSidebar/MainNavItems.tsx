@@ -4,30 +4,49 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { navItems } from '@/data/mainNavItems';
-import { HOME_PATH } from '@/data/route';
+import { HOME_PATH, LEFT_MAIN_MENU, ROUTE_PATH_INFO } from '@/data/route';
+import useUserAccount from '@/hooks/useUserAccount';
+import { USER_ROLE } from '@/types/role';
 import { NavLink, useLocation } from 'react-router-dom';
 
 export function MainNavItems() {
   const location = useLocation();
 
+  const currentUser = useUserAccount();
+  const role: USER_ROLE =
+    (currentUser.role_type as USER_ROLE) ?? USER_ROLE.USER;
+
+  const currentPath = location.pathname;
+
+  const renderNavItems = () => {
+    return role && LEFT_MAIN_MENU[role]
+      ? LEFT_MAIN_MENU[role].map((key: string) => {
+          const active = currentPath === key;
+
+          const routeInfo = ROUTE_PATH_INFO[key];
+          const path = routeInfo?.path;
+          const title = routeInfo?.title;
+          const Icon = routeInfo?.Icon;
+
+          if (!path || !title) return null;
+
+          return (
+            <NavLink to={path} end={path === HOME_PATH} key={path}>
+              <SidebarMenuItem>
+                <SidebarMenuButton isActive={active} tooltip={title}>
+                  {Icon && Icon}
+                  <span>{title}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </NavLink>
+          );
+        })
+      : '';
+  };
+
   return (
     <SidebarGroup>
-      <SidebarMenu>
-        {navItems.map((item) => (
-          <NavLink to={item.url} end={item.url === HOME_PATH} key={item.url}>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                isActive={location.pathname === item.url}
-                tooltip={item.name}
-              >
-                {item.icon && <item.icon />}
-                <span>{item.name}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </NavLink>
-        ))}
-      </SidebarMenu>
+      <SidebarMenu>{renderNavItems()}</SidebarMenu>
     </SidebarGroup>
   );
 }

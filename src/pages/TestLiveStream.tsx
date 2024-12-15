@@ -2,7 +2,10 @@
 import VideoPlayer from '@/components/VideoPlayer';
 import useWebSocket from '@/hooks/useWebSocket';
 import AppLayout from '@/layouts/AppLayout';
+import LayoutHeading from '@/layouts/LayoutHeading';
 import React, { useState } from 'react';
+
+const title = 'Test Live Stream';
 
 const TestLiveStream: React.FC = () => {
   const url1 =
@@ -20,7 +23,8 @@ const TestLiveStream: React.FC = () => {
     useState<boolean>(false);
 
   return (
-    <AppLayout>
+    <AppLayout title={title}>
+      <LayoutHeading title={title} />
       <h1 className="text-xl font-bold mb-4">Live Stream</h1>
       {!broadcastUrl ? (
         <h3>Loading live stream...</h3>

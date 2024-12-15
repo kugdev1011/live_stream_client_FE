@@ -1,9 +1,12 @@
 import AppLayout from '@/layouts/AppLayout';
+import LayoutHeading from '@/layouts/LayoutHeading';
+
+const title = 'Saved Videos';
 
 const SavedVideos = () => {
   return (
-    <AppLayout>
-      <h1 className="text-xl font-bold">Saved Videos</h1>
+    <AppLayout title={title}>
+      <LayoutHeading title={title} />
     </AppLayout>
   );
 };

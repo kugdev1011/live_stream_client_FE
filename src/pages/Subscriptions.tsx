@@ -1,9 +1,12 @@
 import AppLayout from '@/layouts/AppLayout';
+import LayoutHeading from '@/layouts/LayoutHeading';
+
+const title = 'Subscriptions';
 
 const Subscriptions = () => {
   return (
-    <AppLayout>
-      <h1 className="text-xl font-bold">Subscriptions</h1>
+    <AppLayout title={title}>
+      <LayoutHeading title={title} />
     </AppLayout>
   );
 };

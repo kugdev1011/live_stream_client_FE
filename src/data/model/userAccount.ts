@@ -1,5 +1,7 @@
 import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
 import moment from 'moment-timezone';
+import { LEFT_MAIN_MENU } from '../route';
+import { USER_ROLE } from '@/types/role';
 
 const STORAGE_KEY = 'authInfo';
 
@@ -124,6 +126,17 @@ export const authAccount = (
 
 export const isAuthenticated = (): boolean => {
   return !!localStorage.getItem(STORAGE_KEY); // Adjust based on your auth logic
+};
+
+export const isAuthorized = (pathname: string): boolean => {
+  const currentUser = getLoggedInUserInfo();
+
+  if (currentUser && !currentUser?.id && !currentUser?.role_type) return false;
+
+  if (LEFT_MAIN_MENU[currentUser.role_type as USER_ROLE].includes(pathname))
+    return true;
+
+  return false;
 };
 
 const onAccountChange = (): void => {
