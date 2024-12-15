@@ -22,10 +22,11 @@ import { initializeStream, StreamInitializeError } from '@/services/stream';
 import { STREAM_TYPE } from '@/types/stream';
 import AppAlert from '@/components/AppAlert';
 import { useSidebar } from '@/components/ui/sidebar';
+import { StreamInitializeResponse } from '@/data/dto/stream';
 
 interface ComponentProps {
   isOpen: boolean;
-  onSuccess: (id: number) => void;
+  onSuccess: (data: StreamInitializeResponse) => void;
   onClose: () => void;
 }
 
@@ -87,7 +88,7 @@ const DetailsForm = (props: ComponentProps) => {
     });
 
     if (!!data && !_errors) {
-      onSuccess(data.id);
+      onSuccess(data);
       toggleSidebar();
     } else {
       if (_errors) {

@@ -35,7 +35,7 @@ export const initializeStream = async ({
   )
     titleFailure = true;
   if (!description || description.length === 0) descriptionFailure = true;
-  if (!Object.values(STREAM_TYPE).includes(streamType))
+  if (!Object.values(STREAM_TYPE)?.includes(streamType))
     streamTypeFailure = true;
   if (thumbnailImage === null) thumbnailImageFailure = true;
 
@@ -55,10 +55,14 @@ export const initializeStream = async ({
     });
     if (!error && !_.isEmpty(data)) {
       errors = {};
-      const { id, push_url, broadcast_url } = data; // code, message, data
+      const { id, title, description, thumbnail_url, push_url, broadcast_url } =
+        data; // code, message, data
 
       result = {
         id,
+        title,
+        description,
+        thumbnail_url,
         push_url,
         broadcast_url,
       };

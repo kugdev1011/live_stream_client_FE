@@ -1,5 +1,8 @@
 export interface StreamInitializeResponse {
-  id: number;
-  broadcast_url: string;
-  push_url: string;
+  id: number | null;
+  title: string | null;
+  description: string | null;
+  thumbnail_url: string | null;
+  broadcast_url: string | null;
+  push_url: string | null;
 }
