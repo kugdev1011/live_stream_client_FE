@@ -42,6 +42,20 @@ export const LEFT_MAIN_MENU: Record<USER_ROLE, string[]> = {
     LIKED_VIDEOS_PATH,
     SAVED_VIDEOS_PATH,
   ],
+  [USER_ROLE.ADMIN]: [
+    HOME_PATH,
+    SUBSCRIPTIONS_PATH,
+    HISTORY_PATH,
+    LIKED_VIDEOS_PATH,
+    SAVED_VIDEOS_PATH,
+  ],
+  [USER_ROLE.SUPERADMIN]: [
+    HOME_PATH,
+    SUBSCRIPTIONS_PATH,
+    HISTORY_PATH,
+    LIKED_VIDEOS_PATH,
+    SAVED_VIDEOS_PATH,
+  ],
 };
 
 export type RouteInfo = {

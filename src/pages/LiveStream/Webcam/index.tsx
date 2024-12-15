@@ -4,6 +4,7 @@ import LayoutHeading from '@/layouts/LayoutHeading';
 import {
   Ban,
   CircleSlash,
+  LetterText,
   MessageSquare,
   Mic,
   MicOff,
@@ -27,6 +28,13 @@ import { modalTexts } from '@/data/stream';
 import Chat from '@/components/Chat';
 import LiveIndicator from './LiveIndicator';
 import ResourcePermissionDeniedOverlay from './ResourcePermissionDeniedOverlay';
+import { StreamInitializeResponse } from '@/data/dto/stream';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import StreamDetailsCard from './StreamDetailsCard';
 
 const title = 'Go Live';
 
@@ -48,6 +56,15 @@ const LiveStreamWebcam = () => {
   const [isStreamInitializeModelOpen, setIsStreamInitializeModalOpen] =
     useState(false);
   const [isChatVisible, setIsChatVisible] = useState(false);
+  const [streamInitializedData, setStreamInitializeData] =
+    useState<StreamInitializeResponse>({
+      id: null,
+      title: null,
+      description: null,
+      thumbnail_url: null,
+      push_url: null,
+      broadcast_url: null,
+    });
   const [notifyModal, setNotifyModal] = useState<NotificationModalProps>({
     type: NotifyModalType.SUCCESS,
     isOpen: false,
@@ -89,19 +106,34 @@ const LiveStreamWebcam = () => {
   };
 
   // Shows success modal after submitting stream initialization steps
-  const handleInitializeStreamSuccess = (id: number): void => {
-    setIsStreamStarted(true);
-    setIsChatVisible(true);
-    // toggleSidebar();
-    setIsStreamInitializeModalOpen(false);
+  const handleInitializeStreamSuccess = (
+    data: StreamInitializeResponse
+  ): void => {
+    if (data.id) {
+      const { id, title, description, thumbnail_url, push_url, broadcast_url } =
+        data;
 
-    openNotifyModal(
-      NotifyModalType.SUCCESS,
-      modalTexts.stream.successStart.title,
-      modalTexts.stream.successStart.description
-    );
+      setIsStreamStarted(true);
+      setIsChatVisible(true);
+      setIsStreamInitializeModalOpen(false);
 
-    startStreaming(id);
+      setStreamInitializeData({
+        id,
+        title,
+        description,
+        thumbnail_url,
+        push_url,
+        broadcast_url,
+      });
+
+      openNotifyModal(
+        NotifyModalType.SUCCESS,
+        modalTexts.stream.successStart.title,
+        modalTexts.stream.successStart.description
+      );
+
+      startStreaming(data.id);
+    }
   };
 
   // Cancels streaming. Stops using webcam and audio.
@@ -393,6 +425,22 @@ const LiveStreamWebcam = () => {
             </div>
 
             <div className="bottom-0 flex items-center justify-center">
+              {streamInitializedData && streamInitializedData?.id && (
+                <div className="absolute left-5">
+                  <Popover>
+                    <PopoverTrigger>
+                      <Button variant="outline" size="sm">
+                        <LetterText />
+                        Details
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent side="bottom">
+                      <StreamDetailsCard data={streamInitializedData} />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
+
               <div className="flex gap-3">
                 <Button
                   onClick={handleToggleMic}

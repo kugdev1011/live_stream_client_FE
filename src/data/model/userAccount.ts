@@ -133,7 +133,7 @@ export const isAuthorized = (pathname: string): boolean => {
 
   if (currentUser && !currentUser?.id && !currentUser?.role_type) return false;
 
-  if (LEFT_MAIN_MENU[currentUser.role_type as USER_ROLE].includes(pathname))
+  if (LEFT_MAIN_MENU[currentUser.role_type as USER_ROLE]?.includes(pathname))
     return true;
 
   return false;
