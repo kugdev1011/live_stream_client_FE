@@ -14,6 +14,8 @@ import {
   HISTORY_PATH,
   HOME_PATH,
   LIKED_VIDEOS_PATH,
+  LIVE_STREAM_PATH,
+  LIVE_STREAM_WEBCAM_PATH,
   LOGIN_PATH,
   LOGOUT_PATH,
   PRIVACY_DOCS_PATH,
@@ -26,10 +28,13 @@ import {
 import Register from './pages/Auth/Register';
 import Login from './pages/Auth/Login';
 import ProtectedRoute from './components/ProtectedRoute';
-import Privacy from './pages/Privacy';
-import TermsOfServices from './pages/TermsOfServices';
+import Privacy from './pages/public/Privacy';
+import TermsOfServices from './pages/public/TermsOfServices';
 import TestLiveStream from './pages/TestLiveStream';
 import LogoutPage from './pages/Auth/Logout';
+import LiveStream from './pages/LiveStream';
+import LiveStreamWebcam from './pages/LiveStream/Webcam';
+import React from 'react';
 
 function App() {
   return (
@@ -57,6 +62,14 @@ function App() {
           path={SAVED_VIDEOS_PATH}
           element={<ProtectedRoute element={<SavedVideos />} />}
         />
+        <Route
+          path={LIVE_STREAM_PATH}
+          element={<ProtectedRoute element={<LiveStream />} />}
+        />
+        <Route
+          path={LIVE_STREAM_WEBCAM_PATH}
+          element={<ProtectedRoute element={<LiveStreamWebcam />} />}
+        />
         <Route path={LOGOUT_PATH} element={<LogoutPage />} />
 
         {/* Testings */}
@@ -76,4 +89,4 @@ function App() {
   );
 }
 
-export default App;
+export default React.memo(App);

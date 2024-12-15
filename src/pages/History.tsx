@@ -1,9 +1,12 @@
 import AppLayout from '@/layouts/AppLayout';
+import LayoutHeading from '@/layouts/LayoutHeading';
+
+const title = 'History';
 
 const History = () => {
   return (
-    <AppLayout>
-      <h1 className="text-xl font-bold">History</h1>
+    <AppLayout title={title}>
+      <LayoutHeading title={title} />
     </AppLayout>
   );
 };

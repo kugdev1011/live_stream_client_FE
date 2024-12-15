@@ -3,7 +3,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   Sidebar,
   SidebarContent,
@@ -20,18 +20,21 @@ import { ModeSwitcher } from '@/components/ModeSwitcher';
 import useUserAccount from '@/hooks/useUserAccount';
 import { UserAccountModel } from '@/data/model/userAccount';
 import { useProfileNavItems } from '@/hooks/useProfileNavItems';
+import DefaultPf from '@/assets/images/pf.jpeg';
 
-const UserAvatar = () => {
+const UserAvatar = React.memo(() => {
   const [isOpen, setIsOpen] = useState(false);
 
   const profileNavItems = useProfileNavItems();
   const currentUser: UserAccountModel = useUserAccount();
+  const avatarUrl = currentUser.avatar_file_name || DefaultPf;
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Avatar className="w-8 h-8 cursor-pointer">
-          <AvatarImage src="https://github.com/shadcn.png" />
+          {/* <AvatarImage src={avatarUrl} /> */}
+          <img src={avatarUrl} />
           <AvatarFallback>PF</AvatarFallback>
         </Avatar>
       </PopoverTrigger>
@@ -43,7 +46,8 @@ const UserAvatar = () => {
           <SidebarContent>
             <div className="flex gap-2 items-center justify-start py-3 pb-2 px-4">
               <Avatar className="w-8 h-8">
-                <AvatarImage src="https://github.com/shadcn.png" />
+                {/* <AvatarImage src={avatarUrl} /> */}
+                <img src={avatarUrl} />
                 <AvatarFallback>PF</AvatarFallback>
               </Avatar>
               <div className="flex flex-col gap-1">
@@ -83,6 +87,6 @@ const UserAvatar = () => {
       </PopoverContent>
     </Popover>
   );
-};
+});
 
 export default UserAvatar;

@@ -4,12 +4,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '../../components/ui/sidebar';
+import { useNavigate } from 'react-router-dom';
+import { HOME_PATH } from '@/data/route';
 
 const Logo = () => {
+  const navigate = useNavigate();
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <SidebarMenuButton
+          onClick={() => navigate(HOME_PATH)}
           size="lg"
           className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
         >
