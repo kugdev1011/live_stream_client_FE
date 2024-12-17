@@ -19,14 +19,14 @@ import ImageUpload from '@/components/ImageUpload';
 import { Separator } from '@/components/ui/separator';
 import { DialogClose } from '@radix-ui/react-dialog';
 import { initializeStream, StreamInitializeError } from '@/services/stream';
-import { STREAM_TYPE } from '@/types/stream';
+import { STREAM_TYPE } from '@/data/types/stream';
 import AppAlert from '@/components/AppAlert';
 import { useSidebar } from '@/components/ui/sidebar';
-import { StreamInitializeResponse } from '@/data/dto/stream';
+import { StreamDetailsResponse } from '@/data/dto/stream';
 
 interface ComponentProps {
   isOpen: boolean;
-  onSuccess: (data: StreamInitializeResponse) => void;
+  onSuccess: (data: StreamDetailsResponse) => void;
   onClose: () => void;
 }
 

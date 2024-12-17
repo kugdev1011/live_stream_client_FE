@@ -8,7 +8,7 @@ import { Radio } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { LIVE_STREAM_PATH } from '@/data/route';
 import useUserAccount from '@/hooks/useUserAccount';
-import { USER_ROLE } from '@/types/role';
+import { USER_ROLE } from '@/data/types/role';
 import React from 'react';
 
 const AppHeader = React.memo(({ title }: { title?: string }) => {
@@ -17,7 +17,7 @@ const AppHeader = React.memo(({ title }: { title?: string }) => {
   const handleGoLive = () => navigate(LIVE_STREAM_PATH);
 
   return (
-    <header className="flex sticky top-0 py-3 bg-background border-b shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:py-3">
+    <header className="flex sticky top-0 py-3 bg-background border-b shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:py-3 z-50">
       <div className="px-4 flex items-center gap-1 md:hidden">
         <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-sidebar-primary-foreground">
           {siteData.logo && <siteData.logo />}

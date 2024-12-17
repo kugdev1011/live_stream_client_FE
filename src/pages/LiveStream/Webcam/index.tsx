@@ -28,22 +28,38 @@ import { modalTexts } from '@/data/stream';
 import Chat from '@/components/Chat';
 import LiveIndicator from './LiveIndicator';
 import ResourcePermissionDeniedOverlay from './ResourcePermissionDeniedOverlay';
-import { StreamInitializeResponse } from '@/data/dto/stream';
+import { StreamDetailsResponse } from '@/data/dto/stream';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
 import StreamDetailsCard from './StreamDetailsCard';
+import {
+  LiveInteractionType,
+  LiveInitialStatsResponse,
+  LiveReactionRequest,
+  LiveReactionResponse,
+  LiveCommentRequest,
+  isLiveCommentInfoObj,
+  LiveCommentInfo,
+} from '@/data/dto/chat';
+import { OnReactOnLiveParams } from '@/components/Chat/Reactions';
+import _ from 'lodash';
+import useUserAccount from '@/hooks/useUserAccount';
+import { isReactionStatsObj } from '@/data/chat';
 
 const title = 'Go Live';
 
 const LiveStreamWebcam = () => {
   const navigate = useNavigate();
 
-  const wsRef = useRef<WebSocket | null>(null);
+  const streamWsRef = useRef<WebSocket | null>(null);
+  const chatWsRef = useRef<WebSocket | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const currentUser = useUserAccount();
 
   const [isResourcePermissionDenied, setIsResourcePermissionDenied] =
     useState(false);
@@ -56,14 +72,21 @@ const LiveStreamWebcam = () => {
   const [isStreamInitializeModelOpen, setIsStreamInitializeModalOpen] =
     useState(false);
   const [isChatVisible, setIsChatVisible] = useState(false);
-  const [streamInitializedData, setStreamInitializeData] =
-    useState<StreamInitializeResponse>({
-      id: null,
-      title: null,
-      description: null,
-      thumbnail_url: null,
-      push_url: null,
-      broadcast_url: null,
+  const [streamDetails, setStreamDetails] = useState<StreamDetailsResponse>({
+    id: null,
+    title: null,
+    description: null,
+    thumbnail_url: null,
+    push_url: null,
+    broadcast_url: null,
+  });
+  const [liveInitialStats, setLiveInitialStats] =
+    useState<LiveInitialStatsResponse>({
+      type: LiveInteractionType.INITIAL,
+      comments: [],
+      like_count: 0,
+      like_info: {},
+      current_like_type: undefined,
     });
   const [notifyModal, setNotifyModal] = useState<NotificationModalProps>({
     type: NotifyModalType.SUCCESS,
@@ -106,9 +129,7 @@ const LiveStreamWebcam = () => {
   };
 
   // Shows success modal after submitting stream initialization steps
-  const handleInitializeStreamSuccess = (
-    data: StreamInitializeResponse
-  ): void => {
+  const handleInitializeStreamSuccess = (data: StreamDetailsResponse): void => {
     if (data.id) {
       const { id, title, description, thumbnail_url, push_url, broadcast_url } =
         data;
@@ -117,7 +138,7 @@ const LiveStreamWebcam = () => {
       setIsChatVisible(true);
       setIsStreamInitializeModalOpen(false);
 
-      setStreamInitializeData({
+      setStreamDetails({
         id,
         title,
         description,
@@ -162,7 +183,7 @@ const LiveStreamWebcam = () => {
       `${wsURL}/${id}?token=${encodeURIComponent(token)}`
     );
 
-    wsRef.current = ws;
+    streamWsRef.current = ws;
 
     ws.onopen = () => {
       setIsStreamStarted(true);
@@ -198,6 +219,137 @@ const LiveStreamWebcam = () => {
     };
   };
 
+  useEffect(() => {
+    if (isStreamStarted && streamDetails) {
+      const token = retrieveAuthToken();
+      if (!token) return;
+
+      const chatWsURL = import.meta.env.VITE_WS_STREAM_URL;
+      const chatWs = new WebSocket(
+        `${chatWsURL}/${
+          streamDetails.id
+        }/interaction?token=${encodeURIComponent(token)}`
+      );
+      chatWsRef.current = chatWs;
+
+      chatWs.onopen = () => {
+        console.log('WebSocket connection for chat established');
+        setIsChatVisible(true);
+      };
+
+      chatWs.onmessage = (event) => {
+        try {
+          const response = JSON.parse(event.data);
+
+          if (response && response?.type === LiveInteractionType.INITIAL) {
+            setLiveInitialStats(response);
+          } else if (response && response?.type === LiveInteractionType.LIKE) {
+            const liveReactionResponse = response as LiveReactionResponse;
+            setLiveInitialStats((prevStats) => {
+              const { like_type, like_status } = liveReactionResponse.data;
+
+              if (!like_status) return prevStats;
+
+              const updatedStats = { ...prevStats };
+              updatedStats.current_like_type = like_type;
+
+              return updatedStats;
+            });
+          } else if (_.isEmpty(response)) {
+            setLiveInitialStats((prevStats) => {
+              const updatedStats = {
+                ...prevStats,
+                like_count: 0,
+                like_info: {},
+                current_like_type: undefined,
+              };
+              return updatedStats;
+            });
+          } else if (response && isLiveCommentInfoObj(response)) {
+            setLiveInitialStats((prevStats) => {
+              const updatedStats = {
+                ...prevStats,
+                comments: [
+                  ...prevStats.comments,
+                  response,
+                ] as LiveCommentInfo[],
+              };
+              return updatedStats;
+            });
+          } else if (response && isReactionStatsObj(response)) {
+            setLiveInitialStats((prevStats) => {
+              const updatedStats = {
+                ...prevStats,
+                like_count: response?.total || prevStats.like_count,
+                like_info: { ...response },
+              };
+              return updatedStats;
+            });
+          }
+        } catch (err) {
+          console.error('Error parsing WebSocket message:', err);
+        }
+      };
+
+      chatWs.onclose = () => {
+        console.log('Chat WebSocket connection closed');
+        setIsChatVisible(false);
+
+        if (chatWs.readyState === WebSocket.OPEN) {
+          chatWs.close();
+        }
+      };
+
+      chatWs.onerror = (err) => {
+        console.error('Chat WebSocket error:', err);
+        setIsChatVisible(false);
+
+        if (chatWs.readyState === WebSocket.OPEN) {
+          chatWs.close();
+        }
+      };
+    }
+
+    return () => {
+      if (chatWsRef.current?.readyState === WebSocket.OPEN) {
+        chatWsRef.current.close();
+      }
+    };
+  }, [isStreamStarted, streamDetails]);
+
+  //
+  const handleReactOnLive = ({ reaction }: OnReactOnLiveParams) => {
+    if (!chatWsRef.current || chatWsRef.current.readyState !== WebSocket.OPEN) {
+      console.error('Chat WebSocket is not open');
+      return;
+    }
+
+    const likeStatus = liveInitialStats.current_like_type !== reaction;
+    const message: LiveReactionRequest = {
+      type: LiveInteractionType.LIKE,
+      data: {
+        like_status: likeStatus,
+        like_type: reaction,
+      },
+    };
+
+    chatWsRef.current.send(JSON.stringify(message));
+  };
+
+  const handleCommentOnLive = (content: string) => {
+    if (!chatWsRef.current || chatWsRef.current.readyState !== WebSocket.OPEN) {
+      console.error('Chat WebSocket is not open');
+      return;
+    }
+
+    const message: LiveCommentRequest = {
+      type: LiveInteractionType.COMMENT,
+      data: { content },
+    };
+
+    chatWsRef.current.send(JSON.stringify(message));
+  };
+
   // Shows confirm modal to end stream
   const handleEndStream = () => {
     openConfirmModal(
@@ -214,9 +366,9 @@ const LiveStreamWebcam = () => {
     setIsStreamStarted(false);
 
     // End websocket
-    if (wsRef.current) {
-      wsRef.current.close();
-      wsRef.current = null;
+    if (streamWsRef.current) {
+      streamWsRef.current.close();
+      streamWsRef.current = null;
     }
 
     stopWebcamAndAudio();
@@ -260,7 +412,7 @@ const LiveStreamWebcam = () => {
     // If the scaled height exceeds the container height, limit it
     if (scaledHeight > containerHeight) {
       return {
-        width: `${scaledWidth}px`, // scale based on height - containerHeight * aspectRatio
+        width: `${containerHeight * aspectRatio}px`, // scale based on height - containerHeight * aspectRatio
         height: `${containerHeight}px`, // scale based on container height
       };
     }
@@ -294,6 +446,7 @@ const LiveStreamWebcam = () => {
     navigate(LIVE_STREAM_PATH);
   };
 
+  // Open camera and mic as soon as this page is rendered
   useEffect(() => {
     const startWebcam = async () => {
       try {
@@ -319,8 +472,8 @@ const LiveStreamWebcam = () => {
         const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
         tracks.forEach((track) => track.stop());
       }
-      if (wsRef.current) {
-        wsRef.current.close();
+      if (streamWsRef.current) {
+        streamWsRef.current.close();
       }
     };
   }, []);
@@ -393,7 +546,7 @@ const LiveStreamWebcam = () => {
             onClose={handleInitializeStreamModalToggle}
           />
 
-          <div className="flex flex-col w-full h-full gap-3 overflow-hidden">
+          <div className="flex flex-col w-full h-full gap-3 overflow-hidden box-border">
             <div className="flex w-full h-full items-center justify-center overflow-hidden">
               {/* Video and Chat Layout */}
               <div className="flex flex-row w-full h-full gap-3">
@@ -401,7 +554,12 @@ const LiveStreamWebcam = () => {
                 <div className="flex-1 flex items-center justify-center border rounded-md overflow-hidden relative">
                   {isStreamStarted && (
                     <div className="absolute top-3 left-3">
-                      <LiveIndicator isStreamStarted={isStreamStarted} />
+                      <LiveIndicator
+                        isStreamStarted={isStreamStarted}
+                        likeCount={liveInitialStats.like_count}
+                        commentCount={liveInitialStats.comments?.length}
+                        viewerCount={0} // TODO: viewer count
+                      />
                     </div>
                   )}
                   <video
@@ -418,14 +576,20 @@ const LiveStreamWebcam = () => {
                 {/* Chat UI */}
                 {isStreamStarted && isChatVisible && (
                   <div className="w-1/4 flex flex-col h-full border rounded-md overflow-hidden">
-                    <Chat onToggleVisibility={handleToggleChat} />
+                    <Chat
+                      currentUser={currentUser}
+                      initialStats={liveInitialStats}
+                      onToggleVisibility={handleToggleChat}
+                      onReactOnLive={handleReactOnLive}
+                      onCommentOnLive={handleCommentOnLive}
+                    />
                   </div>
                 )}
               </div>
             </div>
 
             <div className="bottom-0 flex items-center justify-center">
-              {streamInitializedData && streamInitializedData?.id && (
+              {streamDetails && streamDetails?.id && (
                 <div className="absolute left-5">
                   <Popover>
                     <PopoverTrigger>
@@ -435,7 +599,7 @@ const LiveStreamWebcam = () => {
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent side="bottom">
-                      <StreamDetailsCard data={streamInitializedData} />
+                      <StreamDetailsCard data={streamDetails} />
                     </PopoverContent>
                   </Popover>
                 </div>

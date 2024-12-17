@@ -1,4 +1,4 @@
-export interface StreamInitializeResponse {
+export interface StreamDetailsResponse {
   id: number | null;
   title: string | null;
   description: string | null;

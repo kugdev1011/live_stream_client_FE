@@ -1,4 +1,4 @@
-import { USER_ROLE } from '@/types/role';
+import { USER_ROLE } from '@/data/types/role';
 import { Frame, History, Import, Podcast, Rss, ThumbsUp } from 'lucide-react';
 
 export const APP_PREFIX_PATH = '/app';

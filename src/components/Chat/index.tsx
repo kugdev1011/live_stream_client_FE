@@ -10,18 +10,28 @@ import {
   CardHeader,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { initialMessages } from './data';
-import AvatarPhoto from '@/assets/images/pf.jpeg';
 import MessageItem from './MessageItem';
+import Reactions, { OnReactOnLiveParams } from './Reactions';
+import { LiveCommentInfo, LiveInitialStatsResponse } from '@/data/dto/chat';
+import { UserAccountModel } from '@/data/model/userAccount';
 
 interface ComponentProps {
+  currentUser: UserAccountModel;
+  initialStats: LiveInitialStatsResponse;
   onToggleVisibility: () => void;
+  onReactOnLive: (params: OnReactOnLiveParams) => void;
+  onCommentOnLive: (content: string) => void;
 }
 
 const Chat = (props: ComponentProps) => {
-  const { onToggleVisibility } = props;
+  const {
+    currentUser,
+    initialStats,
+    onToggleVisibility,
+    onReactOnLive,
+    onCommentOnLive,
+  } = props;
 
-  const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState('');
   const [contentHeight, setContentHeight] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -33,16 +43,7 @@ const Chat = (props: ComponentProps) => {
   const handleMessageSend = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (inputLength === 0) return;
-    setMessages([
-      ...messages,
-      {
-        avatarUrl: AvatarPhoto,
-        username: 'user98234',
-        role: 'user',
-        content: input,
-        createdAt: '2024-12-09 15:45:41.444898+06:30',
-      },
-    ]);
+    onCommentOnLive(input);
     setInput('');
   };
 
@@ -62,11 +63,11 @@ const Chat = (props: ComponentProps) => {
     if (contentRef.current) {
       contentRef.current.scrollTop = contentRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [initialStats.comments]);
 
   return (
     <Card
-      className="h-full flex flex-col border-none p-0 overflow-hidden box-border"
+      className="h-full flex flex-col border-none overflow-hidden box-border"
       ref={cardRef}
     >
       <CardHeader ref={headerRef} className="border-b py-1 pl-3.5 pr-1">
@@ -84,46 +85,60 @@ const Chat = (props: ComponentProps) => {
       <CardContent
         ref={contentRef}
         style={{ height: contentHeight + 'px', overflow: 'auto' }}
-        className="px-3 pb-3"
+        className="px-2 pb-3"
       >
         <div className="space-y-2 pt-2">
-          {messages.map((message, index) => (
+          {initialStats?.comments?.map((message: LiveCommentInfo) => (
             <div
-              key={index}
+              key={message.id}
               className={cn(
-                'w-max gap-2 rounded-md px-2 py-1 text-xs max-w-[95%] text-primary-foreground/90',
-                message.role === 'user'
-                  ? 'ml-auto bg-primary/50'
-                  : 'bg-muted/60'
+                'gap-0 rounded-md px-2 py-1 text-xs w-max max-w-[95%]',
+                message.username === currentUser.username
+                  ? 'ml-auto bg-primary text-white'
+                  : 'bg-muted dark:bg-muted/60'
               )}
             >
               <MessageItem
+                isSelfSent={message.username === currentUser.username}
                 content={message.content}
-                avatarUrl={message.avatarUrl}
-                username={message.username}
-                createdAt={message.createdAt}
+                avatarUrl={message.avatar_url}
+                displayName={message.display_name}
+                createdAt={message.created_at}
               />
             </div>
           ))}
         </div>
       </CardContent>
-      <CardFooter className="p-2 border-t" ref={footerRef}>
-        <form
-          onSubmit={handleMessageSend}
-          className="flex w-full items-center space-x-2"
-        >
-          <Input
-            id="message"
-            placeholder="Chat..."
-            className="flex-1"
-            autoComplete="off"
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
+      <CardFooter
+        className="p-2 border-t justify-stretch box-border"
+        ref={footerRef}
+      >
+        <div className="w-full">
+          <Reactions
+            stats={{
+              likeCount: initialStats.like_count,
+              likeInfo: initialStats.like_info,
+              currentReactionType: initialStats.current_like_type,
+            }}
+            onReactOnLive={onReactOnLive}
           />
-          <Button type="submit" size="icon" disabled={inputLength === 0}>
-            <Send />
-          </Button>
-        </form>
+          <form
+            onSubmit={handleMessageSend}
+            className="flex w-full items-center space-x-2 pt-1"
+          >
+            <Input
+              id="message"
+              placeholder="Chat..."
+              className="flex-1 dark:bg-black bg-white"
+              autoComplete="off"
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+            />
+            <Button type="submit" size="icon" disabled={inputLength === 0}>
+              <Send />
+            </Button>
+          </form>
+        </div>
       </CardFooter>
     </Card>
   );

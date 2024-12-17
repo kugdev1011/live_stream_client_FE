@@ -1,7 +1,7 @@
 import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
 import moment from 'moment-timezone';
 import { LEFT_MAIN_MENU } from '../route';
-import { USER_ROLE } from '@/types/role';
+import { USER_ROLE } from '@/data/types/role';
 
 const STORAGE_KEY = 'authInfo';
 
