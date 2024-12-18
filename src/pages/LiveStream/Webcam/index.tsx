@@ -38,7 +38,6 @@ import {
 import { OnReactOnLiveParams } from '@/components/Chat/Reactions';
 import _ from 'lodash';
 import useUserAccount from '@/hooks/useUserAccount';
-import { isReactionStatsObj } from '@/data/chat';
 import ControlButtons from './ControlButtons';
 import StreamerAvatar from '@/components/StreamerAvatar';
 import { getFormattedDate } from '@/lib/date-time';
@@ -441,12 +440,15 @@ const LiveStreamWebcam = () => {
             });
           }
           // On getting reactions stats
-          else if (response && isReactionStatsObj(response)) {
+          else if (
+            response &&
+            response?.type === LiveInteractionType.LIKE_INFO
+          ) {
             setLiveInitialStats((prevStats) => {
               const updatedStats = {
                 ...prevStats,
-                like_count: response?.total || prevStats.like_count,
-                like_info: { ...response },
+                like_count: response?.data?.total || prevStats.like_count,
+                like_info: { ...response?.data },
               };
               return updatedStats;
             });
