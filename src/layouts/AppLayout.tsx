@@ -16,7 +16,7 @@ export const AppLayout = ({ title, children }: AppLayoutProps) => {
         <AppSidebar />
         <SidebarInset>
           <AppHeader title={title} />
-          <main className="flex flex-1 flex-col gap-4 p-4 pt-4 overflow-hidden">
+          <main className="flex flex-1 flex-col gap-4 p-6 pt-4 overflow-hidden">
             {children}
           </main>
         </SidebarInset>

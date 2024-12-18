@@ -1,15 +1,7 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout';
 import LayoutHeading from '@/layouts/LayoutHeading';
-import {
-  Ban,
-  CircleSlash,
-  LetterText,
-  MessageSquare,
-  Mic,
-  MicOff,
-  Radio,
-} from 'lucide-react';
+import { LetterText, MessageSquare } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import DetailsForm from './DetailsForm';
 import { useNavigate } from 'react-router-dom';
@@ -25,7 +17,6 @@ import {
 } from '@/components/ConfirmationModal';
 import { NotifyModalType } from '@/components/UITypes';
 import { modalTexts } from '@/data/stream';
-import Chat from '@/components/Chat';
 import LiveIndicator from './LiveIndicator';
 import ResourcePermissionDeniedOverlay from './ResourcePermissionDeniedOverlay';
 import { StreamDetailsResponse } from '@/data/dto/stream';
@@ -48,18 +39,23 @@ import { OnReactOnLiveParams } from '@/components/Chat/Reactions';
 import _ from 'lodash';
 import useUserAccount from '@/hooks/useUserAccount';
 import { isReactionStatsObj } from '@/data/chat';
+import ControlButtons from './ControlButtons';
+import StreamerAvatar from '@/components/StreamerAvatar';
+import { getFormattedDate } from '@/lib/date-time';
+import Chat from '@/components/Chat';
+import { useIsMobile } from '@/hooks/useMobile';
 
 const title = 'Go Live';
 
 const LiveStreamWebcam = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const currentUser = useUserAccount();
 
   const streamWsRef = useRef<WebSocket | null>(null);
   const chatWsRef = useRef<WebSocket | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const currentUser = useUserAccount();
 
   const [isResourcePermissionDenied, setIsResourcePermissionDenied] =
     useState(false);
@@ -67,7 +63,7 @@ const LiveStreamWebcam = () => {
     width: 0,
     height: 0,
   });
-  const [isStreamStarted, setIsStreamStarted] = useState(false); // tempory state
+  const [isStreamStarted, setIsStreamStarted] = useState(false);
   const [isMicOn, setIsMicOn] = useState(true); // Default to mic on
   const [isStreamInitializeModelOpen, setIsStreamInitializeModalOpen] =
     useState(false);
@@ -79,6 +75,7 @@ const LiveStreamWebcam = () => {
     thumbnail_url: null,
     push_url: null,
     broadcast_url: null,
+    created_at: null,
   });
   const [liveInitialStats, setLiveInitialStats] =
     useState<LiveInitialStatsResponse>({
@@ -135,7 +132,7 @@ const LiveStreamWebcam = () => {
         data;
 
       setIsStreamStarted(true);
-      setIsChatVisible(true);
+      if (!isMobile) setIsChatVisible(true);
       setIsStreamInitializeModalOpen(false);
 
       setStreamDetails({
@@ -145,6 +142,7 @@ const LiveStreamWebcam = () => {
         thumbnail_url,
         push_url,
         broadcast_url,
+        created_at: data?.created_at,
       });
 
       openNotifyModal(
@@ -234,16 +232,19 @@ const LiveStreamWebcam = () => {
 
       chatWs.onopen = () => {
         console.log('WebSocket connection for chat established');
-        setIsChatVisible(true);
+        if (!isMobile) setIsChatVisible(true);
       };
 
       chatWs.onmessage = (event) => {
         try {
           const response = JSON.parse(event.data);
 
+          // On receiving initial message
           if (response && response?.type === LiveInteractionType.INITIAL) {
             setLiveInitialStats(response);
-          } else if (response && response?.type === LiveInteractionType.LIKE) {
+          }
+          // On receiving a reaction
+          else if (response && response?.type === LiveInteractionType.LIKE) {
             const liveReactionResponse = response as LiveReactionResponse;
             setLiveInitialStats((prevStats) => {
               const { like_type, like_status } = liveReactionResponse.data;
@@ -255,7 +256,9 @@ const LiveStreamWebcam = () => {
 
               return updatedStats;
             });
-          } else if (_.isEmpty(response)) {
+          }
+          // On removing a reaction
+          else if (_.isEmpty(response)) {
             setLiveInitialStats((prevStats) => {
               const updatedStats = {
                 ...prevStats,
@@ -265,7 +268,9 @@ const LiveStreamWebcam = () => {
               };
               return updatedStats;
             });
-          } else if (response && isLiveCommentInfoObj(response)) {
+          }
+          // On commenting
+          else if (response && isLiveCommentInfoObj(response)) {
             setLiveInitialStats((prevStats) => {
               const updatedStats = {
                 ...prevStats,
@@ -276,7 +281,9 @@ const LiveStreamWebcam = () => {
               };
               return updatedStats;
             });
-          } else if (response && isReactionStatsObj(response)) {
+          }
+          // On getting reactions stats
+          else if (response && isReactionStatsObj(response)) {
             setLiveInitialStats((prevStats) => {
               const updatedStats = {
                 ...prevStats,
@@ -317,7 +324,6 @@ const LiveStreamWebcam = () => {
     };
   }, [isStreamStarted, streamDetails]);
 
-  //
   const handleReactOnLive = ({ reaction }: OnReactOnLiveParams) => {
     if (!chatWsRef.current || chatWsRef.current.readyState !== WebSocket.OPEN) {
       console.error('Chat WebSocket is not open');
@@ -547,9 +553,9 @@ const LiveStreamWebcam = () => {
           />
 
           <div className="flex flex-col w-full h-full gap-3 overflow-hidden box-border">
-            <div className="flex w-full h-full items-center justify-center overflow-hidden">
+            <div className="flex w-full lg:h-full items-center justify-center overflow-hidden">
               {/* Video and Chat Layout */}
-              <div className="flex flex-row w-full h-full gap-3">
+              <div className="flex flex-col lg:flex-row w-full h-full gap-3">
                 {/* Webcam View */}
                 <div className="flex-1 flex items-center justify-center border rounded-md overflow-hidden relative">
                   {isStreamStarted && (
@@ -562,20 +568,33 @@ const LiveStreamWebcam = () => {
                       />
                     </div>
                   )}
+                  <div className="absolute bottom-3 z-10 inline md:hidden">
+                    <ControlButtons
+                      isMicOn={isMicOn}
+                      isStreamStarted={isStreamStarted}
+                      onToggleMic={handleToggleMic}
+                      onEndStream={handleEndStream}
+                      onInitializeStreamModalToggle={
+                        handleInitializeStreamModalToggle
+                      }
+                      onInitializeStreamCancel={handleInitializeStreamCancel}
+                    />
+                  </div>
                   <video
                     ref={videoRef}
                     autoPlay
                     playsInline
+                    draggable={false}
                     onLoadedMetadata={loadVideoMetadata}
                     style={getScaledVideoStyle()}
-                    className="object-contain max-h-full"
+                    className="object-contain lg:max-h-full"
                   />
                   <canvas ref={canvasRef} style={{ display: 'none' }} />
                 </div>
 
-                {/* Chat UI */}
+                {/* Chat */}
                 {isStreamStarted && isChatVisible && (
-                  <div className="w-1/4 flex flex-col h-full border rounded-md overflow-hidden">
+                  <div className="w-full lg:w-1/4 flex flex-col h-[50vh] md:h-full border rounded-md overflow-hidden">
                     <Chat
                       currentUser={currentUser}
                       initialStats={liveInitialStats}
@@ -588,69 +607,82 @@ const LiveStreamWebcam = () => {
               </div>
             </div>
 
-            <div className="bottom-0 flex items-center justify-center">
+            {/* Control bars */}
+            <div className="bottom-0 flex items-center md:justify-center">
+              {/* Stream details card */}
               {streamDetails && streamDetails?.id && (
-                <div className="absolute left-5">
-                  <Popover>
-                    <PopoverTrigger>
-                      <Button variant="outline" size="sm">
-                        <LetterText />
-                        Details
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent side="bottom">
-                      <StreamDetailsCard data={streamDetails} />
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                <>
+                  <div className="hidden md:inline-block absolute left-5">
+                    <Popover>
+                      <PopoverTrigger>
+                        <Button variant="ghost" size="sm">
+                          <LetterText />
+                          Details
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent side="bottom">
+                        <StreamDetailsCard data={streamDetails} />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  {/* Start - Mobile stream details card */}
+                  {!isChatVisible && (
+                    <div className="block w-full md:hidden">
+                      <div className="flex justify-between items-start">
+                        <StreamerAvatar />
+                        <Button
+                          onClick={handleToggleChat}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <MessageSquare /> Show Chat
+                        </Button>
+                      </div>
+                      <div className="mt-3 bg-muted p-4 rounded-lg">
+                        <p className="text-xl font-semibold">
+                          {streamDetails?.title || 'No Title Was Given'}
+                        </p>
+                        <p className="text-sm">
+                          <span className="text-xs text-muted-foreground">
+                            Streamed live at
+                          </span>{' '}
+                          {getFormattedDate(
+                            new Date(streamDetails?.created_at || new Date()),
+                            true
+                          )}
+                        </p>
+                        <p className="text-blue-400">
+                          #health&wealthy #streaming #live #ontv
+                        </p>
+                        <p className="mt-2">
+                          {streamDetails?.description ||
+                            'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Alias, eligendi veniam a, ut fuga consequatur optio voluptas reiciendis, debitis unde harum! Soluta, amet voluptatibus fugit perspiciatis maxime exercitationem ipsam quisquam.'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {/* End - Mobile stream details card */}
+                </>
               )}
 
-              <div className="flex gap-3">
-                <Button
-                  onClick={handleToggleMic}
-                  variant="ghost"
-                  size="sm"
-                  className="rounded-full px-2.5"
-                >
-                  {isMicOn ? <Mic /> : <MicOff />}
-                </Button>
-                {isStreamStarted ? (
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="rounded-full"
-                    onClick={handleEndStream}
-                  >
-                    <CircleSlash /> End Stream
-                  </Button>
-                ) : (
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      className="rounded-full"
-                      onClick={handleInitializeStreamModalToggle}
-                    >
-                      <Radio /> Start Stream
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="rounded-full"
-                      onClick={handleInitializeStreamCancel}
-                    >
-                      <Ban /> Cancel
-                    </Button>
-                  </div>
-                )}
+              {/* Control buttons */}
+              <div className="hidden md:inline-block">
+                <ControlButtons
+                  isMicOn={isMicOn}
+                  isStreamStarted={isStreamStarted}
+                  onToggleMic={handleToggleMic}
+                  onEndStream={handleEndStream}
+                  onInitializeStreamModalToggle={
+                    handleInitializeStreamModalToggle
+                  }
+                  onInitializeStreamCancel={handleInitializeStreamCancel}
+                />
               </div>
-              <div className="absolute right-5">
+              {/* Chat toggle button */}
+              <div className="hidden md:inline-block absolute right-5">
                 {isStreamStarted && (
-                  <Button
-                    variant="ghost"
-                    className="rounded-full"
-                    onClick={handleToggleChat}
-                  >
-                    <MessageSquare /> Chat
+                  <Button variant="ghost" size="sm" onClick={handleToggleChat}>
+                    <MessageSquare /> {isChatVisible ? 'Hide' : 'Show'} chat
                   </Button>
                 )}
               </div>
