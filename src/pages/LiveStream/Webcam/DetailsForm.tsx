@@ -99,6 +99,14 @@ const DetailsForm = (props: ComponentProps) => {
 
     if (!!data && !_errors) {
       onSuccess(data);
+
+      // clean up
+      setSelectedCategories([]);
+      setThumbnailImage({
+        file: null,
+        preview: null,
+      });
+
       toggleSidebar();
     } else {
       if (_errors) {
