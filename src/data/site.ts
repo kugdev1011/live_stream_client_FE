@@ -1,4 +1,4 @@
-import { SiteData } from '@/types/ui/site';
+import { SiteData } from '@/data/types/ui/site';
 import { AudioWaveform } from 'lucide-react';
 
 export const siteData: SiteData = {

@@ -14,19 +14,19 @@ import RequiredInput from '@/components/RequiredInput';
 import FormErrorMessage from '@/components/FormErrorMsg';
 import { Textarea } from '@/components/ui/textarea';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Blocks, Camera, Podcast } from 'lucide-react';
+import { Blocks, Camera, Radio } from 'lucide-react';
 import ImageUpload from '@/components/ImageUpload';
 import { Separator } from '@/components/ui/separator';
 import { DialogClose } from '@radix-ui/react-dialog';
 import { initializeStream, StreamInitializeError } from '@/services/stream';
-import { STREAM_TYPE } from '@/types/stream';
+import { STREAM_TYPE } from '@/data/types/stream';
 import AppAlert from '@/components/AppAlert';
 import { useSidebar } from '@/components/ui/sidebar';
-import { StreamInitializeResponse } from '@/data/dto/stream';
+import { StreamDetailsResponse } from '@/data/dto/stream';
 
 interface ComponentProps {
   isOpen: boolean;
-  onSuccess: (data: StreamInitializeResponse) => void;
+  onSuccess: (data: StreamDetailsResponse) => void;
   onClose: () => void;
 }
 
@@ -300,14 +300,14 @@ const DetailsForm = (props: ComponentProps) => {
               )}
             </div>
           </div>
-          <DialogFooter className="p-5 pr-0">
+          <DialogFooter className="sm:flex gap-1 w-full px-0 py-5">
             <DialogClose asChild>
               <Button variant="destructive" onClick={onClose}>
                 Cancel
               </Button>
             </DialogClose>
             <Button type="submit" className="bg-green-600 hover:bg-green-800">
-              <Podcast /> Start Stream
+              <Radio /> Start Stream
             </Button>
           </DialogFooter>
         </form>

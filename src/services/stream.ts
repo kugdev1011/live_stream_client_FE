@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import { apiInitializeStream } from '@/api/stream';
 import { ServiceResponse } from '@/data/api';
-import { StreamInitializeResponse } from '@/data/dto/stream';
-import { STREAM_TYPE } from '@/types/stream';
+import { StreamDetailsResponse } from '@/data/dto/stream';
+import { STREAM_TYPE } from '@/data/types/stream';
 import { StreamInitializeRules } from '@/data/validations';
-import { StreamInitializeFields } from '@/types/stream';
+import { StreamInitializeFields } from '@/data/types/stream';
 
 export enum StreamInitializeError {
   INVALID_TITLE = 'INVALID_TITLE',
@@ -20,7 +20,7 @@ export const initializeStream = async ({
   streamType,
   thumbnailImage,
 }: StreamInitializeFields): Promise<
-  ServiceResponse<StreamInitializeResponse, StreamInitializeError>
+  ServiceResponse<StreamDetailsResponse, StreamInitializeError>
 > => {
   let errors: Partial<Record<StreamInitializeError, boolean>> = {};
   let titleFailure = false,
@@ -39,7 +39,7 @@ export const initializeStream = async ({
     streamTypeFailure = true;
   if (thumbnailImage === null) thumbnailImageFailure = true;
 
-  let result: StreamInitializeResponse | undefined = undefined;
+  let result: StreamDetailsResponse | undefined = undefined;
   let msg: string = '';
   if (
     !titleFailure &&

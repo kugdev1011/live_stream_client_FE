@@ -1,6 +1,6 @@
 import { liveStreamApi } from './utils';
-import { StreamInitializeFields } from '@/types/stream';
-import { StreamInitializeResponse } from '@/data/dto/stream';
+import { StreamInitializeFields } from '@/data/types/stream';
+import { StreamDetailsResponse } from '@/data/dto/stream';
 import { API_METHOD, ApiRequest, ApiResult, ApiService } from '@/data/api';
 
 const STREAM_API = '/streams';
@@ -11,7 +11,7 @@ export const apiInitializeStream = async ({
   description,
   streamType,
   thumbnailImage,
-}: StreamInitializeFields): Promise<ApiResult<StreamInitializeResponse>> => {
+}: StreamInitializeFields): Promise<ApiResult<StreamDetailsResponse>> => {
   const formData = new FormData();
   formData.append('title', title);
   formData.append('description', description || '');
@@ -29,7 +29,7 @@ export const apiInitializeStream = async ({
   const apiResponse = await liveStreamApi(request);
   const { success, data: responseData, code, message } = apiResponse;
 
-  let rp: StreamInitializeResponse = {} as StreamInitializeResponse;
+  let rp: StreamDetailsResponse = {} as StreamDetailsResponse;
   if (success) {
     rp = responseData?.data;
   }

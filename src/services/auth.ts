@@ -3,7 +3,7 @@ import { apiLogin, apiRegister } from '@/api/auth';
 import { ServiceResponse } from '@/data/api';
 import { LoginUserResponse, RegisterUserResponse } from '@/data/dto/auth';
 import { authAccount } from '@/data/model/userAccount';
-import { RegisterAccountFields } from '@/types/auth';
+import { RegisterAccountFields } from '@/data/types/auth';
 import { PasswordRules } from '@/data/validations';
 import moment from 'moment';
 

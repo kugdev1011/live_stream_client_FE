@@ -1,13 +1,16 @@
 import moment from 'moment';
-import { Users } from 'lucide-react';
+import { Heart, MessageSquare, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface ComponentProps {
   isStreamStarted: boolean;
+  viewerCount: number;
+  likeCount: number; // here, like means all types of emotions
+  commentCount: number;
 }
 
 const LiveIndicator = (props: ComponentProps) => {
-  const { isStreamStarted } = props;
+  const { isStreamStarted, viewerCount, likeCount, commentCount } = props;
 
   const [seconds, setSeconds] = useState(0);
 
@@ -35,7 +38,21 @@ const LiveIndicator = (props: ComponentProps) => {
       </div>
       <div className="flex items-center space-x-2 bg-white/70 backdrop-blur-md rounded-sm px-2 py-1 text-sm text-gray-800 shadow-md">
         <Users className="w-3 h-3" />
-        <span className="font-medium text-xs">0 Viewers</span>
+        <span className="font-medium text-xs">
+          {viewerCount || 0} <span className="hidden md:inline">Viewers</span>
+        </span>
+      </div>
+      <div className="flex items-center space-x-2 bg-white/70 backdrop-blur-md rounded-sm px-2 py-1 text-sm text-gray-800 shadow-md">
+        <Heart className="w-3 h-3" />
+        <span className="font-medium text-xs">
+          {likeCount || 0} <span className="hidden md:inline">Likes</span>
+        </span>
+      </div>
+      <div className="flex items-center space-x-2 bg-white/70 backdrop-blur-md rounded-sm px-2 py-1 text-sm text-gray-800 shadow-md">
+        <MessageSquare className="w-3 h-3" />
+        <span className="font-medium text-xs">
+          {commentCount || 0} <span className="hidden md:inline">Comments</span>
+        </span>
       </div>
     </div>
   );

@@ -6,16 +6,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { User } from 'lucide-react';
 
 interface ComponentProps {
+  isSelfSent: boolean;
   avatarUrl: string;
-  username: string;
+  displayName: string;
   content: string;
-  createdAt: string;
+  createdAt?: string;
 }
 
 const MessageItem = (props: ComponentProps) => {
-  const { avatarUrl, username, content, createdAt } = props;
+  const { isSelfSent, avatarUrl, displayName, content, createdAt } = props;
 
   return (
     <div className="p-0.5">
@@ -24,18 +26,26 @@ const MessageItem = (props: ComponentProps) => {
           <div className="flex gap-1">
             <Avatar className="w-5 h-5 cursor-pointer">
               <AvatarImage src={avatarUrl} />
-              <AvatarFallback>PF</AvatarFallback>
+              <AvatarFallback
+                className={`text-xs ${
+                  isSelfSent ? 'bg-purple-500' : 'bg-green-500'
+                }`}
+              >
+                <User className="w-3 h-3" />
+              </AvatarFallback>
             </Avatar>
-            <p className="text-justify">{username}</p>
+            <p className="text-justify">{displayName}</p>
           </div>
           <TooltipTrigger asChild>
             <p className="mt-1">{content}</p>
           </TooltipTrigger>
-          <TooltipContent className="bg-secondary">
-            <p className="text-xs">
-              {getFormattedDate(new Date(createdAt), true)}
-            </p>
-          </TooltipContent>
+          {createdAt && (
+            <TooltipContent className="bg-secondary">
+              <p className="text-xs">
+                {getFormattedDate(new Date(createdAt), true)}
+              </p>
+            </TooltipContent>
+          )}
         </Tooltip>
       </TooltipProvider>
     </div>

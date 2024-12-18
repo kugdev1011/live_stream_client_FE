@@ -1,7 +1,7 @@
 import { API_METHOD, ApiRequest, ApiResult, ApiService } from '@/data/api';
 import { LoginUserResponse, RegisterUserResponse } from '@/data/dto/auth';
 import { liveStreamApi } from './utils';
-import { RegisterAccountFields } from '@/types/auth';
+import { RegisterAccountFields } from '@/data/types/auth';
 
 const AUTH_API = '/auth';
 const LOGIN_API = AUTH_API + '/login';

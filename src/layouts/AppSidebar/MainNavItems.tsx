@@ -6,7 +6,7 @@ import {
 } from '@/components/ui/sidebar';
 import { HOME_PATH, LEFT_MAIN_MENU, ROUTE_PATH_INFO } from '@/data/route';
 import useUserAccount from '@/hooks/useUserAccount';
-import { USER_ROLE } from '@/types/role';
+import { USER_ROLE } from '@/data/types/role';
 import { NavLink, useLocation } from 'react-router-dom';
 
 export function MainNavItems() {

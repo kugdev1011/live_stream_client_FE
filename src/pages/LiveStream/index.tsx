@@ -61,11 +61,11 @@ const LiveStream = () => {
 
       <div className="container flex justify-center items-center">
         <Card className="shadow-none border-none">
-          <CardHeader>
+          <CardHeader className="px-0">
             <CardTitle>Go Live</CardTitle>
             <CardDescription>Pick the type of stream to begin.</CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4">
+          <CardContent className="grid gap-4 px-0">
             {data.map((opt, index) => (
               <div
                 className="flex items-start space-x-4 rounded-md border p-4"
