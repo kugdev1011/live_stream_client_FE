@@ -45,27 +45,18 @@ export const apiRegister = async ({
   displayName,
   password,
 }: RegisterAccountFields): Promise<ApiResult<RegisterUserResponse>> => {
-  // const requestBody = {
-  //   email,
-  //   username,
-  //   display_name: displayName,
-  //   password,
-  //   avatar,
-  // };
-
-  // note: api changed to accept avatar, so this needs to be form data.
-  const formData = new FormData();
-  formData.append('email', email);
-  formData.append('username', username);
-  formData.append('display_name', displayName);
-  formData.append('password', password);
-  // formData.append('avatar', null);
+  const requestBody = {
+    email,
+    username,
+    display_name: displayName,
+    password,
+  };
 
   const request: ApiRequest = {
     service: ApiService.liveStream,
     url: REGISTER_API,
     method: API_METHOD.POST,
-    data: formData,
+    data: requestBody,
     authToken: false,
   };
 

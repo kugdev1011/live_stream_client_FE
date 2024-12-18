@@ -9,12 +9,16 @@ const STREAM_INITIALIZE_API = STREAM_API + '/start';
 export const apiInitializeStream = async ({
   title,
   description,
+  categories,
   streamType,
   thumbnailImage,
 }: StreamInitializeFields): Promise<ApiResult<StreamDetailsResponse>> => {
   const formData = new FormData();
   formData.append('title', title);
   formData.append('description', description || '');
+  categories?.map((category) =>
+    formData.append('category_ids', JSON.stringify(Number(category)))
+  );
   formData.append('stream_type', streamType);
   formData.append('thumbnail', thumbnailImage || '');
 

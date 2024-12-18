@@ -1,6 +1,7 @@
 export type StreamInitializeFields = {
   title: string;
   description: string | undefined;
+  categories: string[];
   streamType: STREAM_TYPE;
   thumbnailImage: File | null;
 };

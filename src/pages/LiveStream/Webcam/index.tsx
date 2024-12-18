@@ -44,6 +44,9 @@ import StreamerAvatar from '@/components/StreamerAvatar';
 import { getFormattedDate } from '@/lib/date-time';
 import Chat from '@/components/Chat';
 import { useIsMobile } from '@/hooks/useMobile';
+import { fetchCategories } from '@/services/category';
+import { CategoryResponse } from '@/data/dto/category';
+import { getObjectsByIds, toHashtagStyle } from '@/lib/utils';
 
 const title = 'Go Live';
 
@@ -63,6 +66,9 @@ const LiveStreamWebcam = () => {
     width: 0,
     height: 0,
   });
+  const [streamCategories, setStreamCategories] = useState<CategoryResponse[]>(
+    []
+  );
   const [isStreamStarted, setIsStreamStarted] = useState(false);
   const [isMicOn, setIsMicOn] = useState(true); // Default to mic on
   const [isStreamInitializeModelOpen, setIsStreamInitializeModalOpen] =
@@ -75,7 +81,8 @@ const LiveStreamWebcam = () => {
     thumbnail_url: null,
     push_url: null,
     broadcast_url: null,
-    created_at: null,
+    category_ids: [],
+    started_at: null,
   });
   const [liveInitialStats, setLiveInitialStats] =
     useState<LiveInitialStatsResponse>({
@@ -128,8 +135,15 @@ const LiveStreamWebcam = () => {
   // Shows success modal after submitting stream initialization steps
   const handleInitializeStreamSuccess = (data: StreamDetailsResponse): void => {
     if (data.id) {
-      const { id, title, description, thumbnail_url, push_url, broadcast_url } =
-        data;
+      const {
+        id,
+        title,
+        description,
+        thumbnail_url,
+        push_url,
+        broadcast_url,
+        category_ids,
+      } = data;
 
       setIsStreamStarted(true);
       if (!isMobile) setIsChatVisible(true);
@@ -142,7 +156,8 @@ const LiveStreamWebcam = () => {
         thumbnail_url,
         push_url,
         broadcast_url,
-        created_at: data?.created_at,
+        category_ids,
+        started_at: null,
       });
 
       openNotifyModal(
@@ -177,13 +192,13 @@ const LiveStreamWebcam = () => {
 
     // Open WebSocket connection with token as a query parameter
     const wsURL = import.meta.env.VITE_WS_STREAM_URL;
-    const ws = new WebSocket(
+    const streamWs = new WebSocket(
       `${wsURL}/${id}?token=${encodeURIComponent(token)}`
     );
 
-    streamWsRef.current = ws;
+    streamWsRef.current = streamWs;
 
-    ws.onopen = () => {
+    streamWs.onopen = () => {
       setIsStreamStarted(true);
       console.log('WebSocket connection established');
 
@@ -195,26 +210,169 @@ const LiveStreamWebcam = () => {
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
-          ws.send(event.data);
+          streamWs.send(event.data);
         }
       };
 
       mediaRecorder.start(100); // Send data every 100ms
 
-      ws.onclose = () => {
+      streamWs.onclose = () => {
         console.log('WebSocket connection closed');
         mediaRecorder.stop();
         setIsStreamStarted(false);
         setIsChatVisible(false);
       };
 
-      ws.onerror = (err) => {
+      streamWs.onerror = (err) => {
         console.error('WebSocket error:', err);
         mediaRecorder.stop();
         setIsStreamStarted(false);
         setIsChatVisible(false);
       };
     };
+
+    streamWs.onmessage = (event) => {
+      try {
+        const response = JSON.parse(event.data);
+        if (response && response?.started_at) {
+          setStreamDetails((prevStats) => {
+            const updatedStats = { ...prevStats };
+            updatedStats.started_at = response.started_at;
+            return updatedStats;
+          });
+        }
+      } catch (error) {
+        console.error('Error parsing Stream WebSocket message:', error);
+      }
+    };
+  };
+
+  // Shows confirm modal to end stream
+  const handleEndStream = () => {
+    openConfirmModal(
+      modalTexts.stream.confirmToEnd.title,
+      modalTexts.stream.confirmToEnd.description,
+      () => handleEndStreamConfirmed(),
+      true,
+      'Confirm to End'
+    );
+  };
+
+  // Ends stream, terminates ws connection, stops using webcam & mic
+  const handleEndStreamConfirmed = () => {
+    setIsStreamStarted(false);
+
+    // End websocket
+    if (streamWsRef.current) {
+      streamWsRef.current.close();
+      streamWsRef.current = null;
+    }
+
+    stopWebcamAndAudio();
+
+    handleStreamEndSuccess();
+  };
+
+  // Shows notify modal
+  const handleStreamEndSuccess = () => {
+    openNotifyModal(
+      NotifyModalType.SUCCESS,
+      modalTexts.stream.successEnd.title,
+      modalTexts.stream.successEnd.description
+    );
+    navigate(LIVE_STREAM_PATH);
+  };
+
+  const handleReactOnLive = ({ reaction }: OnReactOnLiveParams) => {
+    if (!chatWsRef.current || chatWsRef.current.readyState !== WebSocket.OPEN) {
+      console.error('Chat WebSocket is not open');
+      return;
+    }
+
+    const likeStatus = liveInitialStats.current_like_type !== reaction;
+    const message: LiveReactionRequest = {
+      type: LiveInteractionType.LIKE,
+      data: {
+        like_status: likeStatus,
+        like_type: reaction,
+      },
+    };
+
+    chatWsRef.current.send(JSON.stringify(message));
+  };
+
+  const handleCommentOnLive = (content: string) => {
+    if (!chatWsRef.current || chatWsRef.current.readyState !== WebSocket.OPEN) {
+      console.error('Chat WebSocket is not open');
+      return;
+    }
+
+    const message: LiveCommentRequest = {
+      type: LiveInteractionType.COMMENT,
+      data: { content },
+    };
+
+    chatWsRef.current.send(JSON.stringify(message));
+  };
+
+  // 1) Get video metadata for setting dimensions
+  const loadVideoMetadata = () => {
+    if (videoRef.current) {
+      const video = videoRef.current;
+      const videoWidth = video.videoWidth;
+      const videoHeight = video.videoHeight;
+
+      setVideoDimensions({ width: videoWidth, height: videoHeight });
+    }
+  };
+
+  // 2) Make video scaled based on dimensions
+  const getScaledVideoStyle = () => {
+    if (!videoDimensions.width || !videoDimensions.height) return {};
+
+    const aspectRatio = videoDimensions.width / videoDimensions.height;
+    const containerWidth = videoRef.current?.parentElement?.clientWidth || 0;
+    const containerHeight = videoRef.current?.parentElement?.clientHeight || 0;
+
+    // Scale the video width to always take up the full container width
+    const scaledWidth = containerWidth;
+    const scaledHeight = scaledWidth / aspectRatio;
+
+    // If the scaled height exceeds the container height, limit it
+    if (scaledHeight > containerHeight) {
+      return {
+        width: `${containerHeight * aspectRatio}px`, // scale based on height - containerHeight * aspectRatio
+        height: `${containerHeight}px`, // scale based on container height
+      };
+    }
+
+    return {
+      width: `${scaledWidth}px`, // scale based on width
+      height: `${scaledHeight}px`, // proportional height
+    };
+  };
+
+  // 3) Stop using webcam and audio
+  const stopWebcamAndAudio = () => {
+    if (videoRef.current) {
+      const mediaStream = videoRef.current.srcObject as MediaStream;
+      if (mediaStream) {
+        // Clear the video source
+        videoRef.current.srcObject = null;
+
+        // Stop all tracks (audio and video)
+        mediaStream.getTracks().forEach((track) => {
+          console.log(`Stopping track: ${track.kind}`);
+          track.stop();
+        });
+      }
+    }
+  };
+
+  // Slose permission denied overlay and go back to index page
+  const handleClosePermissionOverlay = () => {
+    setIsResourcePermissionDenied(false);
+    navigate(LIVE_STREAM_PATH);
   };
 
   useEffect(() => {
@@ -324,135 +482,7 @@ const LiveStreamWebcam = () => {
     };
   }, [isStreamStarted, streamDetails]);
 
-  const handleReactOnLive = ({ reaction }: OnReactOnLiveParams) => {
-    if (!chatWsRef.current || chatWsRef.current.readyState !== WebSocket.OPEN) {
-      console.error('Chat WebSocket is not open');
-      return;
-    }
-
-    const likeStatus = liveInitialStats.current_like_type !== reaction;
-    const message: LiveReactionRequest = {
-      type: LiveInteractionType.LIKE,
-      data: {
-        like_status: likeStatus,
-        like_type: reaction,
-      },
-    };
-
-    chatWsRef.current.send(JSON.stringify(message));
-  };
-
-  const handleCommentOnLive = (content: string) => {
-    if (!chatWsRef.current || chatWsRef.current.readyState !== WebSocket.OPEN) {
-      console.error('Chat WebSocket is not open');
-      return;
-    }
-
-    const message: LiveCommentRequest = {
-      type: LiveInteractionType.COMMENT,
-      data: { content },
-    };
-
-    chatWsRef.current.send(JSON.stringify(message));
-  };
-
-  // Shows confirm modal to end stream
-  const handleEndStream = () => {
-    openConfirmModal(
-      modalTexts.stream.confirmToEnd.title,
-      modalTexts.stream.confirmToEnd.description,
-      () => handleEndStreamConfirmed(),
-      true,
-      'Confirm to End'
-    );
-  };
-
-  // Ends stream, terminates ws connection, stops using webcam & mic
-  const handleEndStreamConfirmed = () => {
-    setIsStreamStarted(false);
-
-    // End websocket
-    if (streamWsRef.current) {
-      streamWsRef.current.close();
-      streamWsRef.current = null;
-    }
-
-    stopWebcamAndAudio();
-
-    handleStreamEndSuccess();
-  };
-
-  // Shows notify modal
-  const handleStreamEndSuccess = () => {
-    openNotifyModal(
-      NotifyModalType.SUCCESS,
-      modalTexts.stream.successEnd.title,
-      modalTexts.stream.successEnd.description
-    );
-    navigate(LIVE_STREAM_PATH);
-  };
-
-  // 1) Get video metadata for setting dimensions
-  const loadVideoMetadata = () => {
-    if (videoRef.current) {
-      const video = videoRef.current;
-      const videoWidth = video.videoWidth;
-      const videoHeight = video.videoHeight;
-
-      setVideoDimensions({ width: videoWidth, height: videoHeight });
-    }
-  };
-
-  // 2) Make video scaled based on dimensions
-  const getScaledVideoStyle = () => {
-    if (!videoDimensions.width || !videoDimensions.height) return {};
-
-    const aspectRatio = videoDimensions.width / videoDimensions.height;
-    const containerWidth = videoRef.current?.parentElement?.clientWidth || 0;
-    const containerHeight = videoRef.current?.parentElement?.clientHeight || 0;
-
-    // Scale the video width to always take up the full container width
-    const scaledWidth = containerWidth;
-    const scaledHeight = scaledWidth / aspectRatio;
-
-    // If the scaled height exceeds the container height, limit it
-    if (scaledHeight > containerHeight) {
-      return {
-        width: `${containerHeight * aspectRatio}px`, // scale based on height - containerHeight * aspectRatio
-        height: `${containerHeight}px`, // scale based on container height
-      };
-    }
-
-    return {
-      width: `${scaledWidth}px`, // scale based on width
-      height: `${scaledHeight}px`, // proportional height
-    };
-  };
-
-  // 3) Stop using webcam and audio
-  const stopWebcamAndAudio = () => {
-    if (videoRef.current) {
-      const mediaStream = videoRef.current.srcObject as MediaStream;
-      if (mediaStream) {
-        // Clear the video source
-        videoRef.current.srcObject = null;
-
-        // Stop all tracks (audio and video)
-        mediaStream.getTracks().forEach((track) => {
-          console.log(`Stopping track: ${track.kind}`);
-          track.stop();
-        });
-      }
-    }
-  };
-
-  // Slose permission denied overlay and go back to index page
-  const handleClosePermissionOverlay = () => {
-    setIsResourcePermissionDenied(false);
-    navigate(LIVE_STREAM_PATH);
-  };
-
-  // Open camera and mic as soon as this page is rendered
+  // Open camera and mic, fetch categories as soon as this page is rendered
   useEffect(() => {
     const startWebcam = async () => {
       try {
@@ -470,8 +500,13 @@ const LiveStreamWebcam = () => {
         setIsResourcePermissionDenied(true);
       }
     };
-
     startWebcam();
+
+    const getCategories = async () => {
+      const data = await fetchCategories();
+      if (data) setStreamCategories(data);
+    };
+    getCategories();
 
     return () => {
       if (videoRef.current?.srcObject) {
@@ -547,6 +582,10 @@ const LiveStreamWebcam = () => {
       ) : (
         <>
           <DetailsForm
+            categories={streamCategories?.map((cat) => ({
+              id: cat.id.toString(),
+              name: cat.name,
+            }))}
             isOpen={isStreamInitializeModelOpen}
             onSuccess={handleInitializeStreamSuccess}
             onClose={handleInitializeStreamModalToggle}
@@ -621,7 +660,10 @@ const LiveStreamWebcam = () => {
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent side="bottom">
-                        <StreamDetailsCard data={streamDetails} />
+                        <StreamDetailsCard
+                          data={streamDetails}
+                          categories={streamCategories}
+                        />
                       </PopoverContent>
                     </Popover>
                   </div>
@@ -642,17 +684,23 @@ const LiveStreamWebcam = () => {
                         <p className="text-xl font-semibold">
                           {streamDetails?.title || 'No Title Was Given'}
                         </p>
-                        <p className="text-sm">
-                          <span className="text-xs text-muted-foreground">
+                        <p className="text-xs">
+                          <span className="text-muted-foreground">
                             Streamed live at
                           </span>{' '}
                           {getFormattedDate(
-                            new Date(streamDetails?.created_at || new Date()),
+                            new Date(streamDetails?.started_at || new Date()),
                             true
                           )}
                         </p>
                         <p className="text-blue-400">
-                          #health&wealthy #streaming #live #ontv
+                          {getObjectsByIds(
+                            streamCategories,
+                            streamDetails?.category_ids || [],
+                            'id'
+                          ).map((category) => {
+                            return toHashtagStyle(category.name) + ' ';
+                          })}
                         </p>
                         <p className="mt-2">
                           {streamDetails?.description ||

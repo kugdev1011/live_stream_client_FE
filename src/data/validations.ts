@@ -9,3 +9,5 @@ export const StreamInitializeRules = {
     max: 100,
   },
 };
+
+export const MAX_CATEGORY_COUNT = 3;

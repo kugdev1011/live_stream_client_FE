@@ -71,8 +71,8 @@ export type OptionData<T> = {
 };
 
 export interface FindAndCountResponse<T> {
-  data: T[];
-  count: number;
+  data?: T[];
+  count?: number;
   limit?: number;
   offset?: number;
 }

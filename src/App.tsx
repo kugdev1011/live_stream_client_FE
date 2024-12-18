@@ -28,8 +28,8 @@ import {
 import Register from './pages/Auth/Register';
 import Login from './pages/Auth/Login';
 import ProtectedRoute from './components/ProtectedRoute';
-import Privacy from './pages/Public/Privacy';
-import TermsOfServices from './pages/Public/TermsOfServices';
+import Privacy from './pages/public/Privacy';
+import TermsOfServices from './pages/public/TermsOfServices';
 import TestLiveStream from './pages/TestLiveStream';
 import LogoutPage from './pages/Auth/Logout';
 import LiveStream from './pages/LiveStream';

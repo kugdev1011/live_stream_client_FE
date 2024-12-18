@@ -1,6 +1,5 @@
-import { Reaction, ReactionIcons } from '@/data/chat';
+import { Reaction, ReactionIcons, ReactionStats } from '@/data/chat';
 import { Button } from '../ui/button';
-import { ReactionStats } from '@/data/dto/chat';
 
 export interface OnReactOnLiveParams {
   reaction: Reaction;
