@@ -5,5 +5,6 @@ export interface StreamDetailsResponse {
   thumbnail_url: string | null;
   broadcast_url: string | null;
   push_url: string | null;
-  created_at: string | null;
+  started_at?: string | null;
+  category_ids: number[];
 }

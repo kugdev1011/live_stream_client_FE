@@ -1,17 +1,13 @@
+import { CategoryResponse } from '@/data/dto/category';
+import { StreamDetailsResponse } from '@/data/dto/stream';
+import { getFormattedDate } from '@/lib/date-time';
+import { getObjectsByIds, toHashtagStyle } from '@/lib/utils';
 import React from 'react';
 
-export interface StreamInitializeResponse {
-  id: number | null;
-  title: string | null;
-  description: string | null;
-  thumbnail_url: string | null;
-  broadcast_url: string | null;
-  push_url: string | null;
-}
-
 const StreamDetailsCard: React.FC<{
-  data: StreamInitializeResponse;
-}> = ({ data }) => {
+  data: StreamDetailsResponse;
+  categories: CategoryResponse[];
+}> = ({ data, categories }) => {
   return (
     <div>
       {data?.thumbnail_url && (
@@ -22,7 +18,18 @@ const StreamDetailsCard: React.FC<{
         />
       )}
       <div className="pt-3">
+        <p className="text-xs">
+          <span className="text-muted-foreground">Streamed live at</span>{' '}
+          {getFormattedDate(new Date(data?.started_at || new Date()), true)}
+        </p>
         <h2 className="text-lg font-semibold">{data?.title || 'No Title'}</h2>
+        <p className="text-blue-400">
+          {getObjectsByIds(categories, data?.category_ids || [], 'id').map(
+            (category) => {
+              return toHashtagStyle(category.name) + ' ';
+            }
+          )}
+        </p>
         <p className="text-sm text-gray-600 mt-2">
           {data?.description || 'No Description'}
         </p>

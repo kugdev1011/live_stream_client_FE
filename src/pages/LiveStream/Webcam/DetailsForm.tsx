@@ -23,9 +23,12 @@ import { STREAM_TYPE } from '@/data/types/stream';
 import AppAlert from '@/components/AppAlert';
 import { useSidebar } from '@/components/ui/sidebar';
 import { StreamDetailsResponse } from '@/data/dto/stream';
+import { MultiSelect } from '@/components/MultiSelect';
+import { MAX_CATEGORY_COUNT } from '@/data/validations';
 
 interface ComponentProps {
   isOpen: boolean;
+  categories: { id: string; name: string }[];
   onSuccess: (data: StreamDetailsResponse) => void;
   onClose: () => void;
 }
@@ -33,18 +36,21 @@ interface ComponentProps {
 const inputPlaceholders = {
   title: 'Add a title that describes your stream',
   description: 'Tell viewers more about your stream',
+  category: `Select ${MAX_CATEGORY_COUNT} categories at most`,
 };
 
 const validationRules = {
   title: 'Title is required, max 100 characters',
   description: 'Description is required',
   thumbnail: 'Thumbnail is required',
+  category: 'Category is required',
   common: 'Something went wrong. Please try again.',
 };
 
 type StreamInitializeFormError = {
   titleFailure: boolean;
   descriptionFailure: boolean;
+  categoryFailure: boolean;
   thumbnailImageFailure: boolean;
   actionFailure: boolean;
 };
@@ -52,9 +58,10 @@ type StreamInitializeFormError = {
 const DetailsForm = (props: ComponentProps) => {
   const { toggleSidebar } = useSidebar();
 
-  const { isOpen, onSuccess, onClose } = props;
+  const { isOpen, categories, onSuccess, onClose } = props;
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const titleInput = useRef<HTMLInputElement>(null);
   const descriptionInput = useRef<HTMLTextAreaElement>(null);
   const [thumbnailImage, setThumbnailImage] = useState<{
@@ -67,6 +74,7 @@ const DetailsForm = (props: ComponentProps) => {
   const [formError, setFormError] = useState<StreamInitializeFormError>({
     titleFailure: false,
     descriptionFailure: false,
+    categoryFailure: false,
     thumbnailImageFailure: false,
     actionFailure: false,
   });
@@ -79,10 +87,12 @@ const DetailsForm = (props: ComponentProps) => {
     setIsLoading(true);
     const title = titleInput.current?.value || '';
     const description = descriptionInput.current?.value || '';
+    const categories = selectedCategories;
 
     const { data, errors: _errors } = await initializeStream({
       title,
       description,
+      categories,
       streamType: STREAM_TYPE.CAMERA,
       thumbnailImage: thumbnailImage?.file,
     });
@@ -96,18 +106,25 @@ const DetailsForm = (props: ComponentProps) => {
           titleFailure: _errors?.[StreamInitializeError.INVALID_TITLE] || false,
           descriptionFailure:
             _errors?.[StreamInitializeError.INVALID_TITLE] || false,
+          categoryFailure:
+            _errors?.[StreamInitializeError.INVALID_CATEGORY] || false,
           thumbnailImageFailure:
             _errors?.[StreamInitializeError.INVALID_THUMBNAIL_IMAGE] || false,
           actionFailure:
             _errors?.[StreamInitializeError.ACTION_FAILURE] || false,
         };
 
-        const { titleFailure, descriptionFailure, thumbnailImageFailure } =
-          formError;
+        const {
+          titleFailure,
+          descriptionFailure,
+          categoryFailure,
+          thumbnailImageFailure,
+        } = formError;
         setFormError((prevError: StreamInitializeFormError) => ({
           ...prevError,
           titleFailure,
           descriptionFailure,
+          categoryFailure,
           thumbnailImageFailure,
         }));
       }
@@ -166,6 +183,7 @@ const DetailsForm = (props: ComponentProps) => {
         actionFailure: false,
         titleFailure: false,
         descriptionFailure: false,
+        categoryFailure: false,
         thumbnailImageFailure: false,
       });
     };
@@ -175,14 +193,17 @@ const DetailsForm = (props: ComponentProps) => {
     actionFailure,
     titleFailure,
     descriptionFailure,
+    categoryFailure,
     thumbnailImageFailure,
   } = formError;
   let invalidTitleError = null,
     invalidDescriptionError = null,
+    invalidCategoryError = null,
     invalidThumbnailImageError = null,
     somethingWrongError = null;
   if (titleFailure) invalidTitleError = validationRules.title;
   if (descriptionFailure) invalidDescriptionError = validationRules.description;
+  if (categoryFailure) invalidCategoryError = validationRules.category;
   if (thumbnailImageFailure)
     invalidThumbnailImageError = validationRules.thumbnail;
   if (actionFailure) {
@@ -193,6 +214,7 @@ const DetailsForm = (props: ComponentProps) => {
 
   const titleInputInvalid = titleFailure || actionFailure;
   const descriptionInputInvalid = descriptionFailure || actionFailure;
+  const categoryInputInvalid = categoryFailure || actionFailure;
   const thumbnailImageInputInvalid = thumbnailImageFailure || actionFailure;
 
   return (
@@ -215,25 +237,8 @@ const DetailsForm = (props: ComponentProps) => {
               />
             )}
 
-            {/* stream type */}
-            <div className="flex flex-col items-start gap-3">
-              <Label htmlFor="title">
-                Stream Type <RequiredInput />
-              </Label>
-              <div className="inline cursor-not-allowed">
-                <ToggleGroup type="single" value="webcam" disabled>
-                  <ToggleGroupItem value="webcam">
-                    <Camera /> Webcam
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="software">
-                    <Blocks /> Software
-                  </ToggleGroupItem>
-                </ToggleGroup>
-              </div>
-            </div>
-
             {/* title */}
-            <div className="grid gap-3 mt-3">
+            <div className="grid gap-3">
               <Label htmlFor="title">
                 Title <RequiredInput />
               </Label>
@@ -277,27 +282,70 @@ const DetailsForm = (props: ComponentProps) => {
               )}
             </div>
 
-            {/* thumbnail image */}
+            {/* categories */}
             <div className="grid gap-3 mt-3">
               <Label htmlFor="description">
-                Thumbnail Image <RequiredInput />
+                Categories <RequiredInput />
               </Label>
-              <ImageUpload
-                isDanger={thumbnailImageInputInvalid}
-                isDisabled={isLoading}
-                width="w-[200px]"
-                height="h-24"
-                preview={thumbnailImage.preview || ''}
-                onFileChange={(file) => {
-                  if (file) handleImagesChange(file);
-                }}
-              />
-              {invalidThumbnailImageError && (
+              <div className="max-w-xl">
+                <MultiSelect
+                  isError={categoryInputInvalid}
+                  options={categories}
+                  onValueChange={setSelectedCategories}
+                  defaultValue={selectedCategories}
+                  placeholder={inputPlaceholders.category}
+                  animation={0}
+                  maxCount={MAX_CATEGORY_COUNT}
+                />
+              </div>
+              {invalidCategoryError && (
                 <FormErrorMessage
                   classes="-mt-2"
-                  message={invalidThumbnailImageError}
+                  message={invalidCategoryError}
                 />
               )}
+            </div>
+
+            <div className="flex flex-col-reverse md:flex-row w-full gap-5 justify-start items-start mt-3">
+              {/* thumbnail image */}
+              <div className="w-full md:w-1/2 grid gap-3">
+                <Label htmlFor="description">
+                  Thumbnail Image <RequiredInput />
+                </Label>
+                <ImageUpload
+                  isError={thumbnailImageInputInvalid}
+                  isDisabled={isLoading}
+                  width="w-full overflow-hidden"
+                  height="h-24"
+                  preview={thumbnailImage.preview || ''}
+                  onFileChange={(file) => {
+                    if (file) handleImagesChange(file);
+                  }}
+                />
+                {invalidThumbnailImageError && (
+                  <FormErrorMessage
+                    classes="-mt-2"
+                    message={invalidThumbnailImageError}
+                  />
+                )}
+              </div>
+
+              {/* stream type */}
+              <div className="w-full md:w-1/2 flex flex-col items-start gap-3">
+                <Label htmlFor="title">
+                  Stream Type <RequiredInput />
+                </Label>
+                <div className="inline cursor-not-allowed">
+                  <ToggleGroup type="single" value="webcam" disabled>
+                    <ToggleGroupItem value="webcam">
+                      <Camera /> Webcam
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="software">
+                      <Blocks /> Software
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
+              </div>
             </div>
           </div>
           <DialogFooter className="sm:flex gap-1 w-full px-0 py-5">

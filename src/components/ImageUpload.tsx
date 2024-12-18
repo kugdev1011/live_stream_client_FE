@@ -10,7 +10,7 @@ interface ComponentProps {
   width?: string;
   height?: string;
   preview?: string;
-  isDanger?: boolean;
+  isError?: boolean;
   onFileChange?: (file: File | null) => void;
 }
 
@@ -21,7 +21,7 @@ const ImageUpload = (props: ComponentProps): JSX.Element => {
     Icon,
     width = 'w-32',
     height = 'h-32',
-    isDanger = false,
+    isError = false,
     preview: initialPreview,
     onFileChange,
     isDisabled = false,
@@ -73,7 +73,7 @@ const ImageUpload = (props: ComponentProps): JSX.Element => {
         } border rounded-sm ${
           onFileChange ? 'border-dashed' : 'border-slate-200'
         } flex justify-center items-center overflow-hidden ${
-          isDanger && 'border-red-500'
+          isError && 'border-red-500'
         }`}
         onClick={
           onFileChange && !isDisabled && !imagePreview
