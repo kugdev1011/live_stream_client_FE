@@ -8,11 +8,7 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Popover, PopoverTrigger } from '@/components/ui/popover';
 import {
   Command,
   CommandEmpty,
@@ -22,6 +18,7 @@ import {
   CommandList,
   CommandSeparator,
 } from '@/components/ui/command';
+import { PopoverContentLayout } from './PopoverContentLayout';
 
 /**
  * Variants for the multi-select component to handle different styles.
@@ -232,7 +229,7 @@ export const MultiSelect = React.forwardRef<
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent
+        <PopoverContentLayout
           className="w-auto p-0"
           align="start"
           onEscapeKeyDown={() => setIsPopoverOpen(false)}
@@ -317,7 +314,7 @@ export const MultiSelect = React.forwardRef<
               </CommandGroup>
             </CommandList>
           </Command>
-        </PopoverContent>
+        </PopoverContentLayout>
       </Popover>
     );
   }

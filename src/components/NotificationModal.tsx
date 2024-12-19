@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import { CheckCheck, CircleX } from 'lucide-react';
 
 import {
@@ -33,6 +33,21 @@ const NotificationModal = (props: NotificationModalProps): JSX.Element => {
     onClose,
   } = props;
 
+  const handleClose = () => {
+    if (onClose) onClose();
+    document.body.style.pointerEvents = 'auto';
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.pointerEvents = 'auto';
+    }
+
+    return () => {
+      document.body.style.pointerEvents = 'auto';
+    };
+  }, [isOpen]);
+
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpen}>
       <AlertDialogContent>
@@ -63,7 +78,7 @@ const NotificationModal = (props: NotificationModalProps): JSX.Element => {
           )}
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogAction onClick={onClose}>Okay</AlertDialogAction>
+          <AlertDialogAction onClick={handleClose}>Okay</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

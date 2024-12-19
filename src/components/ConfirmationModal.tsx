@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import { Info } from 'lucide-react';
 
 import {
@@ -35,6 +35,26 @@ const ConfirmationModal = (props: ConfirmationModalProps): JSX.Element => {
     onCancel,
   } = props;
 
+  const handleCancel = () => {
+    onCancel();
+    document.body.style.pointerEvents = 'auto';
+  };
+
+  const handleConfirm = () => {
+    onConfirm();
+    document.body.style.pointerEvents = 'auto';
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.pointerEvents = 'auto';
+    }
+
+    return () => {
+      document.body.style.pointerEvents = 'auto';
+    };
+  }, [isOpen]);
+
   return (
     <AlertDialog open={isOpen}>
       <AlertDialogContent>
@@ -49,16 +69,16 @@ const ConfirmationModal = (props: ConfirmationModalProps): JSX.Element => {
               {title}
             </div>
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-justify leading-5 tracking-normal">
+          <AlertDialogDescription className="text-left leading-5 tracking-normal">
             {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>
+          <AlertDialogCancel onClick={handleCancel}>
             {cancelBtnText}
           </AlertDialogCancel>
           <AlertDialogAction
-            onClick={onConfirm}
+            onClick={handleConfirm}
             className={`${isDanger && 'bg-red-500 hover:bg-red-400'}`}
           >
             {proceedBtnText}

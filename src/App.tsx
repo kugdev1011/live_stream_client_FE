@@ -21,6 +21,7 @@ import {
   PRIVACY_DOCS_PATH,
   REGISTRATION_PATH,
   SAVED_VIDEOS_PATH,
+  SETTINGS_PATH,
   SUBSCRIPTIONS_PATH,
   TERMS_OF_SERVICES_DOCS_PATH,
   TEST_LIVE_STREAM_PATH,
@@ -35,6 +36,7 @@ import LogoutPage from './pages/Auth/Logout';
 import LiveStream from './pages/LiveStream';
 import LiveStreamWebcam from './pages/LiveStream/Webcam';
 import React from 'react';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -69,6 +71,10 @@ function App() {
         <Route
           path={LIVE_STREAM_WEBCAM_PATH}
           element={<ProtectedRoute element={<LiveStreamWebcam />} />}
+        />
+        <Route
+          path={SETTINGS_PATH}
+          element={<ProtectedRoute element={<Settings />} />}
         />
         <Route path={LOGOUT_PATH} element={<LogoutPage />} />
 
