@@ -1,5 +1,13 @@
 import { USER_ROLE } from '@/data/types/role';
-import { Frame, History, Import, Podcast, Rss, ThumbsUp } from 'lucide-react';
+import {
+  Frame,
+  History,
+  Import,
+  Radio,
+  Rss,
+  Settings2,
+  ThumbsUp,
+} from 'lucide-react';
 
 export const APP_PREFIX_PATH = '/app';
 
@@ -17,6 +25,8 @@ export const LIVE_STREAM_PATH = APP_PREFIX_PATH + '/live';
 export const LIVE_STREAM_WEBCAM_PATH = LIVE_STREAM_PATH + '/webcam';
 export const LIVE_STREAM_SOFTWARE_PATH = LIVE_STREAM_PATH + '/software';
 
+export const SETTINGS_PATH = APP_PREFIX_PATH + '/settings';
+
 // Testings
 export const TEST_LIVE_STREAM_PATH = APP_PREFIX_PATH + '/test-live-stream';
 export const PUBLIC_PATH = '/p';
@@ -27,13 +37,16 @@ export const LEFT_MAIN_MENU: Record<USER_ROLE, string[]> = {
   [USER_ROLE.STREAMER]: [
     HOME_PATH,
     SUBSCRIPTIONS_PATH,
-    HISTORY_PATH,
-    LIKED_VIDEOS_PATH,
-    SAVED_VIDEOS_PATH,
 
     LIVE_STREAM_PATH,
     LIVE_STREAM_WEBCAM_PATH,
     LIVE_STREAM_SOFTWARE_PATH,
+
+    HISTORY_PATH,
+    LIKED_VIDEOS_PATH,
+    SAVED_VIDEOS_PATH,
+
+    SETTINGS_PATH,
   ],
   [USER_ROLE.USER]: [
     HOME_PATH,
@@ -41,6 +54,8 @@ export const LEFT_MAIN_MENU: Record<USER_ROLE, string[]> = {
     HISTORY_PATH,
     LIKED_VIDEOS_PATH,
     SAVED_VIDEOS_PATH,
+
+    SETTINGS_PATH,
   ],
   [USER_ROLE.ADMIN]: [
     HOME_PATH,
@@ -93,6 +108,11 @@ export const ROUTE_PATH_INFO = {
   [LIVE_STREAM_PATH]: {
     path: LIVE_STREAM_PATH,
     title: 'Live Stream',
-    Icon: <Podcast />,
+    Icon: <Radio />,
+  },
+  [SETTINGS_PATH]: {
+    path: SETTINGS_PATH,
+    title: 'Settings',
+    Icon: <Settings2 />,
   },
 };

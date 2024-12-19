@@ -11,3 +11,4 @@ export const StreamInitializeRules = {
 };
 
 export const MAX_CATEGORY_COUNT = 3;
+export const TWO_FA_OTP_CODE_LENGTH = 6;
