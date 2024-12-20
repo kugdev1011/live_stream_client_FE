@@ -1,8 +1,14 @@
 import { liveStreamApi } from './utils';
-import { User2FACheckResponse, User2FAVerityResponse } from '@/data/dto/user';
+import {
+  User2FACheckResponse,
+  User2FAVerityResponse,
+  UserInfoUpdateRequest,
+  UserInfoUpdateResponse,
+} from '@/data/dto/user';
 import { API_METHOD, ApiRequest, ApiResult, ApiService } from '@/data/api';
 
 const USER_API = '/user';
+const USER_UPDATE_API = USER_API + '/update';
 const USER_2FA_CHECK_API = USER_API + '/get-2fa';
 const USER_2FA_VERIFY_API = USER_API + '/verify-2fa';
 const USER_2FA_CHANGE_API = USER_API + '/change-2fa';
@@ -82,6 +88,47 @@ export const apiChange2FactorAuth = async (
     secret: '',
     qr_code: '',
     is2fa_enabled: false,
+  };
+  if (success) {
+    rp = responseData?.data;
+  }
+
+  return {
+    data: rp,
+    message,
+    code,
+  };
+};
+
+export const apiUpdateUserInfo = async ({
+  currentPassword,
+  newPassword,
+  displayName,
+  avatarFile,
+}: UserInfoUpdateRequest): Promise<ApiResult<UserInfoUpdateResponse>> => {
+  const formData = new FormData();
+  if (currentPassword) formData.append('password', currentPassword);
+  if (newPassword) formData.append('new_password', newPassword);
+  if (displayName) formData.append('display_name', displayName);
+  if (avatarFile) formData.append('avatar', avatarFile);
+
+  const request: ApiRequest = {
+    service: ApiService.liveStream,
+    url: USER_UPDATE_API,
+    method: API_METHOD.PUT,
+    authToken: true,
+    data: formData,
+  };
+
+  const apiResponse = await liveStreamApi(request);
+  const { success, data: responseData, code, message } = apiResponse;
+
+  let rp: UserInfoUpdateResponse = {
+    username: '',
+    display_name: '',
+    avatar_file_url: '',
+    email: '',
+    role_type: '',
   };
   if (success) {
     rp = responseData?.data;

@@ -25,3 +25,7 @@ export function getObjectsByIds<T, K extends keyof T>(
 export function toHashtagStyle(str: string): string {
   return `#${str.replace(/\s+/g, '&').toLowerCase()}`;
 }
+
+export function capitalizeFirstLetter(str: string): string {
+  return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+}

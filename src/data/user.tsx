@@ -20,4 +20,10 @@ export const modalTexts = {
       ),
     },
   },
+  changePassword: {
+    success: {
+      title: 'Successful updating password',
+      description: 'You have successfully updated your password',
+    },
+  },
 };
