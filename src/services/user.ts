@@ -1,15 +1,25 @@
 import {
   apiChange2FactorAuth,
   apiFetch2FactorAuth,
+  apiUpdateUserInfo,
   apiVerity2FactorAuthWithOTP,
 } from '@/api/user';
 import { ServiceResponse } from '@/data/api';
-import { User2FACheckResponse, User2FAVerityResponse } from '@/data/dto/user';
+import {
+  User2FACheckResponse,
+  User2FAVerityResponse,
+  UserInfoUpdateRequest,
+  UserInfoUpdateResponse,
+} from '@/data/dto/user';
 import { TWO_FA_OTP_CODE_LENGTH } from '@/data/validations';
 
 export enum Verity2FAError {
   INVALID_OTP = 'INVALID_OTP',
   ACTION_FAILURE = 'ACTION_FAILURE',
+}
+
+export enum UserInfoUpdateError {
+  INVALID_CURRENT_PASSWORD = 'INVALID_CURRENT_PASSWORD',
 }
 
 export const fetch2FactorAuth = async (): Promise<User2FACheckResponse> => {
@@ -53,4 +63,36 @@ export const change2FactorAuth = async (
 ): Promise<User2FACheckResponse> => {
   const { data } = await apiChange2FactorAuth(isEnabled);
   return data;
+};
+
+export const updateUserInfo = async (
+  payload: UserInfoUpdateRequest
+): Promise<ServiceResponse<UserInfoUpdateResponse, UserInfoUpdateError>> => {
+  const errors: Partial<Record<UserInfoUpdateError, boolean>> = {};
+
+  let result: UserInfoUpdateResponse | undefined = undefined;
+  let msg: string = '';
+  const { data, message, code } = await apiUpdateUserInfo(payload);
+  if (data && code !== 500) {
+    result = {
+      display_name: data.display_name,
+      username: data.username,
+      email: data.email,
+      avatar_file_url: data.avatar_file_url,
+      role_type: data.role_type,
+    };
+  } else {
+    msg = message;
+    if (code === 500) {
+      errors[UserInfoUpdateError.INVALID_CURRENT_PASSWORD] = true;
+    }
+  }
+
+  return {
+    data: result,
+    errors: Object.keys(errors).length
+      ? (errors as Record<UserInfoUpdateError, boolean>)
+      : undefined,
+    message: msg,
+  };
 };
