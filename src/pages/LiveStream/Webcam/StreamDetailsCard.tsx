@@ -9,7 +9,7 @@ const StreamDetailsCard: React.FC<{
   categories: CategoryResponse[];
 }> = ({ data, categories }) => {
   return (
-    <div>
+    <div className="backdrop-blur bg-white/30 dark:bg-black/50">
       {data?.thumbnail_url && (
         <img
           src={data?.thumbnail_url}

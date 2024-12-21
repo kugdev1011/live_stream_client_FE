@@ -18,12 +18,12 @@ export const AppLayout = ({ title, children }: AppLayoutProps) => {
         <SidebarInset>
           <AppHeader title={title} />
           {/* enable for animation for drawer bounce back */}
-          <div vaul-drawer-wrapper="" className="bg-background">
-            <main className="flex flex-1 flex-col gap-4 p-6 pt-4 overflow-hidden">
-              {children}
-              <Toaster />
-            </main>
-          </div>
+          {/* <div vaul-drawer-wrapper="" className="bg-background"> */}
+          <main className="flex flex-1 flex-col gap-4 p-6 pt-4 overflow-hidden">
+            {children}
+            <Toaster />
+          </main>
+          {/* </div> */}
         </SidebarInset>
       </SidebarProvider>
     </ThemeProvider>

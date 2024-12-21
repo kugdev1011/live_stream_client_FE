@@ -6,6 +6,8 @@ export enum LiveInteractionType {
   'LIKE' = 'like',
   'INITIAL' = 'initial',
   'LIKE_INFO' = 'like_info',
+  'VIEW_INFO' = 'view_info',
+  'LIVE_ENDED' = 'live_ended',
 }
 
 export interface LiveComment {
@@ -51,3 +53,14 @@ export type LiveCommentInfo = z.infer<typeof LiveCommentInfoSchema>;
 export const isLiveCommentInfoObj = (obj: unknown): obj is LiveCommentInfo => {
   return LiveCommentInfoSchema.safeParse(obj).success;
 };
+
+export interface LiveViewResponse {
+  type: LiveInteractionType.VIEW_INFO;
+  data: {
+    total: number;
+  };
+}
+
+export interface LiveEndedResponse {
+  type: LiveInteractionType.LIVE_ENDED;
+}
