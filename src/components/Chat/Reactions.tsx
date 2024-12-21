@@ -53,7 +53,11 @@ const Reactions = (props: ComponentProps) => {
             <div className="flex items-center gap-1">
               <p className="text-lg">{ReactionIcons[reaction]}</p>
               {reactionCount && (
-                <span className="text-[9px] text-black dark:text-white">
+                <span
+                  className={`text-[9px] ${
+                    isActive ? 'text-white' : 'text-black dark:text-white'
+                  } `}
+                >
                   {reactionCount}
                 </span>
               )}

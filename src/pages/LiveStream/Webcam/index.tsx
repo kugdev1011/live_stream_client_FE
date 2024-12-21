@@ -83,6 +83,7 @@ const LiveStreamWebcam = () => {
     category_ids: [],
     started_at: null,
   });
+  const [liveViewersCount, setLiveViewersCount] = useState(0);
   const [liveInitialStats, setLiveInitialStats] =
     useState<LiveInitialStatsResponse>({
       type: LiveInteractionType.INITIAL,
@@ -340,7 +341,7 @@ const LiveStreamWebcam = () => {
     // If the scaled height exceeds the container height, limit it
     if (scaledHeight > containerHeight) {
       return {
-        width: `${containerHeight * aspectRatio}px`, // scale based on height - containerHeight * aspectRatio
+        width: `${scaledWidth}px`, // scale based on height - containerHeight * aspectRatio
         height: `${containerHeight}px`, // scale based on container height
       };
     }
@@ -452,6 +453,27 @@ const LiveStreamWebcam = () => {
               };
               return updatedStats;
             });
+          }
+          // On getting viewers count update
+          else if (
+            response &&
+            response?.type === LiveInteractionType.VIEW_INFO
+          ) {
+            setLiveViewersCount(response?.data?.total);
+          }
+          // On getting stream ended event
+          else if (
+            response &&
+            response?.type === LiveInteractionType.LIVE_ENDED
+          ) {
+            setIsStreamStarted(false);
+
+            // TODO: may need to redirect to some page(s)
+            openNotifyModal(
+              NotifyModalType.ERROR,
+              'Live Ended!',
+              'Your live has been ended'
+            );
           }
         } catch (err) {
           console.error('Error parsing WebSocket message:', err);
@@ -599,16 +621,18 @@ const LiveStreamWebcam = () => {
               <div className="flex flex-col lg:flex-row w-full h-full gap-3">
                 {/* Webcam View */}
                 <div className="flex-1 flex items-center justify-center border rounded-md overflow-hidden relative">
+                  {/* Live indicators */}
                   {isStreamStarted && (
                     <div className="absolute top-3 left-3">
                       <LiveIndicator
                         isStreamStarted={isStreamStarted}
                         likeCount={liveInitialStats.like_count}
                         commentCount={liveInitialStats.comments?.length}
-                        viewerCount={0} // TODO: viewer count
+                        viewerCount={liveViewersCount}
                       />
                     </div>
                   )}
+                  {/* sm: Control buttons */}
                   <div className="absolute bottom-3 z-10 inline md:hidden">
                     <ControlButtons
                       isMicOn={isMicOn}
@@ -621,6 +645,7 @@ const LiveStreamWebcam = () => {
                       onInitializeStreamCancel={handleInitializeStreamCancel}
                     />
                   </div>
+                  {/* video */}
                   <video
                     ref={videoRef}
                     autoPlay
@@ -715,7 +740,7 @@ const LiveStreamWebcam = () => {
                 </>
               )}
 
-              {/* Control buttons */}
+              {/* md: Control buttons */}
               <div className="hidden md:inline-block">
                 <ControlButtons
                   isMicOn={isMicOn}
