@@ -1,7 +1,11 @@
 import _ from 'lodash';
-import { apiLogin, apiRegister } from '@/api/auth';
-import { ServiceResponse } from '@/data/api';
-import { LoginUserResponse, RegisterUserResponse } from '@/data/dto/auth';
+import { apiForgotPassword, apiLogin, apiRegister } from '@/api/auth';
+import { ServiceResponse, SuccessResponse } from '@/data/api';
+import {
+  ForgotPasswordRequest,
+  LoginUserResponse,
+  RegisterUserResponse,
+} from '@/data/dto/auth';
 import { authAccount } from '@/data/model/userAccount';
 import { RegisterAccountFields } from '@/data/types/auth';
 import { PasswordRules } from '@/data/validations';
@@ -23,6 +27,12 @@ export enum RegisterError {
   INVALID_CONFIRM_PASSWORD = 'INVALID_CONFIRM_PASSWORD',
   REGISTER_FAILED = 'REGISTER_FAILED',
   ACCOUNT_EXISTED = 'ACCOUNT_EXISTED',
+}
+
+export enum ForgotPasswordError {
+  INVALID_USERNAME = 'INVALID_USERNAME',
+  INVALID_OTP_CODE = 'INVALID_OTP_CODE',
+  ACTION_FAILURE = 'ACTION_FAILURE',
 }
 
 export const login = async (
@@ -183,6 +193,34 @@ export const register = async ({
     data: result,
     errors: Object.keys(errors).length
       ? (errors as Record<RegisterError, boolean>)
+      : undefined,
+    message: msg,
+  };
+};
+
+export const forgotPassword = async (
+  payload: ForgotPasswordRequest
+): Promise<ServiceResponse<SuccessResponse, ForgotPasswordError>> => {
+  const errors: Partial<Record<ForgotPasswordError, boolean>> = {};
+
+  const result: SuccessResponse = {
+    success: false,
+  };
+  let msg: string = '';
+  const { data, message } = await apiForgotPassword(payload);
+
+  console.log(' ooo ', data);
+  console.log(' ooo ', message);
+  if (data && !data?.success) {
+    msg = message;
+  } else {
+    result.success = true;
+  }
+
+  return {
+    data: result,
+    errors: Object.keys(errors).length
+      ? (errors as Record<ForgotPasswordError, boolean>)
       : undefined,
     message: msg,
   };

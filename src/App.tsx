@@ -11,6 +11,7 @@ import LikedVideos from './pages/LikedVideos';
 import SavedVideos from './pages/SavedVideos';
 import NotFound from './pages/NotFound';
 import {
+  FORGOT_PASSWORD_PATH,
   HISTORY_PATH,
   HOME_PATH,
   LIKED_VIDEOS_PATH,
@@ -37,6 +38,7 @@ import LiveStream from './pages/LiveStream';
 import LiveStreamWebcam from './pages/LiveStream/Webcam';
 import React from 'react';
 import Settings from './pages/Settings';
+import ForgotPassword from './pages/Auth/ForgotPassword';
 
 function App() {
   return (
@@ -83,6 +85,7 @@ function App() {
 
         <Route path={LOGIN_PATH} element={<Login />} />
         <Route path={REGISTRATION_PATH} element={<Register />} />
+        <Route path={FORGOT_PASSWORD_PATH} element={<ForgotPassword />} />
         <Route path={PRIVACY_DOCS_PATH} element={<Privacy />} />
         <Route
           path={TERMS_OF_SERVICES_DOCS_PATH}

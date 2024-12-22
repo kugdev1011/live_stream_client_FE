@@ -15,6 +15,7 @@ export const AUTH_PREFIX_PATH = '/auth';
 export const LOGIN_PATH = AUTH_PREFIX_PATH + '/login';
 export const REGISTRATION_PATH = AUTH_PREFIX_PATH + '/register';
 export const LOGOUT_PATH = AUTH_PREFIX_PATH + '/logout';
+export const FORGOT_PASSWORD_PATH = AUTH_PREFIX_PATH + '/forgot-password';
 
 export const HOME_PATH = APP_PREFIX_PATH + '';
 export const SUBSCRIPTIONS_PATH = APP_PREFIX_PATH + '/subscriptions';

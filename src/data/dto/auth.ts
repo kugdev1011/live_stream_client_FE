@@ -16,3 +16,9 @@ export interface RegisterUserResponse extends UserResponse {
   token: string;
   expiration_time?: string;
 }
+
+export interface ForgotPasswordRequest {
+  usernameOrEmail: string;
+  otpCode: string;
+  newPassword: string;
+}
