@@ -14,10 +14,7 @@ import {
   ChangePasswordResponse,
   UserProfileInfoUpdateRequest,
 } from '@/data/dto/user';
-import {
-  MAX_DISPLAY_NAME_COUNT,
-  TWO_FA_OTP_CODE_LENGTH,
-} from '@/data/validations';
+import { MAX_DISPLAY_NAME_COUNT, AUTH2FA_OTP_LENGTH } from '@/data/validations';
 
 export enum Verity2FAError {
   INVALID_OTP = 'INVALID_OTP',
@@ -46,7 +43,7 @@ export const verity2FactorAuthWithOTP = async (
   const errors: Partial<Record<Verity2FAError, boolean>> = {};
   let otpFailure = false;
 
-  if (!otpCode || otpCode.length !== TWO_FA_OTP_CODE_LENGTH) otpFailure = true;
+  if (!otpCode || otpCode.length !== AUTH2FA_OTP_LENGTH) otpFailure = true;
 
   let result: User2FAVerityResponse | undefined = undefined;
   let msg: string = '';

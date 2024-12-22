@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { retrieveAuthToken } from '@/data/model/userAccount';
-import { HOME_PATH } from '@/data/route';
+import { FORGOT_PASSWORD_PATH, HOME_PATH } from '@/data/route';
 import { login, LoginError } from '@/services/auth';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 type LoginFormError = {
   loginFailure: boolean;
@@ -167,9 +167,18 @@ const UserAuthForm = () => {
             )}
           </div>
           <div className="grid gap-1 mt-2">
-            <Label htmlFor="password">
-              Password <RequiredInput />
-            </Label>
+            <div className="flex justify-between items-center">
+              <Label htmlFor="password">
+                Password <RequiredInput />
+              </Label>
+
+              <Link
+                to={FORGOT_PASSWORD_PATH}
+                className="text-xs hover:text-primary hover:underline underline-offset-2 cursor-pointer"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <Input
               ref={pwdInput}
               onChange={handlePasswordChange}
