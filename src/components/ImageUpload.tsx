@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from './ui/button';
 
 interface ComponentProps {
+  isCircle?: boolean;
   isDisabled?: boolean;
   Icon?: JSX.Element;
   width?: string;
@@ -19,6 +20,7 @@ const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
 const ImageUpload = (props: ComponentProps): JSX.Element => {
   const {
     Icon,
+    isCircle = false,
     width = 'w-32',
     height = 'h-32',
     isError = false,
@@ -74,7 +76,7 @@ const ImageUpload = (props: ComponentProps): JSX.Element => {
           onFileChange ? 'border-dashed' : 'border-slate-200'
         } flex justify-center items-center overflow-hidden ${
           isError && 'border-red-500'
-        }`}
+        } ${isCircle ? 'rounded-full' : 'rounded-sm'} `}
         onClick={
           onFileChange && !isDisabled && !imagePreview
             ? handleImageSelect
@@ -86,10 +88,13 @@ const ImageUpload = (props: ComponentProps): JSX.Element => {
             <img
               src={imagePreview}
               alt="Preview"
-              className="w-full h-full object-cover"
+              className={`w-full h-full object-cover ${
+                isCircle ? 'rounded-full' : ''
+              }`}
             />
             {onFileChange && (
               <Button
+                title="Remove"
                 type="button"
                 onClick={!!onFileChange && !isDisabled ? handleClear : () => {}}
                 className="absolute w-6 h-6 top-1 right-1 bg-red-500 p-1 rounded-full border shadow-md hover:shadow-none hover:bg-red-600"
@@ -99,7 +104,11 @@ const ImageUpload = (props: ComponentProps): JSX.Element => {
             )}
           </>
         ) : (
-          <div className="p-3 flex flex-col justify-center items-center rounded-md border">
+          <div
+            className={`p-3 flex flex-col justify-center items-center border ${
+              isCircle ? 'rounded-full' : 'rounded-md'
+            }`}
+          >
             {onFileChange ? (
               Icon ? (
                 Icon

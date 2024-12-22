@@ -2,7 +2,7 @@ import { USER_ROLE } from '@/data/types/role';
 import useUserAccount from '@/hooks/useUserAccount';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { User } from 'lucide-react';
-import DefaultPf from '@/assets/images/pf.jpeg';
+import DefaultPf from '@/assets/images/pf.png';
 
 const StreamerAvatar = () => {
   const currentUser = useUserAccount();

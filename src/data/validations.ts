@@ -57,3 +57,7 @@ export const StreamInitializeRules = {
 
 export const MAX_CATEGORY_COUNT = 3;
 export const TWO_FA_OTP_CODE_LENGTH = 6;
+
+export const AUTH2FA_OTP_LENGTH = 6;
+
+export const MAX_DISPLAY_NAME_COUNT = 50;

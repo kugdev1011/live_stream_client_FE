@@ -2,8 +2,10 @@ import { liveStreamApi } from './utils';
 import {
   User2FACheckResponse,
   User2FAVerityResponse,
-  UserInfoUpdateRequest,
-  UserInfoUpdateResponse,
+  ChangePasswordRequest,
+  UserProfileInfoUpdateResponse,
+  ChangePasswordResponse,
+  UserProfileInfoUpdateRequest,
 } from '@/data/dto/user';
 import { API_METHOD, ApiRequest, ApiResult, ApiService } from '@/data/api';
 
@@ -100,15 +102,50 @@ export const apiChange2FactorAuth = async (
   };
 };
 
-export const apiUpdateUserInfo = async ({
+export const apiChangePassword = async ({
   currentPassword,
   newPassword,
-  displayName,
-  avatarFile,
-}: UserInfoUpdateRequest): Promise<ApiResult<UserInfoUpdateResponse>> => {
+}: ChangePasswordRequest): Promise<ApiResult<ChangePasswordResponse>> => {
   const formData = new FormData();
   if (currentPassword) formData.append('password', currentPassword);
   if (newPassword) formData.append('new_password', newPassword);
+
+  const request: ApiRequest = {
+    service: ApiService.liveStream,
+    url: USER_UPDATE_API,
+    method: API_METHOD.PUT,
+    authToken: true,
+    data: formData,
+  };
+
+  const apiResponse = await liveStreamApi(request);
+  const { success, data: responseData, code, message } = apiResponse;
+
+  let rp: UserProfileInfoUpdateResponse = {
+    username: '',
+    display_name: '',
+    avatar_file_url: '',
+    email: '',
+    role_type: '',
+  };
+  if (success) {
+    rp = responseData?.data;
+  }
+
+  return {
+    data: rp,
+    message,
+    code,
+  };
+};
+
+export const apiUpdateUserProfileInfo = async ({
+  displayName,
+  avatarFile,
+}: UserProfileInfoUpdateRequest): Promise<
+  ApiResult<UserProfileInfoUpdateResponse>
+> => {
+  const formData = new FormData();
   if (displayName) formData.append('display_name', displayName);
   if (avatarFile) formData.append('avatar', avatarFile);
 
@@ -123,7 +160,7 @@ export const apiUpdateUserInfo = async ({
   const apiResponse = await liveStreamApi(request);
   const { success, data: responseData, code, message } = apiResponse;
 
-  let rp: UserInfoUpdateResponse = {
+  let rp: UserProfileInfoUpdateResponse = {
     username: '',
     display_name: '',
     avatar_file_url: '',

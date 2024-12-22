@@ -83,6 +83,19 @@ const clearData = (): void => {
   localStorage.removeItem(STORAGE_KEY);
 };
 
+export const updateUserProfileInfoLS = (
+  displayName: string,
+  avatarFileName: string
+): void => {
+  const storedData = localStorage.getItem(STORAGE_KEY);
+  const authInfo = storedData ? JSON.parse(storedData) : {};
+
+  authInfo.display_name = displayName;
+  authInfo.avatar_file_name = avatarFileName;
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(authInfo));
+};
+
 export const authAccount = (
   id: string,
   email: string,
