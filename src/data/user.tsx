@@ -26,6 +26,10 @@ export const modalTexts = {
       description: 'You have successfully updated your password',
     },
   },
+  updateInfo: {
+    success: {
+      title: 'Successful updating infos',
+      description: 'You have successfully updated your information.',
+    },
+  },
 };
-
-export const Auth2FA_OTP_LENGTH = 6;

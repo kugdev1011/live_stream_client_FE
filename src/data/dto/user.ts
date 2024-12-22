@@ -8,17 +8,22 @@ export interface User2FAVerityResponse {
   is_verified: boolean;
 }
 
-export interface UserInfoUpdateRequest {
-  currentPassword?: string;
-  newPassword?: string;
-  displayName?: string;
-  avatarFile?: File | null;
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
 }
 
-export interface UserInfoUpdateResponse {
+export interface UserProfileInfoUpdateRequest {
+  displayName: string;
+  avatarFile?: File | null | string;
+}
+
+export interface UserProfileInfoUpdateResponse {
   username: string;
   display_name: string;
   avatar_file_url: string;
   email: string;
   role_type: string;
 }
+
+export type ChangePasswordResponse = UserProfileInfoUpdateResponse;

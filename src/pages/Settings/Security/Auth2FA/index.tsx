@@ -173,7 +173,7 @@ const Auth2FA = () => {
 
   return (
     <div>
-      <div className="mt-10 p-4 border rounded-md">
+      <div className="mt-10 p-5 border rounded-md">
         <div className="flex justify-between items-center">
           <h3 className="flex items-center gap-2 text-lg md:text-xl font-medium">
             Two-factor authentication{' '}

@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { capitalizeFirstLetter, cn } from '@/lib/utils';
 import { ChangePasswordRules, ChangePasswordSchema } from '@/data/validations';
 import { Icons } from '@/components/Icons';
-import { updateUserInfo, UserInfoUpdateError } from '@/services/user';
+import { changePassword, ChangePasswordError } from '@/services/user';
 import { z } from 'zod';
 import {
   NotificationModalProps,
@@ -69,7 +69,7 @@ const ChangePassword = () => {
       data,
       errors: _errors,
       message,
-    } = await updateUserInfo({
+    } = await changePassword({
       newPassword,
       currentPassword,
     });
@@ -87,7 +87,7 @@ const ChangePassword = () => {
       );
     } else {
       if (_errors) {
-        if (_errors[UserInfoUpdateError.INVALID_CURRENT_PASSWORD]) {
+        if (_errors[ChangePasswordError.INVALID_CURRENT_PASSWORD]) {
           setError('currentPassword', {
             type: 'manual',
             message: message || 'Current password is invalid',
@@ -136,7 +136,7 @@ const ChangePassword = () => {
 
   return (
     <div>
-      <div className="p-4 border rounded-md">
+      <div className="p-5 border rounded-md">
         <div className="flex justify-between items-center">
           <h3 className="text-lg md:text-xl font-medium">Password</h3>
           <Button

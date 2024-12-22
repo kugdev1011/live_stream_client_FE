@@ -21,7 +21,7 @@ import { verity2FactorAuthWithOTP, Verity2FAError } from '@/services/user';
 import { RotateCw, Smartphone } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { Auth2FA_OTP_LENGTH } from '@/data/user';
+import { AUTH2FA_OTP_LENGTH } from '@/data/validations';
 
 type User2FAFormError = {
   actionFailure: boolean;
@@ -179,7 +179,7 @@ const User2FASetupModal = (props: ComponentProps) => {
             Verify the code from the app <RequiredInput />
           </Label>
           <InputOTP
-            maxLength={Auth2FA_OTP_LENGTH}
+            maxLength={AUTH2FA_OTP_LENGTH}
             pattern={REGEXP_ONLY_DIGITS}
             value={codeToVerifyInput}
             onChange={(value) => setCodeToVerifyInput(value)}
@@ -204,7 +204,7 @@ const User2FASetupModal = (props: ComponentProps) => {
             <Button
               type="submit"
               disabled={
-                codeToVerifyInput?.length !== Auth2FA_OTP_LENGTH || isLoading
+                codeToVerifyInput?.length !== AUTH2FA_OTP_LENGTH || isLoading
               }
             >
               {isLoading ? 'Verifying...' : 'Verify'}

@@ -1,4 +1,4 @@
-import AvatarPhoto from '@/assets/images/pf.jpeg';
+import AvatarPhoto from '@/assets/images/pf.png';
 
 export const initialMessages = [
   {
