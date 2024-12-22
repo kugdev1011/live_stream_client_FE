@@ -1,5 +1,6 @@
 import { Reaction, ReactionIcons, ReactionStats } from '@/data/chat';
 import { Button } from '../ui/button';
+import { formatReactionCount } from '@/lib/utils';
 
 export interface OnReactOnLiveParams {
   reaction: Reaction;
@@ -13,13 +14,6 @@ interface ComponentProps {
   };
   onReactOnLive: (params: OnReactOnLiveParams) => void;
 }
-
-const formatCount = (count: number | undefined): string => {
-  if (count === undefined) return '';
-  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
-  if (count >= 1_000) return `${(count / 1_000).toFixed(1)}k`;
-  return count.toString();
-};
 
 const Reactions = (props: ComponentProps) => {
   const { stats, onReactOnLive } = props;
@@ -38,7 +32,7 @@ const Reactions = (props: ComponentProps) => {
       {reactions.map((reaction) => {
         const isActive = stats.currentReactionType === reaction;
 
-        const reactionCount = formatCount(stats.likeInfo[reaction]);
+        const reactionCount = formatReactionCount(stats.likeInfo[reaction]);
 
         return (
           <Button

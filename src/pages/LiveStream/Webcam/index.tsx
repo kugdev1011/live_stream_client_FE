@@ -46,6 +46,7 @@ import { useIsMobile } from '@/hooks/useMobile';
 import { fetchCategories } from '@/services/category';
 import { CategoryResponse } from '@/data/dto/category';
 import { getObjectsByIds, toHashtagStyle } from '@/lib/utils';
+import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
 
 const title = 'Go Live';
 
@@ -199,8 +200,10 @@ const LiveStreamWebcam = () => {
     streamWsRef.current = streamWs;
 
     streamWs.onopen = () => {
-      setIsStreamStarted(true);
       console.log('WebSocket connection established');
+      setIsStreamStarted(true);
+
+      emitStreamStartEvent();
 
       // Start sending video frames
       const stream = video.captureStream();
@@ -261,6 +264,8 @@ const LiveStreamWebcam = () => {
   // Ends stream, terminates ws connection, stops using webcam & mic
   const handleEndStreamConfirmed = () => {
     setIsStreamStarted(false);
+
+    emitStreamEndEvent();
 
     // End websocket
     if (streamWsRef.current) {
@@ -375,6 +380,16 @@ const LiveStreamWebcam = () => {
     navigate(LIVE_STREAM_PATH);
   };
 
+  // emit stream start event
+  const emitStreamStartEvent = () => {
+    EventEmitter.emit(EVENT_EMITTER_NAME.LIVE_STREAM_START);
+  };
+
+  // emit stream end event
+  const emitStreamEndEvent = () => {
+    EventEmitter.emit(EVENT_EMITTER_NAME.LIVE_STREAM_END);
+  };
+
   useEffect(() => {
     if (isStreamStarted && streamDetails) {
       const token = retrieveAuthToken();
@@ -415,18 +430,6 @@ const LiveStreamWebcam = () => {
               return updatedStats;
             });
           }
-          // On removing a reaction
-          else if (_.isEmpty(response)) {
-            setLiveInitialStats((prevStats) => {
-              const updatedStats = {
-                ...prevStats,
-                like_count: 0,
-                like_info: {},
-                current_like_type: undefined,
-              };
-              return updatedStats;
-            });
-          }
           // On commenting
           else if (response && isLiveCommentInfoObj(response)) {
             setLiveInitialStats((prevStats) => {
@@ -448,7 +451,8 @@ const LiveStreamWebcam = () => {
             setLiveInitialStats((prevStats) => {
               const updatedStats = {
                 ...prevStats,
-                like_count: response?.data?.total || prevStats.like_count,
+                // like_count: response?.data?.total || prevStats.like_count,
+                like_count: response?.data?.total || 0,
                 like_info: { ...response?.data },
               };
               return updatedStats;
@@ -468,12 +472,26 @@ const LiveStreamWebcam = () => {
           ) {
             setIsStreamStarted(false);
 
+            emitStreamEndEvent();
+
             // TODO: may need to redirect to some page(s)
             openNotifyModal(
               NotifyModalType.ERROR,
               'Live Ended!',
               'Your live has been ended'
             );
+          }
+          // On getting empty result
+          else if (_.isEmpty(response)) {
+            setLiveInitialStats((prevStats) => {
+              const updatedStats = {
+                ...prevStats,
+                like_count: 0,
+                like_info: {},
+                current_like_type: undefined,
+              };
+              return updatedStats;
+            });
           }
         } catch (err) {
           console.error('Error parsing WebSocket message:', err);
