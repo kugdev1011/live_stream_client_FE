@@ -94,7 +94,7 @@ const Chat = (props: ComponentProps) => {
               className={cn(
                 'gap-0 rounded-md px-2 py-1 text-xs w-max max-w-[95%]',
                 message.username === currentUser.username
-                  ? 'ml-auto bg-primary text-white'
+                  ? 'ml-auto bg-background border text-black dark:text-white'
                   : 'bg-muted dark:bg-muted/60'
               )}
             >
@@ -118,7 +118,7 @@ const Chat = (props: ComponentProps) => {
             stats={{
               likeCount: initialStats.like_count,
               likeInfo: initialStats.like_info,
-              currentReactionType: initialStats.current_like_type,
+              currentReactionType: initialStats?.current_like_type,
             }}
             onReactOnLive={onReactOnLive}
           />

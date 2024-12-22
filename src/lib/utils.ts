@@ -29,3 +29,10 @@ export function toHashtagStyle(str: string): string {
 export function capitalizeFirstLetter(str: string): string {
   return String(str).charAt(0).toUpperCase() + String(str).slice(1);
 }
+
+export function formatReactionCount(count: number | undefined): string {
+  if (count === undefined) return '';
+  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
+  if (count >= 1_000) return `${(count / 1_000).toFixed(1)}k`;
+  return count.toString();
+}
