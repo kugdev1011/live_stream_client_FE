@@ -422,7 +422,12 @@ const LiveStreamWebcam = () => {
             setLiveInitialStats((prevStats) => {
               const { like_type, like_status } = liveReactionResponse.data;
 
-              if (!like_status) return prevStats;
+              if (!like_status) {
+                return {
+                  ...prevStats,
+                  current_like_type: undefined,
+                };
+              }
 
               const updatedStats = { ...prevStats };
               updatedStats.current_like_type = like_type;
