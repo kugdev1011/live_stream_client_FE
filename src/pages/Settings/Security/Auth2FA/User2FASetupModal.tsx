@@ -8,14 +8,20 @@ import {
   DrawerModalHeader,
   DrawerModalTitle,
 } from '@/components/ui/drawer-modal';
-import { Input } from '@/components/ui/input';
+import { REGEXP_ONLY_DIGITS } from 'input-otp';
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from '@/components/ui/input-otp';
 import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { User2FACheckResponse } from '@/data/dto/user';
-import { cn } from '@/lib/utils';
 import { verity2FactorAuthWithOTP, Verity2FAError } from '@/services/user';
 import { RotateCw, Smartphone } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
+import { Auth2FA_OTP_LENGTH } from '@/data/user';
 
 type User2FAFormError = {
   actionFailure: boolean;
@@ -39,8 +45,7 @@ const User2FASetupModal = (props: ComponentProps) => {
     onVerifySuccess,
   } = props;
 
-  const codeToVerifyInput = useRef<HTMLInputElement>(null);
-
+  const [codeToVerifyInput, setCodeToVerifyInput] = useState('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [formError, setFormError] = useState<User2FAFormError>({
     actionFailure: false,
@@ -51,7 +56,7 @@ const User2FASetupModal = (props: ComponentProps) => {
     event.preventDefault();
 
     setIsLoading(true);
-    const codeToVerify = codeToVerifyInput.current?.value || '';
+    const codeToVerify = codeToVerifyInput || '';
 
     const { data, errors: _errors } = await verity2FactorAuthWithOTP(
       codeToVerify
@@ -76,18 +81,6 @@ const User2FASetupModal = (props: ComponentProps) => {
     }
   };
 
-  const handleCodeToVerifyChange = (): void => {
-    const error = {
-      codeToVerifyFailure: false,
-      actionFailure: false,
-    };
-
-    setFormError((prevState: User2FAFormError) => ({
-      ...prevState,
-      ...error,
-    }));
-  };
-
   const handleCopySetupKeyToClipboard = async () => {
     if (twoFAData && twoFAData.secret) {
       try {
@@ -100,6 +93,16 @@ const User2FASetupModal = (props: ComponentProps) => {
     }
   };
 
+  const handleModalOpenChange = (value: boolean) => {
+    setCodeToVerifyInput('');
+    setFormError({
+      actionFailure: false,
+      codeToVerifyFailure: false,
+    });
+
+    onOpenChange(value);
+  };
+
   const { actionFailure, codeToVerifyFailure } = formError;
   let invalidCodeError = null,
     somethingWrongError = null;
@@ -109,19 +112,18 @@ const User2FASetupModal = (props: ComponentProps) => {
     invalidCodeError = '';
   }
 
-  const codeInputInvalid = codeToVerifyFailure || actionFailure;
-
   return (
-    <DrawerModal open={isOpen} onOpenChange={onOpenChange}>
-      <DrawerModalContent className="sm:max-w-[768px] space-y-4 px-5 pb-5">
-        <DrawerModalHeader className="p-0">
-          <DrawerModalTitle className="text-xl font-semibold">
-            <div className="flex gap-2 items-center">
+    <DrawerModal open={isOpen} onOpenChange={handleModalOpenChange}>
+      <DrawerModalContent className="sm:max-w-[768px] space-y-2 px-5 pb-5 p-0">
+        <DrawerModalHeader>
+          <DrawerModalTitle className="text-center md:text-left">
+            <div className="flex gap-2 justify-start items-center px-2 md:px-7 py-2 pt-4">
               <Smartphone />
               Setup 2FA with authenticator app
             </div>
           </DrawerModalTitle>
-          <DrawerModalDescription className="mt-5 text-left">
+          <Separator className="hidden md:block" />
+          <DrawerModalDescription className="px-2 md:px-7 text-left">
             Authenticator apps and browser extensions like 1Password, Authy,
             Microsoft Authenticator, etc. generate one-time passwords that are
             used as second factor to verify your identity when prompted during
@@ -129,7 +131,7 @@ const User2FASetupModal = (props: ComponentProps) => {
           </DrawerModalDescription>
         </DrawerModalHeader>
 
-        <div>
+        <div className="py-0 px-7">
           <p className="text-md font-medium">Scan the QR Code</p>
           <p className="text-sm text-muted-foreground">
             Use and authenticator app or browser extension to scan.
@@ -138,7 +140,7 @@ const User2FASetupModal = (props: ComponentProps) => {
             <img
               src={`data:image/png;base64,${twoFAData?.qr_code}`}
               alt="QR Code"
-              className="w-[200px] h-[200px] rounded-sm mt-3"
+              className="border w-[200px] h-[200px] rounded-sm mt-3"
             />
           ) : (
             <div className="w-[200px] h-[200px] rounded-sm mt-3 border border-dashed flex flex-col justify-center items-center text-center text-sm">
@@ -172,24 +174,25 @@ const User2FASetupModal = (props: ComponentProps) => {
           )}
         </div>
 
-        <form onSubmit={onCodeSubmit}>
+        <form onSubmit={onCodeSubmit} className="py-0 px-7 pb-5">
           <Label htmlFor="code">
             Verify the code from the app <RequiredInput />
           </Label>
-          <Input
-            ref={codeToVerifyInput}
-            onChange={handleCodeToVerifyChange}
-            id="code"
-            placeholder="XXXXXX"
-            type="text"
-            autoFocus
-            autoCapitalize="none"
-            autoCorrect="off"
-            disabled={isLoading}
-            className={cn('w-full md:w-1/3 mt-2', {
-              'ring-red-500 border-red-500': codeInputInvalid,
-            })}
-          />
+          <InputOTP
+            maxLength={Auth2FA_OTP_LENGTH}
+            pattern={REGEXP_ONLY_DIGITS}
+            value={codeToVerifyInput}
+            onChange={(value) => setCodeToVerifyInput(value)}
+          >
+            <InputOTPGroup>
+              <InputOTPSlot index={0} />
+              <InputOTPSlot index={1} />
+              <InputOTPSlot index={2} />
+              <InputOTPSlot index={3} />
+              <InputOTPSlot index={4} />
+              <InputOTPSlot index={5} />
+            </InputOTPGroup>
+          </InputOTP>
           {invalidCodeError && (
             <FormErrorMessage classes="mt-1" message={invalidCodeError} />
           )}
@@ -198,7 +201,12 @@ const User2FASetupModal = (props: ComponentProps) => {
           )}
 
           <div className="flex gap-2 mt-2">
-            <Button type="submit" disabled={isLoading}>
+            <Button
+              type="submit"
+              disabled={
+                codeToVerifyInput?.length !== Auth2FA_OTP_LENGTH || isLoading
+              }
+            >
               {isLoading ? 'Verifying...' : 'Verify'}
             </Button>
             <Button variant="secondary">Cancel</Button>

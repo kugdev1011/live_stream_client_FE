@@ -27,3 +27,5 @@ export const modalTexts = {
     },
   },
 };
+
+export const Auth2FA_OTP_LENGTH = 6;
