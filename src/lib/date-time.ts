@@ -9,3 +9,7 @@ export const getFormattedDate = (date: Date, includeTime = false): string => {
   const a = moment.utc(date).tz(TIME_ZONE).format(format);
   return a;
 };
+
+export const getTimeAgoFormat = (date: string): string => {
+  return moment(date).fromNow();
+};

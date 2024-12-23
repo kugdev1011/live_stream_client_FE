@@ -1,5 +1,5 @@
 import { isAuthenticated, isAuthorized } from '@/data/model/userAccount';
-import { HOME_PATH, LOGIN_PATH } from '@/data/route';
+import { FEED_PATH, LOGIN_PATH } from '@/data/route';
 import { Navigate, useLocation } from 'react-router-dom';
 
 interface ProtectedRouteProps {
@@ -15,7 +15,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (isAuthenticated()) {
     if (isAuthorized(location.pathname)) return element;
-    return <Navigate to={HOME_PATH} />;
+    return <Navigate to={FEED_PATH} />;
   }
   return <Navigate to={redirectTo} />;
 };

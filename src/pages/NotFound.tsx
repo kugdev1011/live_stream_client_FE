@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { HOME_PATH } from '@/data/route';
+import { FEED_PATH } from '@/data/route';
 import AppLayout from '@/layouts/AppLayout';
 import { SquarePlay } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +8,7 @@ const NotFound = () => {
   const navigate = useNavigate();
 
   const handleGoBackToHome = () => {
-    navigate(HOME_PATH);
+    navigate(FEED_PATH);
   };
 
   return (

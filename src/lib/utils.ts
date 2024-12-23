@@ -30,9 +30,31 @@ export function capitalizeFirstLetter(str: string): string {
   return String(str).charAt(0).toUpperCase() + String(str).slice(1);
 }
 
+export function getAvatarFallbackText(str: string): string {
+  return str?.length > 0 ? str.substring(0, 2).toUpperCase() : 'PF';
+}
+
 export function formatReactionCount(count: number | undefined): string {
   if (count === undefined) return '';
   if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
   if (count >= 1_000) return `${(count / 1_000).toFixed(1)}k`;
   return count.toString();
 }
+
+export const mapToQueryString = <T extends Record<string, unknown>>(
+  payload: Partial<T>
+): string => {
+  const queryParams = new URLSearchParams();
+
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+
+    if (Array.isArray(value)) {
+      value.forEach((v) => queryParams.append(key, v.toString())); // eg: category_ids=2&category_ids=4
+    } else {
+      queryParams.append(key, value.toString());
+    }
+  });
+
+  return queryParams.toString();
+};

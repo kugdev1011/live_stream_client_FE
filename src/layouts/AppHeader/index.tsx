@@ -1,4 +1,3 @@
-import { SearchBox } from '@/layouts/AppHeader/SearchBox';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { siteData } from '@/data/site';
@@ -51,8 +50,6 @@ const AppHeader = React.memo(({ title }: { title?: string }) => {
         <h1 className="hidden lg:block text-lg font-bold">{title}</h1>
 
         <div className="ml-auto flex gap-3 items-center">
-          <SearchBox />
-          <Separator orientation="vertical" className="h-4" />
           {currentUser && currentUser.role_type === USER_ROLE.STREAMER && (
             <>
               {isStreamingLive ? (
@@ -63,12 +60,14 @@ const AppHeader = React.memo(({ title }: { title?: string }) => {
                   <PodcastIcon className="w-3 h-3" /> LIVE
                 </Badge>
               ) : (
-                <Button size="sm" onClick={handleGoLive}>
-                  <Radio />
-                  Go Live
-                </Button>
+                <>
+                  <Button size="sm" onClick={handleGoLive}>
+                    <Radio />
+                    Go Live
+                  </Button>
+                  <Separator orientation="vertical" className="h-4" />
+                </>
               )}
-              <Separator orientation="vertical" className="h-4" />
             </>
           )}
           <UserAvatar />

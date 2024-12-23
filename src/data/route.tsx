@@ -17,7 +17,7 @@ export const REGISTRATION_PATH = AUTH_PREFIX_PATH + '/register';
 export const LOGOUT_PATH = AUTH_PREFIX_PATH + '/logout';
 export const FORGOT_PASSWORD_PATH = AUTH_PREFIX_PATH + '/forgot-password';
 
-export const HOME_PATH = APP_PREFIX_PATH + '';
+export const FEED_PATH = APP_PREFIX_PATH + '';
 export const SUBSCRIPTIONS_PATH = APP_PREFIX_PATH + '/subscriptions';
 export const HISTORY_PATH = APP_PREFIX_PATH + '/history';
 export const LIKED_VIDEOS_PATH = APP_PREFIX_PATH + '/liked';
@@ -25,6 +25,8 @@ export const SAVED_VIDEOS_PATH = APP_PREFIX_PATH + '/saved';
 export const LIVE_STREAM_PATH = APP_PREFIX_PATH + '/live';
 export const LIVE_STREAM_WEBCAM_PATH = LIVE_STREAM_PATH + '/webcam';
 export const LIVE_STREAM_SOFTWARE_PATH = LIVE_STREAM_PATH + '/software';
+
+export const STREAMER_PROFILE_PATH = APP_PREFIX_PATH + '/s';
 
 export const SETTINGS_PATH = APP_PREFIX_PATH + '/settings';
 
@@ -36,7 +38,7 @@ export const TERMS_OF_SERVICES_DOCS_PATH = PUBLIC_PATH + '/terms-of-services';
 
 export const LEFT_MAIN_MENU: Record<USER_ROLE, string[]> = {
   [USER_ROLE.STREAMER]: [
-    HOME_PATH,
+    FEED_PATH,
     SUBSCRIPTIONS_PATH,
 
     LIVE_STREAM_PATH,
@@ -48,29 +50,37 @@ export const LEFT_MAIN_MENU: Record<USER_ROLE, string[]> = {
     SAVED_VIDEOS_PATH,
 
     SETTINGS_PATH,
+
+    STREAMER_PROFILE_PATH,
   ],
   [USER_ROLE.USER]: [
-    HOME_PATH,
+    FEED_PATH,
     SUBSCRIPTIONS_PATH,
     HISTORY_PATH,
     LIKED_VIDEOS_PATH,
     SAVED_VIDEOS_PATH,
 
     SETTINGS_PATH,
+
+    STREAMER_PROFILE_PATH,
   ],
   [USER_ROLE.ADMIN]: [
-    HOME_PATH,
+    FEED_PATH,
     SUBSCRIPTIONS_PATH,
     HISTORY_PATH,
     LIKED_VIDEOS_PATH,
     SAVED_VIDEOS_PATH,
+
+    STREAMER_PROFILE_PATH,
   ],
   [USER_ROLE.SUPERADMIN]: [
-    HOME_PATH,
+    FEED_PATH,
     SUBSCRIPTIONS_PATH,
     HISTORY_PATH,
     LIKED_VIDEOS_PATH,
     SAVED_VIDEOS_PATH,
+
+    STREAMER_PROFILE_PATH,
   ],
 };
 
@@ -81,9 +91,9 @@ export type RouteInfo = {
 };
 
 export const ROUTE_PATH_INFO = {
-  [HOME_PATH]: {
-    path: HOME_PATH,
-    title: 'Home',
+  [FEED_PATH]: {
+    path: FEED_PATH,
+    title: 'Feed',
     Icon: <Frame />,
   },
   [SUBSCRIPTIONS_PATH]: {

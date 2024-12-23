@@ -56,7 +56,7 @@ type StreamInitializeFormError = {
 };
 
 const DetailsForm = (props: ComponentProps) => {
-  const { toggleSidebar } = useSidebar();
+  const { open: isSidebarOpen, setOpen: setSidebarOpen } = useSidebar();
 
   const { isOpen, categories, onSuccess, onClose } = props;
 
@@ -107,7 +107,7 @@ const DetailsForm = (props: ComponentProps) => {
         preview: null,
       });
 
-      toggleSidebar();
+      if (isSidebarOpen) setSidebarOpen(false);
     } else {
       if (_errors) {
         const formError: StreamInitializeFormError = {
