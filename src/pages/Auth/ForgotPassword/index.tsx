@@ -1,5 +1,5 @@
 import { buttonVariants } from '@/components/ui/button';
-import { HOME_PATH, LOGIN_PATH } from '@/data/route';
+import { FEED_PATH, LOGIN_PATH } from '@/data/route';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import LoginBg from '@/assets/images/login-bg.jpg';
@@ -28,7 +28,7 @@ const ForgotPassword = () => {
             backgroundPosition: 'center',
           }}
         >
-          <Link to={HOME_PATH}>
+          <Link to={FEED_PATH}>
             <div className="relative z-20 flex items-center text-lg font-medium">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -55,7 +55,7 @@ const ForgotPassword = () => {
           <div className="mx-auto flex w-full flex-col h-screen justify-center space-y-6 sm:w-[350px]">
             <div className="flex flex-col space-y-2 text-center">
               <Link
-                to={HOME_PATH}
+                to={FEED_PATH}
                 className="flex lg:hidden justify-center mb-5"
               >
                 <div className="relative z-20 flex items-center font-extrabold text-primary text-3xl">

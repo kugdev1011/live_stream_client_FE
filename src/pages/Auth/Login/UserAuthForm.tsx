@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { retrieveAuthToken } from '@/data/model/userAccount';
-import { FORGOT_PASSWORD_PATH, HOME_PATH } from '@/data/route';
+import { FORGOT_PASSWORD_PATH, FEED_PATH } from '@/data/route';
 import { login, LoginError } from '@/services/auth';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -62,7 +62,7 @@ const UserAuthForm = () => {
     if (!_inDirecting.current) {
       _inDirecting.current = true;
 
-      navigate(HOME_PATH);
+      navigate(FEED_PATH);
     }
   }, [navigate]);
 

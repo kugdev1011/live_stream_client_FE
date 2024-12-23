@@ -10,3 +10,8 @@ export enum STREAM_TYPE {
   'CAMERA' = 'camera',
   'SOFTWARE' = 'software',
 }
+
+export const enum CONTENT_STATUS {
+  LIVE = 'live', // currently streaming
+  VIDEO = 'video', // stream ended
+}

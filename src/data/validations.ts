@@ -5,6 +5,10 @@ export const AUTH2FA_OTP_LENGTH = 6;
 export const FORGOT_PASSWORD_OTP_LENGTH = 6;
 export const MAX_DISPLAY_NAME_COUNT = 50;
 
+// pagination
+export const DEFAULT_PAGE = 1;
+export const DEFAULT_PAGE_SIZE = 10;
+
 export const PasswordRules = {
   min: 8,
   max: 12,

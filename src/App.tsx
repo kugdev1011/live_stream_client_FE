@@ -5,7 +5,6 @@ import {
   Routes,
 } from 'react-router-dom';
 import History from './pages/History';
-import Home from './pages/Home';
 import Subscriptions from './pages/Subscriptions';
 import LikedVideos from './pages/LikedVideos';
 import SavedVideos from './pages/SavedVideos';
@@ -13,7 +12,7 @@ import NotFound from './pages/NotFound';
 import {
   FORGOT_PASSWORD_PATH,
   HISTORY_PATH,
-  HOME_PATH,
+  FEED_PATH,
   LIKED_VIDEOS_PATH,
   LIVE_STREAM_PATH,
   LIVE_STREAM_WEBCAM_PATH,
@@ -26,6 +25,7 @@ import {
   SUBSCRIPTIONS_PATH,
   TERMS_OF_SERVICES_DOCS_PATH,
   TEST_LIVE_STREAM_PATH,
+  STREAMER_PROFILE_PATH,
 } from './data/route';
 import Register from './pages/Auth/Register';
 import Login from './pages/Auth/Login';
@@ -39,6 +39,8 @@ import LiveStreamWebcam from './pages/LiveStream/Webcam';
 import React from 'react';
 import Settings from './pages/Settings';
 import ForgotPassword from './pages/Auth/ForgotPassword';
+import Feed from './pages/Feed';
+import UserProfile from './pages/UserProfile';
 
 function App() {
   return (
@@ -47,8 +49,8 @@ function App() {
         <Route path="/" element={<Navigate to={LOGIN_PATH} />} />
 
         <Route
-          path={HOME_PATH}
-          element={<ProtectedRoute element={<Home />} />}
+          path={FEED_PATH}
+          element={<ProtectedRoute element={<Feed />} />}
         />
         <Route
           path={SUBSCRIPTIONS_PATH}
@@ -79,6 +81,12 @@ function App() {
           element={<ProtectedRoute element={<Settings />} />}
         />
         <Route path={LOGOUT_PATH} element={<LogoutPage />} />
+
+        {/* Streamers */}
+        <Route
+          path={STREAMER_PROFILE_PATH}
+          element={<ProtectedRoute element={<UserProfile />} />}
+        />
 
         {/* Testings */}
         <Route path={TEST_LIVE_STREAM_PATH} element={<TestLiveStream />} />

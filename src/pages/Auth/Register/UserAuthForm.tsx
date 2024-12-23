@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { retrieveAuthToken } from '@/data/model/userAccount';
-import { HOME_PATH } from '@/data/route';
+import { FEED_PATH } from '@/data/route';
 import { PasswordRules } from '@/data/validations';
 import { register, RegisterError } from '@/services/auth';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -95,7 +95,7 @@ const UserAuthForm = () => {
     if (!_inDirecting.current) {
       _inDirecting.current = true;
 
-      navigate(HOME_PATH);
+      navigate(FEED_PATH);
     }
   }, [navigate]);
 

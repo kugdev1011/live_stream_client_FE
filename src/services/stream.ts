@@ -1,7 +1,11 @@
 import _ from 'lodash';
-import { apiInitializeStream } from '@/api/stream';
-import { ServiceResponse } from '@/data/api';
-import { StreamDetailsResponse } from '@/data/dto/stream';
+import { apiFetchContents, apiInitializeStream } from '@/api/stream';
+import { FindAndCountResponse, ServiceResponse } from '@/data/api';
+import {
+  StreamDetailsResponse,
+  StreamsResponse,
+  VideosListRequest,
+} from '@/data/dto/stream';
 import { STREAM_TYPE } from '@/data/types/stream';
 import { MAX_CATEGORY_COUNT, StreamInitializeRules } from '@/data/validations';
 import { StreamInitializeFields } from '@/data/types/stream';
@@ -103,4 +107,13 @@ export const initializeStream = async ({
       : undefined,
     message: msg,
   };
+};
+
+export const fetchContents = async (
+  payload: VideosListRequest
+): Promise<FindAndCountResponse<StreamsResponse>> => {
+  const { data, error } = await apiFetchContents(payload);
+  if (data && !error) return data;
+
+  return [];
 };

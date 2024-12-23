@@ -71,10 +71,13 @@ export type OptionData<T> = {
 };
 
 export interface FindAndCountResponse<T> {
-  data?: T[];
-  count?: number;
-  limit?: number;
-  offset?: number;
+  page?: T[];
+  index?: number;
+  current_page?: number;
+  length?: number;
+  total_items?: number;
+  page_size?: number;
+  next?: number;
 }
 
 export interface SuccessResponse {
@@ -118,7 +121,3 @@ export const getApiErrorMessage = (errorCode: string) => {
       return 'An unknown error occurred.';
   }
 };
-
-export const DEFAULT_PAGE_LIMIT = 10;
-export const DEFAULT_ACTIVITIES_LIMIT = 100;
-export const DEFAULT_ACTIVITIES_OFFSET = 0;
