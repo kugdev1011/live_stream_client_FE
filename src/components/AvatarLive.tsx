@@ -16,7 +16,7 @@ const AvatarLive = (props: ComponentProps) => {
         isLive ? 'border-red-700 border-2' : ''
       }`}
     >
-      <AvatarImage src={avatarUrl} />
+      <AvatarImage src={avatarUrl} className="object-cover" />
       <AvatarFallback>{getAvatarFallbackText(displayName)}</AvatarFallback>
     </Avatar>
   );

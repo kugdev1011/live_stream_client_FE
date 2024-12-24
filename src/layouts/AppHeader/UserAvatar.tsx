@@ -3,7 +3,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Sidebar,
   SidebarContent,
@@ -68,8 +68,7 @@ const UserAvatar = React.memo(() => {
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Avatar className="w-8 h-8 cursor-pointer">
-          {/* <AvatarImage src={avatarUrl} /> */}
-          <img src={user?.avatarUrl} />
+          <AvatarImage src={user?.avatarUrl} className="object-cover" />
           <AvatarFallback>PF</AvatarFallback>
         </Avatar>
       </PopoverTrigger>
@@ -81,8 +80,7 @@ const UserAvatar = React.memo(() => {
           <SidebarContent>
             <div className="flex gap-2 items-center justify-start py-3 pb-2 px-4">
               <Avatar className="w-8 h-8">
-                {/* <AvatarImage src={avatarUrl} /> */}
-                <img src={user?.avatarUrl} />
+                <AvatarImage src={user?.avatarUrl} className="object-cover" />
                 <AvatarFallback>PF</AvatarFallback>
               </Avatar>
               <div className="flex flex-col gap-1">

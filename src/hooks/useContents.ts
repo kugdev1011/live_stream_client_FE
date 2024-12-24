@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { fetchContents } from '@/services/stream';
 import { StreamsResponse, VideosListRequest } from '@/data/dto/stream';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/data/validations';
@@ -20,8 +20,96 @@ const useContents = (payload: VideosListRequest = {}) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refetchKey, setRefetchKey] = useState(0);
+  const [currentPage, setCurrentPage] = useState(page);
+
+  // Ref to store previous dependencies
+  const prevDepsRef = useRef({
+    status,
+    categoryId1,
+    categoryId2,
+    categoryId3,
+    title,
+  });
+
+  const refetchContents = () => {
+    setCurrentPage(1);
+    setRefetchKey((prevKey) => prevKey + 1);
+  };
+
+  const fetchNextPage = () => {
+    if (!isLoading && contents.length < totalItems) {
+      setCurrentPage((prev) => prev + 1);
+      fetchContentsData(currentPage + 1, true);
+    }
+  };
+
+  const fetchContentsData = useCallback(
+    async (page: number, isScrollFetch: boolean) => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const params: Record<string, unknown> = {
+          page,
+          limit,
+          status,
+          title,
+          isMe,
+          categoryId1: categoryId1 || undefined,
+          categoryId2: categoryId2 || undefined,
+          categoryId3: categoryId3 || undefined,
+        };
+
+        const response = await fetchContents(params);
+
+        if (!response?.page) {
+          throw new Error('Failed to fetch contents!');
+        }
+
+        setContents((prev) =>
+          isScrollFetch
+            ? [...prev, ...(response.page || [])]
+            : response.page || []
+        );
+        setTotalItems(response.total_items || 0);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : 'An unknown error occurred.'
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [categoryId1, categoryId2, categoryId3, isMe, limit, status, title]
+  );
 
   useEffect(() => {
+    const prevDeps = prevDepsRef.current;
+
+    // Check if any of the tracked dependencies have changed
+    const isChanged =
+      prevDeps.status !== status ||
+      prevDeps.categoryId1 !== categoryId1 ||
+      prevDeps.categoryId2 !== categoryId2 ||
+      prevDeps.categoryId3 !== categoryId3 ||
+      prevDeps.title !== title;
+
+    if (isChanged) {
+      // Clear contents and fetch new data
+      setContents([]);
+      setCurrentPage(1);
+      fetchContentsData(1, false);
+
+      // Update the previous dependencies with new ones
+      prevDepsRef.current = {
+        status,
+        categoryId1,
+        categoryId2,
+        categoryId3,
+        title,
+      };
+    }
+
     const getContents = async () => {
       try {
         setIsLoading(true);
@@ -45,7 +133,7 @@ const useContents = (payload: VideosListRequest = {}) => {
           throw new Error('Failed to fetch contents!');
         }
 
-        setContents(response.page || []);
+        setContents((prev) => [...prev, ...(response.page || [])]);
         setTotalItems(response.total_items || 0);
       } catch (err) {
         setError(
@@ -58,6 +146,8 @@ const useContents = (payload: VideosListRequest = {}) => {
 
     getContents();
   }, [
+    fetchContentsData,
+    currentPage,
     refetchKey,
     page,
     limit,
@@ -69,11 +159,14 @@ const useContents = (payload: VideosListRequest = {}) => {
     categoryId3,
   ]);
 
-  const refetchContents = () => {
-    setRefetchKey((prevKey) => prevKey + 1);
+  return {
+    contents,
+    isLoading,
+    totalItems,
+    error,
+    refetchContents,
+    fetchNextPage,
   };
-
-  return { contents, isLoading, totalItems, error, refetchContents };
 };
 
 export default useContents;
