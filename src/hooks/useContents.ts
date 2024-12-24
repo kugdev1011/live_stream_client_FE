@@ -32,7 +32,6 @@ const useContents = (payload: VideosListRequest = {}) => {
   });
 
   const refetchContents = () => {
-    setCurrentPage(1);
     setRefetchKey((prevKey) => prevKey + 1);
   };
 
@@ -147,7 +146,6 @@ const useContents = (payload: VideosListRequest = {}) => {
     getContents();
   }, [
     fetchContentsData,
-    currentPage,
     refetchKey,
     page,
     limit,
