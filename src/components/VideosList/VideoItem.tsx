@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StreamsResponse } from '@/data/dto/stream';
 import { getTimeAgoFormat } from '@/lib/date-time';
 import { Badge } from '../ui/badge';
@@ -7,6 +7,7 @@ import { STREAMER_PROFILE_PATH } from '@/data/route';
 import AvatarLive from '../AvatarLive';
 import { CONTENT_STATUS } from '@/data/types/stream';
 import TooltipComponent from '../TooltipComponent';
+import DefaultImg from '@/assets/images/video-thumbnail.jpg';
 
 interface VideoItemProps {
   video: StreamsResponse;
@@ -14,6 +15,12 @@ interface VideoItemProps {
 
 const VideoItem: React.FC<VideoItemProps> = ({ video }) => {
   const isLive = video.status === CONTENT_STATUS.LIVE;
+
+  const [thumbnailUrl, setThumbnailUrl] = useState(video.thumbnail_url);
+
+  const handleImageError = () => {
+    setThumbnailUrl(DefaultImg);
+  };
 
   return (
     <div className={`overflow-hidden relative cursor-pointer group`}>
@@ -27,16 +34,13 @@ const VideoItem: React.FC<VideoItemProps> = ({ video }) => {
       )}
 
       <div
-        className={`overflow-hidden aspect-video rounded-lg border border-background ${
-          isLive
-            ? 'border-red-600 group-hover:border-red-600'
-            : 'group-hover:border-primary'
-        } group-hover:border-spacing-3 group-hover:border-4 transition-all ease-in-out duration-300`}
+        className={`overflow-hidden aspect-video rounded-lg border border-background group-hover:border-primary group-hover:border-spacing-3 group-hover:border-4 transition-all ease-in-out duration-300`}
       >
         <img
-          src={video.thumbnail_url}
+          src={thumbnailUrl}
           alt={video.title}
           className="w-full h-full object-cover"
+          onError={handleImageError}
         />
       </div>
 
