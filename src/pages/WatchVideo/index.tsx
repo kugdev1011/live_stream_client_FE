@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import AppLayout from '@/layouts/AppLayout';
-import VideoPlayer from '@/components/VideoPlayer';
 import DefaultPf from '@/assets/images/pf.png';
 import { Button } from '@/components/ui/button';
 import AppAvatar from '@/components/AppAvatar';
@@ -17,6 +16,7 @@ import { Sparkles, SquarePlay, VideoOff } from 'lucide-react';
 import { FEED_PATH } from '@/data/route';
 import NotFoundCentered from '@/components/NotFoundCentered';
 import FullscreenLoading from '@/components/FullscreenLoading';
+import VideoPlayerFLV from '@/components/VideoPlayerFLV';
 
 const WatchVideo = () => {
   const { id: videoId } = useParams<{ id: string }>();
@@ -29,10 +29,7 @@ const WatchVideo = () => {
   const uploaderRef = useRef<HTMLDivElement | null>(null);
   const videoContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [isBuffered, setIsBuffered] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  // video ui
   const [videoDimensions, setVideoDimensions] = useState<{
     width: number;
     height: number;
@@ -173,29 +170,7 @@ const WatchVideo = () => {
               height: videoDimensions ? `${videoDimensions.height}px` : 'auto',
             }}
           >
-            <VideoPlayer
-              isFlv
-              options={{
-                autoplay: true,
-                controls: true,
-                responsive: true,
-                fluid: true,
-                preload: 'auto',
-                playbackRates: [0.5, 1, 1.5, 2],
-                sources: [
-                  {
-                    src: videoDetails?.video_url,
-                    type: 'video/mp4',
-                  },
-                ],
-              }}
-              videoRequest={{
-                setIsLoading,
-                setIsBuffered,
-                setIsError,
-                setIsSuccess,
-              }}
-            />
+            <VideoPlayerFLV videoUrl={videoDetails?.video_url || ''} />
           </div>
         </div>
 
