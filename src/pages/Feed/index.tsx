@@ -10,11 +10,11 @@ import useCategories from '@/hooks/useCategories';
 import useContents from '@/hooks/useContents';
 import AppLayout from '@/layouts/AppLayout';
 import LayoutHeading from '@/layouts/LayoutHeading';
-import { Search } from 'lucide-react';
+import { Search, VideoOff } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import NotFound from './NotFound';
 import FetchingError from './FetchingError';
 import EndOfResults from './EndOfResults';
+import NotFoundCentered from '@/components/NotFoundCentered';
 
 const title = 'Feed';
 
@@ -156,7 +156,13 @@ const Feed = () => {
         )}
 
         {/* No results */}
-        {!isContentsFetching && contents.length === 0 && <NotFound />}
+        {!isContentsFetching && contents.length === 0 && (
+          <NotFoundCentered
+            Icon={<VideoOff className="text-white" />}
+            title="No Video Found!"
+            description="Please try searching with different filters."
+          />
+        )}
       </div>
 
       {/* Loading... */}

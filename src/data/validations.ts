@@ -9,6 +9,8 @@ export const MAX_DISPLAY_NAME_COUNT = 50;
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_PAGE_SIZE = 10;
 
+export const RECORD_VIEW_AFTER_SECONDS = 10; // 10 seconds
+
 export const PasswordRules = {
   min: 8,
   max: 12,

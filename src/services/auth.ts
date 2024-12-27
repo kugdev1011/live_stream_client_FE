@@ -209,8 +209,6 @@ export const forgotPassword = async (
   let msg: string = '';
   const { data, message } = await apiForgotPassword(payload);
 
-  console.log(' ooo ', data);
-  console.log(' ooo ', message);
   if (data && !data?.success) {
     msg = message;
   } else {
