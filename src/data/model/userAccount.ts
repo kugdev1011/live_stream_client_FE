@@ -2,6 +2,7 @@ import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
 import moment from 'moment-timezone';
 import { LEFT_MAIN_MENU } from '../route';
 import { USER_ROLE } from '@/data/types/role';
+import { matchPath } from 'react-router-dom';
 
 const STORAGE_KEY = 'authInfo';
 
@@ -146,10 +147,10 @@ export const isAuthorized = (pathname: string): boolean => {
 
   if (currentUser && !currentUser?.id && !currentUser?.role_type) return false;
 
-  if (LEFT_MAIN_MENU[currentUser.role_type as USER_ROLE]?.includes(pathname))
-    return true;
-
-  return false;
+  const allowedPaths = LEFT_MAIN_MENU[currentUser.role_type as USER_ROLE];
+  return allowedPaths.some((allowedPath) =>
+    matchPath({ path: allowedPath, end: false }, pathname)
+  );
 };
 
 const onAccountChange = (): void => {
