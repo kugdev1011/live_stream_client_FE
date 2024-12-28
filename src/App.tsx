@@ -1,9 +1,4 @@
-import {
-  Navigate,
-  Route,
-  BrowserRouter as Router,
-  Routes,
-} from 'react-router-dom';
+import { Navigate, Route, BrowserRouter, Routes } from 'react-router-dom';
 import History from './pages/History';
 import Subscriptions from './pages/Subscriptions';
 import LikedVideos from './pages/LikedVideos';
@@ -26,6 +21,7 @@ import {
   TERMS_OF_SERVICES_DOCS_PATH,
   TEST_LIVE_STREAM_PATH,
   STREAMER_PROFILE_PATH,
+  WATCH_VIDEO_PATH,
 } from './data/route';
 import Register from './pages/Auth/Register';
 import Login from './pages/Auth/Login';
@@ -41,17 +37,20 @@ import Settings from './pages/Settings';
 import ForgotPassword from './pages/Auth/ForgotPassword';
 import Feed from './pages/Feed';
 import UserProfile from './pages/UserProfile';
+import WatchVideo from './pages/WatchVideo';
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to={LOGIN_PATH} />} />
 
+        {/* Feed page */}
         <Route
           path={FEED_PATH}
           element={<ProtectedRoute element={<Feed />} />}
         />
+
         <Route
           path={SUBSCRIPTIONS_PATH}
           element={<ProtectedRoute element={<Subscriptions />} />}
@@ -82,6 +81,12 @@ function App() {
         />
         <Route path={LOGOUT_PATH} element={<LogoutPage />} />
 
+        {/* Watch video */}
+        <Route
+          path={WATCH_VIDEO_PATH}
+          element={<ProtectedRoute element={<WatchVideo />} />}
+        />
+
         {/* Streamers */}
         <Route
           path={STREAMER_PROFILE_PATH}
@@ -102,7 +107,7 @@ function App() {
 
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 

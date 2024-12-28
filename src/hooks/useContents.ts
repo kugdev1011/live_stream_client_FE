@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { fetchContents } from '@/services/stream';
+import { fetchVideosList } from '@/services/stream';
 import { StreamsResponse, VideosListRequest } from '@/data/dto/stream';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/data/validations';
 
@@ -59,7 +59,7 @@ const useContents = (payload: VideosListRequest = {}) => {
           categoryId3: categoryId3 || undefined,
         };
 
-        const response = await fetchContents(params);
+        const response = await fetchVideosList(params);
 
         if (!response?.page) {
           throw new Error('Failed to fetch contents!');
@@ -126,7 +126,7 @@ const useContents = (payload: VideosListRequest = {}) => {
         if (categoryId2 !== 0) params.categoryId2 = categoryId2;
         if (categoryId3 !== 0) params.categoryId3 = categoryId3;
 
-        const response = await fetchContents(params);
+        const response = await fetchVideosList(params);
 
         if (!response?.page) {
           throw new Error('Failed to fetch contents!');
