@@ -1,5 +1,6 @@
 import FullscreenLoading from '@/components/FullscreenLoading';
 import { MultiSelect } from '@/components/MultiSelect';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -10,11 +11,8 @@ import useCategories from '@/hooks/useCategories';
 import useContents from '@/hooks/useContents';
 import AppLayout from '@/layouts/AppLayout';
 import LayoutHeading from '@/layouts/LayoutHeading';
-import { Search, VideoOff } from 'lucide-react';
+import { AlertCircle, RotateCw, Search } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import FetchingError from './FetchingError';
-import EndOfResults from './EndOfResults';
-import NotFoundCentered from '@/components/NotFoundCentered';
 
 const title = 'Feed';
 
@@ -37,7 +35,7 @@ const Feed = () => {
   const {
     contents,
     totalItems,
-    isLoading: isContentsFetching,
+    isLoading: isContentsLoading,
     error: contentFetchError,
     refetchContents,
     fetchNextPage,
@@ -65,10 +63,10 @@ const Feed = () => {
 
     setIsAtBottom(isBottom);
 
-    if (!isContentsFetching && isBottom) {
+    if (!isContentsLoading && isBottom) {
       fetchNextPage();
     }
-  }, [fetchNextPage, isContentsFetching]);
+  }, [fetchNextPage, isContentsLoading]);
 
   const handleLiveViewChange = (value: boolean) => {
     setIsLiveView(value);
@@ -97,7 +95,6 @@ const Feed = () => {
     <AppLayout title={title}>
       <LayoutHeading title={title} />
 
-      {/* Search, filter and live toggle bar */}
       <div className="flex items-center justify-center gap-3">
         <div className="relative w-1/2 md:w-1/3">
           <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -136,41 +133,34 @@ const Feed = () => {
         </div>
       </div>
 
-      <div
-        ref={listRef}
-        className={`overflow-y-auto ${
-          contents.length > 0 ? 'h-[calc(100vh-100px)]' : ''
-        }`}
-      >
-        {/* Videos List */}
-        {!contentFetchError && contents.length > 0 && (
+      <div ref={listRef} className="overflow-y-auto h-[calc(100vh-100px)]">
+        {!contentFetchError && contents.length > 0 ? (
           <VideosList videos={contents} />
-        )}
-
-        {/* Fetching error, api error, server down */}
-        {!isContentsFetching && contents.length !== 0 && contentFetchError && (
-          <FetchingError
-            isLoading={isContentsFetching}
-            onRefetch={refetchContents}
-          />
-        )}
-
-        {/* No results */}
-        {!isContentsFetching && contents.length === 0 && (
-          <NotFoundCentered
-            Icon={<VideoOff className="text-white" />}
-            title="No Video Found!"
-            description="Please try searching with different filters."
-          />
+        ) : (
+          !isContentsLoading && (
+            <div className="flex flex-col justify-center items-center mt-20 space-y-3 ">
+              <div className="bg-red-200 dark:bg-red-800 p-2 rounded-full">
+                <AlertCircle className="text-red-500" />
+              </div>
+              <p className="text-base font-medium">
+                Sorry, can't fetch videos right now!
+              </p>
+              <Button variant="outline" onClick={refetchContents}>
+                <RotateCw className="w-4 h-4" />
+                {isContentsLoading ? 'Retrying...' : 'Retry'}
+              </Button>
+            </div>
+          )
         )}
       </div>
 
-      {/* Loading... */}
-      {isContentsFetching && <FullscreenLoading />}
-
-      {/* Shows end of results */}
-      {!isContentsFetching && contents.length === totalItems && isAtBottom && (
-        <EndOfResults />
+      {isContentsLoading && <FullscreenLoading />}
+      {!isContentsLoading && contents.length === totalItems && isAtBottom && (
+        <div className="flex justify-center items-center">
+          <span className="flex gap-1 items-center bg-primary text-center mt-4 text-white text-xs px-3 py-1 rounded-full">
+            <AlertCircle className="w-3 h-3 text-white" /> End of results
+          </span>
+        </div>
       )}
     </AppLayout>
   );

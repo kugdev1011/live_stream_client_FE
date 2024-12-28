@@ -30,7 +30,7 @@ const Reactions = (props: ComponentProps) => {
       }}
     >
       {reactions.map((reaction) => {
-        const isActive = stats?.currentReactionType === reaction;
+        const isActive = stats.currentReactionType === reaction;
 
         const reactionCount = formatReactionCount(stats.likeInfo[reaction]);
 

@@ -1,35 +1,14 @@
 import _ from 'lodash';
-import {
-  apiAddView,
-  apiCreateComment,
-  apiDeleteComment,
-  apiFetchCommentsList,
-  apiFetchVideoDetails,
-  apiFetchVideosList,
-  apiInitializeStream,
-  apiReactOnVideo,
-  apiSubscribeUnSubscribe,
-  apiUpdateComment,
-} from '@/api/stream';
-import {
-  FindAndCountResponse,
-  ServiceResponse,
-  SuccessResponse,
-} from '@/data/api';
+import { apiFetchContents, apiInitializeStream } from '@/api/stream';
+import { FindAndCountResponse, ServiceResponse } from '@/data/api';
 import {
   StreamDetailsResponse,
   StreamsResponse,
-  CommentsListRequest,
-  CommentsResponse,
-  VideoDetailsResponse,
   VideosListRequest,
-  CreateCommentRequest,
-  UpdateCommentRequest,
 } from '@/data/dto/stream';
 import { STREAM_TYPE } from '@/data/types/stream';
 import { MAX_CATEGORY_COUNT, StreamInitializeRules } from '@/data/validations';
 import { StreamInitializeFields } from '@/data/types/stream';
-import { Reaction, ReactionStats } from '@/data/chat';
 
 export enum StreamInitializeError {
   INVALID_TITLE = 'INVALID_TITLE',
@@ -130,97 +109,11 @@ export const initializeStream = async ({
   };
 };
 
-export const fetchVideosList = async (
+export const fetchContents = async (
   payload: VideosListRequest
 ): Promise<FindAndCountResponse<StreamsResponse>> => {
-  const { data, error } = await apiFetchVideosList(payload);
+  const { data, error } = await apiFetchContents(payload);
   if (data && !error) return data;
 
   return [];
-};
-
-export const fetchVideoDetails = async (
-  id: string
-): Promise<VideoDetailsResponse | null> => {
-  const response = await apiFetchVideoDetails(id);
-  if (response && response?.data) {
-    return response?.data;
-  }
-
-  return null;
-};
-
-export const subscribeUnsubscribe = async (
-  streamerId: number
-): Promise<SuccessResponse> => {
-  const { data } = await apiSubscribeUnSubscribe(streamerId);
-  return {
-    success: data && data!.success,
-  };
-};
-
-export const addView = async (videoId: number): Promise<SuccessResponse> => {
-  const { data } = await apiAddView(videoId);
-  return {
-    success: data && data!.success,
-  };
-};
-
-export const reactOnVideo = async ({
-  videoId,
-  likeStatus,
-  likeType,
-}: {
-  videoId: number;
-  likeStatus: boolean;
-  likeType: Reaction;
-}): Promise<ReactionStats | null> => {
-  const response = await apiReactOnVideo({ videoId, likeStatus, likeType });
-  if (response && response?.data) {
-    return response?.data;
-  }
-
-  return null;
-};
-
-export const fetchCommentsList = async (
-  payload: CommentsListRequest
-): Promise<FindAndCountResponse<CommentsResponse>> => {
-  const { data, error } = await apiFetchCommentsList(payload);
-  if (data && !error) return data;
-
-  return [];
-};
-
-export const createComment = async ({
-  videoId,
-  content,
-}: CreateCommentRequest): Promise<CommentsResponse | null> => {
-  const response = await apiCreateComment({ videoId, content });
-  if (response && response?.data) {
-    return response?.data;
-  }
-
-  return null;
-};
-
-export const deleteComment = async (
-  commentId: number
-): Promise<SuccessResponse> => {
-  const { data } = await apiDeleteComment(commentId);
-  return {
-    success: data && data!.success,
-  };
-};
-
-export const updateComment = async ({
-  commentId,
-  content,
-}: UpdateCommentRequest): Promise<CommentsResponse | null> => {
-  const response = await apiUpdateComment({ commentId, content });
-  if (response && response?.data) {
-    return response?.data;
-  }
-
-  return null;
 };
