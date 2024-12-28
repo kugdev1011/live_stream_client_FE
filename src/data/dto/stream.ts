@@ -1,6 +1,4 @@
-import { Reaction, ReactionStats } from '../chat';
 import { CONTENT_STATUS } from '../types/stream';
-import { CategoryResponse } from './category';
 
 export interface StreamDetailsResponse {
   id: number | null;
@@ -40,55 +38,3 @@ export interface StreamsResponse {
   comments: number;
   duration: number;
 }
-
-export interface VideoDetailsResponse {
-  id: number;
-
-  title: string;
-  description: string;
-  thumbnail_url: string;
-  video_url: string;
-  started_at: string;
-
-  user_id: number;
-  display_name: string;
-  avatar_file_url: string;
-  subscriptions: number;
-
-  views: number;
-  comments: number;
-  likes: ReactionStats;
-  current_like_type: Reaction | null;
-  is_current_like: boolean;
-  is_owner: boolean;
-  is_subscribed: boolean;
-  duration: number;
-
-  categories: CategoryResponse[];
-}
-
-export type CommentsListRequest = {
-  page?: number;
-  limit?: number;
-  videoId: number;
-};
-
-export interface CommentsResponse {
-  id: number;
-  display_name: string;
-  avatar_url: string;
-  content: string;
-  created_at: string;
-  is_me: boolean;
-  is_edited: boolean;
-}
-
-export type CreateCommentRequest = {
-  videoId: number;
-  content: string;
-};
-
-export type UpdateCommentRequest = {
-  commentId: number;
-  content: string;
-};

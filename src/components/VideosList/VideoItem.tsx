@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { StreamsResponse } from '@/data/dto/stream';
 import { getTimeAgoFormat } from '@/lib/date-time';
 import { Badge } from '../ui/badge';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { STREAMER_PROFILE_PATH, WATCH_VIDEO_PATH } from '@/data/route';
+import { NavLink } from 'react-router-dom';
+import { STREAMER_PROFILE_PATH } from '@/data/route';
 import AvatarLive from '../AvatarLive';
 import { CONTENT_STATUS } from '@/data/types/stream';
 import TooltipComponent from '../TooltipComponent';
@@ -14,8 +14,6 @@ interface VideoItemProps {
 }
 
 const VideoItem: React.FC<VideoItemProps> = ({ video }) => {
-  const navigate = useNavigate();
-
   const isLive = video.status === CONTENT_STATUS.LIVE;
 
   const [thumbnailUrl, setThumbnailUrl] = useState(video.thumbnail_url);
@@ -24,16 +22,8 @@ const VideoItem: React.FC<VideoItemProps> = ({ video }) => {
     setThumbnailUrl(DefaultImg);
   };
 
-  const handleWatchVideo = () => {
-    const path = WATCH_VIDEO_PATH.replace(':id', video.id.toString());
-    navigate(path);
-  };
-
   return (
-    <div
-      className={`overflow-hidden relative cursor-pointer group`}
-      onClick={handleWatchVideo}
-    >
+    <div className={`overflow-hidden relative cursor-pointer group`}>
       {video.status === 'live' && (
         <Badge
           variant="destructive"
