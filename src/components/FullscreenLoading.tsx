@@ -1,8 +1,7 @@
 const FullscreenLoading = ({ label }: { label?: string }) => {
   return (
-    <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-      {/* fixed -> absolute */}
-      <div className="flex gap-2 items-center justify-center backdrop-blur bg-white/20 dark:bg-black/40 p-4 rounded-md">
+    <div className="fixed top-0 left-0 w-full h-full flex flex-col items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+      <div className="flex gap-2 items-center justify-center backdrop-blur bg-white/10 p-4 rounded-md">
         <svg
           className="text-gray-300 animate-spin"
           viewBox="0 0 64 64"

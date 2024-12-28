@@ -23,7 +23,6 @@ import { useProfileNavItems } from '@/hooks/useProfileNavItems';
 import DefaultPf from '@/assets/images/pf.png';
 import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
 import { UserProfileInfoUpdateRequest } from '@/data/dto/user';
-import { getAvatarFallbackText } from '@/lib/utils';
 
 const UserAvatar = React.memo(() => {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,7 +33,7 @@ const UserAvatar = React.memo(() => {
   const [user, setUser] = useState({
     username: currentUser?.username,
     displayName: currentUser?.display_name,
-    avatarUrl: currentUser?.avatar_file_name,
+    avatarUrl: currentUser?.avatar_file_name || DefaultPf,
   });
 
   useEffect(() => {
@@ -69,10 +68,8 @@ const UserAvatar = React.memo(() => {
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Avatar className="w-8 h-8 cursor-pointer">
-          <AvatarImage src={user?.avatarUrl || ''} className="object-cover" />
-          <AvatarFallback className="text-xs">
-            {getAvatarFallbackText(user?.displayName || 'PF')}
-          </AvatarFallback>
+          <AvatarImage src={user?.avatarUrl} className="object-cover" />
+          <AvatarFallback>PF</AvatarFallback>
         </Avatar>
       </PopoverTrigger>
       <PopoverContent
@@ -83,13 +80,8 @@ const UserAvatar = React.memo(() => {
           <SidebarContent>
             <div className="flex gap-2 items-center justify-start py-3 pb-2 px-4">
               <Avatar className="w-8 h-8">
-                <AvatarImage
-                  src={user?.avatarUrl || ''}
-                  className="object-cover"
-                />
-                <AvatarFallback className="text-xs">
-                  {getAvatarFallbackText(user?.displayName || 'PF')}
-                </AvatarFallback>
+                <AvatarImage src={user?.avatarUrl} className="object-cover" />
+                <AvatarFallback>PF</AvatarFallback>
               </Avatar>
               <div className="flex flex-col gap-1">
                 <p className="text-sm">{user?.displayName}</p>

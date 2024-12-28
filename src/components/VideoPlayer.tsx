@@ -2,8 +2,6 @@ import React, { useEffect, useRef } from 'react';
 import videojs from 'video.js';
 import Player from 'video.js/dist/types/player';
 import 'video.js/dist/video-js.css';
-import flvjs from 'flv.js'; // Import flv.js
-import { retrieveAuthToken } from '@/data/model/userAccount';
 
 type PlayerOptions = typeof videojs.options;
 
@@ -11,7 +9,6 @@ interface VideoPlayerProps {
   id?: string;
   videoUrl?: string;
   options?: PlayerOptions;
-  isFlv?: boolean; // New prop to check if the video is FLV
   styles?: string;
   videoRequest: {
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -24,93 +21,57 @@ interface VideoPlayerProps {
 const VideoPlayer: React.FC<VideoPlayerProps> = ({
   videoUrl,
   options,
-  isFlv = false,
   styles,
   videoRequest,
 }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const playerRef = useRef<Player | null>(null);
-  const flvPlayerRef = useRef<any>(null);
+  const playerRef = useRef<Player | null>();
 
   const { setIsLoading, setIsBuffered, setIsError, setIsSuccess } =
     videoRequest;
 
   useEffect(() => {
-    if (isFlv && videoUrl && flvjs.isSupported()) {
-      const videoElement = videoRef.current;
-      if (videoElement && !flvPlayerRef.current) {
-        const flvPlayer = flvjs.createPlayer(
-          {
-            type: 'flv',
-            url: videoUrl,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${retrieveAuthToken()}`,
-            },
-          }
-        );
+    if (options.sources.length === 0 || !videoRef.current) return;
 
-        flvPlayer.attachMediaElement(videoElement);
-        flvPlayer.load();
-        flvPlayer.play();
+    // Initialize the player only if it doesn't already exist
+    if (!playerRef.current) {
+      const player = videojs(videoRef.current, options, () => {
+        console.log('Video player is ready');
+      });
 
-        flvPlayerRef.current = flvPlayer;
+      playerRef.current = player;
 
-        flvPlayer.on('error', (errorType, errorDetail) => {
-          setIsError(true);
-          console.error(
-            `FLV.js Error - Type: ${errorType}, Detail: ${errorDetail}`
-          );
-        });
+      player.on('error', () => {
+        setIsError(true);
+      });
 
-        flvPlayer.on('loadstart', () => setIsLoading(true));
-        flvPlayer.on('loadend', () => setIsLoading(false));
-      }
-    } else if (!isFlv && options?.sources.length > 0 && videoRef.current) {
-      // Initialize video.js player if not FLV
-      if (!playerRef.current) {
-        const player = videojs(videoRef.current, options, () => {
-          console.log('Video player is ready');
-        });
+      player.on('loadedmetadata', () => {
+        setIsSuccess(true);
+        setIsLoading(false);
+      });
 
-        playerRef.current = player;
+      player.on('playing', () => {
+        setIsBuffered(true);
+        setIsError(false);
+      });
+    } else {
+      const currentSrc = playerRef.current.currentSrc();
+      // new src
+      const newSrc = options.sources[0].src;
+      const player = playerRef.current;
 
-        player.on('error', () => setIsError(true));
-
-        player.on('loadedmetadata', () => {
-          setIsSuccess(true);
-          setIsLoading(false);
-        });
-
-        player.on('playing', () => {
-          setIsBuffered(true);
-          setIsError(false);
-        });
-      } else {
-        const currentSrc = playerRef.current.currentSrc();
-        const newSrc = options.sources[0].src;
-        const player = playerRef.current;
-
-        if (currentSrc !== newSrc) {
-          player.autoplay(options.autoplay);
-          player.src(options.sources);
-        }
+      // check if current src is not equal to new src
+      if (currentSrc !== newSrc) {
+        player.autoplay(options.autoplay);
+        player.src(options.sources);
       }
     }
-
-    return () => {
-      if (flvPlayerRef.current) {
-        flvPlayerRef.current.destroy();
-      }
-    };
   }, [
     videoUrl,
     options,
-    isFlv,
-    setIsLoading,
     setIsBuffered,
     setIsError,
+    setIsLoading,
     setIsSuccess,
   ]);
 
