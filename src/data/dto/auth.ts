@@ -3,7 +3,7 @@ interface UserResponse {
   email: string;
   username: string;
   display_name: string;
-  avatar_file_name: string;
+  avatar_file_url: string;
   role_type: string;
 }
 

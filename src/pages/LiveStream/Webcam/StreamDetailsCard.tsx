@@ -1,3 +1,4 @@
+import AuthImage from '@/components/AuthImage';
 import VideoCategory from '@/components/VideoCategory';
 import { CategoryResponse } from '@/data/dto/category';
 import { StreamDetailsResponse } from '@/data/dto/stream';
@@ -12,9 +13,10 @@ const StreamDetailsCard: React.FC<{
   return (
     <div className="backdrop-blur bg-white/30 dark:bg-black/50">
       {data?.thumbnail_url && (
-        <img
+        <AuthImage
+          type="image"
           src={data?.thumbnail_url}
-          alt={data.title || 'Thumbnail'}
+          alt={data?.title || 'Thumbnail'}
           className="w-full h-48 object-cover rounded-t"
         />
       )}
