@@ -92,3 +92,7 @@ export type UpdateCommentRequest = {
   commentId: number;
   content: string;
 };
+
+export interface AddViewResponse {
+  is_added: boolean;
+}

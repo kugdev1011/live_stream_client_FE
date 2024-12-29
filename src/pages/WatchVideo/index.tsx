@@ -117,8 +117,8 @@ const WatchVideo = () => {
   useEffect(() => {
     const addViewAfterDelay = async () => {
       if (videoDetails && videoDetails?.id && !isFetching) {
-        const isSuccess = await addView(videoDetails?.id);
-        if (isSuccess) {
+        const data = await addView(videoDetails?.id);
+        if (data?.is_added) {
           setViewsCount((prev) => prev + 1);
         }
       }

@@ -25,6 +25,7 @@ import {
   VideosListRequest,
   CreateCommentRequest,
   UpdateCommentRequest,
+  AddViewResponse,
 } from '@/data/dto/stream';
 import { STREAM_TYPE } from '@/data/types/stream';
 import { MAX_CATEGORY_COUNT, StreamInitializeRules } from '@/data/validations';
@@ -159,11 +160,12 @@ export const subscribeUnsubscribe = async (
   };
 };
 
-export const addView = async (videoId: number): Promise<SuccessResponse> => {
+export const addView = async (
+  videoId: number
+): Promise<AddViewResponse | null> => {
   const { data } = await apiAddView(videoId);
-  return {
-    success: data && data!.success,
-  };
+  if (data) return data;
+  return null;
 };
 
 export const reactOnVideo = async ({

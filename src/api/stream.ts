@@ -10,6 +10,7 @@ import {
   VideosListRequest,
   CreateCommentRequest,
   UpdateCommentRequest,
+  AddViewResponse,
 } from '@/data/dto/stream';
 import {
   API_METHOD,
@@ -171,7 +172,7 @@ export const apiSubscribeUnSubscribe = async (
 
 export const apiAddView = async (
   videoId: number
-): Promise<ApiResult<SuccessResponse>> => {
+): Promise<ApiResult<AddViewResponse | null>> => {
   const url = ADD_VIEW_API.replace(':videoId', videoId?.toString());
 
   const request: ApiRequest = {
@@ -182,10 +183,15 @@ export const apiAddView = async (
   };
 
   const apiResponse = await liveStreamApi(request);
-  const { data, code, message } = apiResponse; // success -> data: { message: 'Successful', code: 200 }
+  const { success, data: responseData, code, message } = apiResponse;
+
+  let rp: AddViewResponse | null = null;
+  if (success) {
+    rp = responseData?.data;
+  }
 
   return {
-    data: { success: data?.code === 200 },
+    data: rp,
     message,
     code,
   };
