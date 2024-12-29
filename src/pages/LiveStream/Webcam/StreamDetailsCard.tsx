@@ -1,8 +1,9 @@
+import VideoCategory from '@/components/VideoCategory';
 import { CategoryResponse } from '@/data/dto/category';
 import { StreamDetailsResponse } from '@/data/dto/stream';
 import { getFormattedDate } from '@/lib/date-time';
 import { getObjectsByIds, convertToHashtagStyle } from '@/lib/utils';
-import React from 'react';
+import React, { Fragment } from 'react';
 
 const StreamDetailsCard: React.FC<{
   data: StreamDetailsResponse;
@@ -23,13 +24,20 @@ const StreamDetailsCard: React.FC<{
           {getFormattedDate(new Date(data?.started_at || new Date()), true)}
         </p>
         <h2 className="text-lg font-semibold">{data?.title || 'No Title'}</h2>
-        <p className="text-blue-400">
+
+        <div className="flex gap-2">
           {getObjectsByIds(categories, data?.category_ids || [], 'id').map(
-            (category) => {
-              return convertToHashtagStyle(category.name) + ' ';
-            }
+            (category) => (
+              <Fragment key={category.id}>
+                <VideoCategory
+                  id={category.id}
+                  label={convertToHashtagStyle(category.name)}
+                />
+              </Fragment>
+            )
           )}
-        </p>
+        </div>
+
         <p className="text-sm text-gray-600 mt-2">
           {data?.description || 'No Description'}
         </p>

@@ -5,7 +5,7 @@ import { Button } from './ui/button';
 import TooltipComponent from './TooltipComponent';
 import { CategoryResponse } from '@/data/dto/category';
 import { convertToHashtagStyle } from '@/lib/utils';
-import { Badge } from './ui/badge';
+import VideoCategory from './VideoCategory';
 
 interface ComponentProps {
   totalViews: number;
@@ -20,7 +20,7 @@ const VideoDescriptionBox = (props: ComponentProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="px-4 rounded-md bg-secondary/40 py-4">
+    <div className="px-4 rounded-md bg-secondary/40 py-4 space-y-3">
       {/* Views and timestamp */}
       <div className="flex justify-between items-center">
         <p className="text-muted-foreground text-sm">
@@ -52,9 +52,10 @@ const VideoDescriptionBox = (props: ComponentProps) => {
 
       <div className="border-t pt-3 flex gap-2">
         {categories?.map((category) => (
-          <Badge key={category.id} variant="secondary">
-            {convertToHashtagStyle(category.name)}
-          </Badge>
+          <VideoCategory
+            id={category.id}
+            label={convertToHashtagStyle(category.name)}
+          />
         ))}
       </div>
 

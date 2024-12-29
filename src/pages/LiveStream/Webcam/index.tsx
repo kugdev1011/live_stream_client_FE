@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout';
 import LayoutHeading from '@/layouts/LayoutHeading';
 import { LetterText, MessageSquare } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import DetailsForm from './DetailsForm';
 import { useNavigate } from 'react-router-dom';
 import { LIVE_STREAM_PATH } from '@/data/route';
@@ -47,6 +47,7 @@ import { fetchCategories } from '@/services/category';
 import { CategoryResponse } from '@/data/dto/category';
 import { getObjectsByIds, convertToHashtagStyle } from '@/lib/utils';
 import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
+import VideoCategory from '@/components/VideoCategory';
 
 const title = 'Go Live';
 
@@ -743,15 +744,22 @@ const LiveStreamWebcam = () => {
                             true
                           )}
                         </p>
-                        <p className="text-blue-400">
+
+                        <div className="flex gap-2">
                           {getObjectsByIds(
                             streamCategories,
                             streamDetails?.category_ids || [],
                             'id'
-                          ).map((category) => {
-                            return convertToHashtagStyle(category.name) + ' ';
-                          })}
-                        </p>
+                          ).map((category) => (
+                            <Fragment key={category.id}>
+                              <VideoCategory
+                                id={category.id}
+                                label={convertToHashtagStyle(category.name)}
+                              />
+                            </Fragment>
+                          ))}
+                        </div>
+
                         <p className="mt-2">
                           {streamDetails?.description ||
                             'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Alias, eligendi veniam a, ut fuga consequatur optio voluptas reiciendis, debitis unde harum! Soluta, amet voluptatibus fugit perspiciatis maxime exercitationem ipsam quisquam.'}
