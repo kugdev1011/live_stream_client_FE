@@ -8,7 +8,7 @@ import {
 } from '@/data/api';
 import { retrieveAuthToken } from '@/data/model/userAccount';
 
-const smsInstance = axios.create({ baseURL: import.meta.env.VITE_BE_API_URL });
+const apiInstance = axios.create({ baseURL: import.meta.env.VITE_BE_API_URL });
 
 const liveStreamApi = async (request: ApiRequest): Promise<ApiResponse> => {
   const {
@@ -25,11 +25,12 @@ const liveStreamApi = async (request: ApiRequest): Promise<ApiResponse> => {
 
   const headers = { ...extraHeaders };
 
-  let instance: AxiosInstance = smsInstance;
+  let instance: AxiosInstance = apiInstance;
   let secret = null;
+
   switch (service) {
     case ApiService.liveStream:
-      instance = smsInstance;
+      instance = apiInstance;
       if (authToken) secret = retrieveAuthToken();
       break;
   }
@@ -37,7 +38,9 @@ const liveStreamApi = async (request: ApiRequest): Promise<ApiResponse> => {
   let success = false,
     apiResponse = null,
     code = null,
+    resHeaders = null,
     message = null;
+
   if (authToken) {
     if (secret) {
       switch (service) {
@@ -58,20 +61,15 @@ const liveStreamApi = async (request: ApiRequest): Promise<ApiResponse> => {
         params,
         data,
         headers,
+        timeout: timeout || 10000,
+        responseType: download ? 'blob' : undefined,
       };
-      if (timeout) {
-        config['timeout'] = timeout;
-      } else {
-        config['timeout'] = 10000;
-      }
-      if (download) {
-        config['responseType'] = 'blob';
-      }
 
-      const { data: responseData } = await instance.request(config);
+      const axiosResponse = await instance.request(config);
 
       success = true;
-      apiResponse = responseData;
+      apiResponse = axiosResponse.data;
+      resHeaders = axiosResponse.headers;
     } catch (e: unknown) {
       success = false;
 
@@ -97,6 +95,7 @@ const liveStreamApi = async (request: ApiRequest): Promise<ApiResponse> => {
   return {
     success,
     data: apiResponse,
+    headers: resHeaders,
     code,
     message,
   };
