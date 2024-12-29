@@ -225,8 +225,9 @@ const WatchVideo = () => {
         {/* Description Box */}
         <VideoDescriptionBox
           totalViews={viewsCount}
-          createdAt={videoDetails?.started_at}
-          description={videoDetails?.description}
+          categories={videoDetails?.categories || []}
+          createdAt={videoDetails?.started_at || ''}
+          description={videoDetails?.description || ''}
         />
 
         {/* Comment box */}

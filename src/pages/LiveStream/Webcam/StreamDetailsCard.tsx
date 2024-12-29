@@ -1,7 +1,7 @@
 import { CategoryResponse } from '@/data/dto/category';
 import { StreamDetailsResponse } from '@/data/dto/stream';
 import { getFormattedDate } from '@/lib/date-time';
-import { getObjectsByIds, toHashtagStyle } from '@/lib/utils';
+import { getObjectsByIds, convertToHashtagStyle } from '@/lib/utils';
 import React from 'react';
 
 const StreamDetailsCard: React.FC<{
@@ -26,7 +26,7 @@ const StreamDetailsCard: React.FC<{
         <p className="text-blue-400">
           {getObjectsByIds(categories, data?.category_ids || [], 'id').map(
             (category) => {
-              return toHashtagStyle(category.name) + ' ';
+              return convertToHashtagStyle(category.name) + ' ';
             }
           )}
         </p>

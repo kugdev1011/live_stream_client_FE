@@ -45,7 +45,7 @@ import Chat from '@/components/Chat';
 import { useIsMobile } from '@/hooks/useMobile';
 import { fetchCategories } from '@/services/category';
 import { CategoryResponse } from '@/data/dto/category';
-import { getObjectsByIds, toHashtagStyle } from '@/lib/utils';
+import { getObjectsByIds, convertToHashtagStyle } from '@/lib/utils';
 import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
 
 const title = 'Go Live';
@@ -749,7 +749,7 @@ const LiveStreamWebcam = () => {
                             streamDetails?.category_ids || [],
                             'id'
                           ).map((category) => {
-                            return toHashtagStyle(category.name) + ' ';
+                            return convertToHashtagStyle(category.name) + ' ';
                           })}
                         </p>
                         <p className="mt-2">
