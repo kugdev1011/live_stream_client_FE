@@ -53,6 +53,7 @@ const VideoDescriptionBox = (props: ComponentProps) => {
       <div className="border-t pt-3 flex gap-2">
         {categories?.map((category) => (
           <VideoCategory
+            key={category.id}
             id={category.id}
             label={convertToHashtagStyle(category.name)}
           />

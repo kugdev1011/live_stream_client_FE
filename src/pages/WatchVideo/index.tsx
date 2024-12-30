@@ -16,7 +16,8 @@ import { Sparkles, SquarePlay, VideoOff } from 'lucide-react';
 import { FEED_PATH } from '@/data/route';
 import NotFoundCentered from '@/components/NotFoundCentered';
 import FullscreenLoading from '@/components/FullscreenLoading';
-import VideoPlayerFLV from '@/components/VideoPlayerFLV';
+import VideoPlayeMP4 from '@/components/VideoPlayerMP4';
+import { fetchImageWithAuth } from '@/api/image';
 
 const WatchVideo = () => {
   const { id: videoId } = useParams<{ id: string }>();
@@ -29,6 +30,7 @@ const WatchVideo = () => {
   const uploaderRef = useRef<HTMLDivElement | null>(null);
   const videoContainerRef = useRef<HTMLDivElement | null>(null);
 
+  const [thumbnailSrc, setThumbnailSrc] = useState<string>('');
   // video ui
   const [videoDimensions, setVideoDimensions] = useState<{
     width: number;
@@ -96,7 +98,7 @@ const WatchVideo = () => {
     return () => {
       window.removeEventListener('resize', calculateVideoHeight);
     };
-  }, []);
+  }, [videoDetails]);
 
   // update subscribe button, views count, current reaction type
   useEffect(() => {
@@ -113,7 +115,7 @@ const WatchVideo = () => {
     }
   }, [videoDetails]);
 
-  // add view count after few seconds
+  // add view count, fetch thumbnail img after few seconds
   useEffect(() => {
     const addViewAfterDelay = async () => {
       if (videoDetails && videoDetails?.id && !isFetching) {
@@ -133,6 +135,17 @@ const WatchVideo = () => {
     };
   }, [videoDetails, isFetching]);
 
+  // fetch authed thumbnail img
+  useEffect(() => {
+    const fetchAuthThumbnail = async () => {
+      if (videoDetails && !isFetching) {
+        const blobUrl = await fetchImageWithAuth(videoDetails?.thumbnail_url);
+        if (blobUrl) setThumbnailSrc(blobUrl);
+      }
+    };
+    fetchAuthThumbnail();
+  }, [videoDetails, isFetching]);
+
   if (!videoId)
     return (
       <AppLayout>
@@ -149,7 +162,7 @@ const WatchVideo = () => {
       </AppLayout>
     );
 
-  if (isFetching) {
+  if (!videoDetails && isFetching) {
     return (
       <AppLayout>
         <FullscreenLoading />
@@ -164,13 +177,16 @@ const WatchVideo = () => {
         <div className="w-full flex justify-center bg-black border">
           <div
             ref={videoContainerRef}
-            className="relative shadow-lg w-full"
+            className="relative shadow-lg"
             style={{
               width: videoDimensions ? `${videoDimensions.width}px` : 'auto',
               height: videoDimensions ? `${videoDimensions.height}px` : 'auto',
             }}
           >
-            <VideoPlayerFLV videoUrl={videoDetails?.video_url || ''} />
+            <VideoPlayeMP4
+              url={videoDetails?.video_url || ''}
+              poster={thumbnailSrc}
+            />
           </div>
         </div>
 
