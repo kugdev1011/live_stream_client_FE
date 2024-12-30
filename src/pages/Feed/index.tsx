@@ -5,9 +5,13 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import VideosList from '@/components/VideosList';
 import { CONTENT_STATUS } from '@/data/types/stream';
-import { MAX_CATEGORY_COUNT } from '@/data/validations';
+import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+  MAX_CATEGORY_COUNT,
+} from '@/data/validations';
 import useCategories from '@/hooks/useCategories';
-import useContents from '@/hooks/useContents';
+import useVideosList from '@/hooks/useVideosList';
 import AppLayout from '@/layouts/AppLayout';
 import LayoutHeading from '@/layouts/LayoutHeading';
 import { Search, VideoOff } from 'lucide-react';
@@ -41,10 +45,10 @@ const Feed = () => {
     error: contentFetchError,
     refetchContents,
     fetchNextPage,
-  } = useContents({
-    page: 1,
-    limit: 10,
-    status: isLiveView ? CONTENT_STATUS.LIVE : undefined,
+  } = useVideosList({
+    page: DEFAULT_PAGE,
+    limit: DEFAULT_PAGE_SIZE,
+    status: isLiveView ? CONTENT_STATUS.LIVE : CONTENT_STATUS.VIDEO,
     categoryId1: selectedCategories[0]
       ? Number(selectedCategories[0])
       : undefined,
