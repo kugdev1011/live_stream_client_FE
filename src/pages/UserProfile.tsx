@@ -5,7 +5,7 @@ const title = 'User Profile';
 
 const UserProfile = () => {
   return (
-    <AppLayout title={title}>
+    <AppLayout>
       <LayoutHeading title={title} />
       User Profile
     </AppLayout>

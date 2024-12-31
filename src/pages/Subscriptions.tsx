@@ -5,7 +5,7 @@ const title = 'Subscriptions';
 
 const Subscriptions = () => {
   return (
-    <AppLayout title={title}>
+    <AppLayout>
       <LayoutHeading title={title} />
     </AppLayout>
   );
