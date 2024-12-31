@@ -3,7 +3,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '../../components/ui/sidebar';
+} from '@/components/CustomSidebar';
 import { useNavigate } from 'react-router-dom';
 import { FEED_PATH } from '@/data/route';
 

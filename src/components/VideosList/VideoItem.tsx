@@ -41,6 +41,7 @@ const VideoItem: React.FC<VideoItemProps> = ({ video }) => {
         className={`overflow-hidden aspect-video rounded-lg border border-background group-hover:border-primary group-hover:border-spacing-3 group-hover:border-4 transition-all ease-in-out duration-300`}
       >
         <AuthImage
+          type="image"
           src={video.thumbnail_url}
           alt={video.title}
           className="w-full h-full object-cover"

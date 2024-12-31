@@ -27,7 +27,7 @@ const WatchVideo = () => {
   });
 
   const titleRef = useRef<HTMLHeadingElement | null>(null);
-  const uploaderRef = useRef<HTMLDivElement | null>(null);
+  const streamerAvatarRef = useRef<HTMLDivElement | null>(null);
   const videoContainerRef = useRef<HTMLDivElement | null>(null);
 
   const [thumbnailSrc, setThumbnailSrc] = useState<string>('');
@@ -74,18 +74,50 @@ const WatchVideo = () => {
     }
   };
 
-  // make sure video is always in aspect ratio and when on lg screen sizes, title and uploader info should be appear in visible viewport without needing to scroll
+  // make sure video is always in aspect ratio and when on lg screen sizes, title and uploader info should be appear by default in visible viewport without needing to scroll down
   useEffect(() => {
     const calculateVideoHeight = () => {
-      if (titleRef.current && uploaderRef.current) {
-        const titleHeight = titleRef.current.offsetHeight;
-        const uploaderHeight = uploaderRef.current.offsetHeight;
-        const totalOffset = 140; // offset for headers, margins, etc.
-        const availableHeight =
-          window.innerHeight - totalOffset - (titleHeight + uploaderHeight);
+      const headerFooterOffset = 140; // offset for visible title, streamer profile, and reactions
+      if (titleRef.current && streamerAvatarRef.current) {
+        let videoWidth = 0;
+        let videoHeight = 0;
+        let availableHeight = 0;
 
-        const videoHeight = Math.max(availableHeight, 0);
-        const videoWidth = (16 / 9) * videoHeight;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        const titleHeight = titleRef.current.offsetHeight;
+        const streamerAvatarHeight = streamerAvatarRef.current.offsetHeight;
+
+        if (viewportWidth > 1068) {
+          availableHeight = Math.max(
+            viewportHeight -
+              headerFooterOffset -
+              (titleHeight + streamerAvatarHeight),
+            0
+          );
+        }
+
+        // maintain a 16:9 aspect ratio
+        const calculatedHeight = (9 / 16) * viewportWidth;
+
+        if (viewportWidth < 1068) {
+          const padding = 50;
+          // for smaller screens, calculate dimensions based on the available viewport size
+          // ensure the video fits within the width and height constraints
+          videoWidth = Math.min(viewportWidth - padding, 1280); // make width does not exceed 1280px
+          videoHeight = (9 / 16) * videoWidth;
+
+          // check if calculated height exceeds available space
+          if (videoHeight > viewportHeight - headerFooterOffset) {
+            videoHeight = viewportHeight - headerFooterOffset;
+            videoWidth = (16 / 9) * videoHeight;
+          }
+        } else {
+          // for larger screens (1068px and above)
+          videoHeight = Math.min(availableHeight, calculatedHeight);
+          videoWidth = (16 / 9) * videoHeight;
+        }
 
         setVideoDimensions({ width: videoWidth, height: videoHeight });
       }
@@ -195,7 +227,7 @@ const WatchVideo = () => {
         </h1>
 
         {/* Uploader and Interaction Section */}
-        <div ref={uploaderRef} className="flex space-y-4 items-center">
+        <div ref={streamerAvatarRef} className="flex space-y-4 items-center">
           <div className="flex items-center space-x-4 flex-1">
             <AppAvatar
               url={videoDetails?.avatar_file_url || DefaultPf}

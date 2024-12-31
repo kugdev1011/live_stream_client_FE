@@ -11,7 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar';
+} from '@/components/CustomSidebar';
 import React, { useEffect, useState } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { DropdownMenu } from '@/components/ui/dropdown-menu';

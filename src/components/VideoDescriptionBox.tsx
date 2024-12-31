@@ -63,7 +63,7 @@ const VideoDescriptionBox = (props: ComponentProps) => {
       {/* Description */}
       <div className="mt-2">
         <p
-          className={`text-foreground leading-relaxed transition-all duration-300 ${
+          className={`text-foreground text-sm leading-relaxed transition-all duration-300 ${
             isExpanded ? '' : 'line-clamp-3'
           }`}
         >

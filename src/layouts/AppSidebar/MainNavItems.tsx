@@ -3,7 +3,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar';
+} from '@/components/CustomSidebar';
 import { FEED_PATH, LEFT_MAIN_MENU, ROUTE_PATH_INFO } from '@/data/route';
 import useUserAccount from '@/hooks/useUserAccount';
 import { USER_ROLE } from '@/data/types/role';
@@ -32,8 +32,12 @@ export function MainNavItems() {
 
           return (
             <NavLink to={path} end={path === FEED_PATH} key={path}>
-              <SidebarMenuItem>
-                <SidebarMenuButton isActive={active} tooltip={title}>
+              <SidebarMenuItem className="group/menu-item">
+                <SidebarMenuButton
+                  className="group-has-[[data-active=true]]/menu-item:bg-primary/30"
+                  isActive={active}
+                  tooltip={title}
+                >
                   {Icon && Icon}
                   <span>{title}</span>
                 </SidebarMenuButton>

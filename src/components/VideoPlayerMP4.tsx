@@ -7,6 +7,7 @@ import { Button } from './ui/button';
 import { useNavigate } from 'react-router-dom';
 import { FEED_PATH } from '@/data/route';
 import { RotateCw, SquarePlay, VideoOff } from 'lucide-react';
+import DefaultThumbnail from '@/assets/images/video-thumbnail.jpg';
 
 type PlayerOptions = typeof videojs.options;
 
@@ -92,7 +93,7 @@ const VideoPlayerMP4: React.FC<VideoPlayerProps> = ({
     <div
       className={`${styles} relative w-full h-full`}
       style={{
-        backgroundImage: error && poster ? `url(${poster})` : undefined,
+        backgroundImage: error && poster ? `url(${poster})` : DefaultThumbnail,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}

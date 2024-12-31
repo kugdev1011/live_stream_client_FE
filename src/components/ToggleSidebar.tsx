@@ -1,4 +1,4 @@
-import { useSidebar } from './ui/sidebar';
+import { useSidebar } from './CustomSidebar';
 
 const ToggleSidebar = ({ _isOpen }: { _isOpen: false }) => {
   const { setOpen } = useSidebar();

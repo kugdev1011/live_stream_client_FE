@@ -13,14 +13,11 @@ import {
 import useCategories from '@/hooks/useCategories';
 import useVideosList from '@/hooks/useVideosList';
 import AppLayout from '@/layouts/AppLayout';
-import LayoutHeading from '@/layouts/LayoutHeading';
 import { Search, VideoOff } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import FetchingError from './FetchingError';
 import EndOfResults from './EndOfResults';
 import NotFoundCentered from '@/components/NotFoundCentered';
-
-const title = 'Feed';
 
 const Feed = () => {
   const listRef = useRef<HTMLDivElement | null>(null);
@@ -98,9 +95,7 @@ const Feed = () => {
   }, [handleScroll]);
 
   return (
-    <AppLayout title={title}>
-      <LayoutHeading title={title} />
-
+    <AppLayout>
       {/* Search, filter and live toggle bar */}
       <div className="flex items-center justify-center gap-3">
         <div className="relative w-1/2 md:w-1/3">

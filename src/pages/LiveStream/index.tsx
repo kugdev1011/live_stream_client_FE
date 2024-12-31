@@ -61,7 +61,7 @@ const LiveStream = () => {
 
       <div className="container flex justify-center items-center">
         <Card className="shadow-none border-none">
-          <CardHeader className="px-0">
+          <CardHeader className="px-0 pt-0">
             <CardTitle>Go Live</CardTitle>
             <CardDescription>Pick the type of stream to begin.</CardDescription>
           </CardHeader>
