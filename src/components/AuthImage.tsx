@@ -8,12 +8,13 @@ interface AuthImageProps {
   src: string;
   alt: string;
   type: 'image' | 'avatar';
+  isLive?: boolean;
   displayText?: string;
   className?: string;
 }
 
 const AuthImage = React.forwardRef<HTMLElement, AuthImageProps>(
-  ({ src, alt, type, displayText, className }, ref) => {
+  ({ src, alt, type, displayText, isLive = false, className }, ref) => {
     const [imageSrc, setImageSrc] = useState<string | null>(null);
     const [error, setError] = useState(false);
 
@@ -35,7 +36,9 @@ const AuthImage = React.forwardRef<HTMLElement, AuthImageProps>(
       return (
         <Avatar
           ref={ref as React.Ref<HTMLDivElement>}
-          className={`cursor-pointer ${className}`}
+          className={`cursor-pointer w-10 h-10 ${
+            isLive ? 'border-red-500 border-2' : ''
+          } ${className}`}
         >
           <AvatarImage
             src={error ? '' : imageSrc || src}
