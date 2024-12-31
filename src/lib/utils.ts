@@ -22,7 +22,7 @@ export function getObjectsByIds<T, K extends keyof T>(
   return data.filter((item) => idSet.has(item[idKey] as string | number));
 }
 
-export function toHashtagStyle(str: string): string {
+export function convertToHashtagStyle(str: string): string {
   return `#${str.replace(/\s+/g, '&').toLowerCase()}`;
 }
 

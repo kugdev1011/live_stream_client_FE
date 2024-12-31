@@ -5,18 +5,19 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import VideosList from '@/components/VideosList';
 import { CONTENT_STATUS } from '@/data/types/stream';
-import { MAX_CATEGORY_COUNT } from '@/data/validations';
+import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+  MAX_CATEGORY_COUNT,
+} from '@/data/validations';
 import useCategories from '@/hooks/useCategories';
-import useContents from '@/hooks/useContents';
+import useVideosList from '@/hooks/useVideosList';
 import AppLayout from '@/layouts/AppLayout';
-import LayoutHeading from '@/layouts/LayoutHeading';
 import { Search, VideoOff } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import FetchingError from './FetchingError';
 import EndOfResults from './EndOfResults';
 import NotFoundCentered from '@/components/NotFoundCentered';
-
-const title = 'Feed';
 
 const Feed = () => {
   const listRef = useRef<HTMLDivElement | null>(null);
@@ -41,10 +42,10 @@ const Feed = () => {
     error: contentFetchError,
     refetchContents,
     fetchNextPage,
-  } = useContents({
-    page: 1,
-    limit: 10,
-    status: isLiveView ? CONTENT_STATUS.LIVE : undefined,
+  } = useVideosList({
+    page: DEFAULT_PAGE,
+    limit: DEFAULT_PAGE_SIZE,
+    status: isLiveView ? CONTENT_STATUS.LIVE : CONTENT_STATUS.VIDEO,
     categoryId1: selectedCategories[0]
       ? Number(selectedCategories[0])
       : undefined,
@@ -94,9 +95,7 @@ const Feed = () => {
   }, [handleScroll]);
 
   return (
-    <AppLayout title={title}>
-      <LayoutHeading title={title} />
-
+    <AppLayout>
       {/* Search, filter and live toggle bar */}
       <div className="flex items-center justify-center gap-3">
         <div className="relative w-1/2 md:w-1/3">

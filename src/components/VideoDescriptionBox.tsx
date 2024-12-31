@@ -3,20 +3,24 @@ import { getTimeAgoFormat } from '@/lib/date-time';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from './ui/button';
 import TooltipComponent from './TooltipComponent';
+import { CategoryResponse } from '@/data/dto/category';
+import { convertToHashtagStyle } from '@/lib/utils';
+import VideoCategory from './VideoCategory';
 
 interface ComponentProps {
-  totalViews?: number;
-  description?: string;
-  createdAt?: string;
+  totalViews: number;
+  description: string;
+  categories: CategoryResponse[];
+  createdAt: string;
 }
 
 const VideoDescriptionBox = (props: ComponentProps) => {
-  const { totalViews, description, createdAt } = props;
+  const { totalViews, description, categories, createdAt } = props;
 
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="px-4 rounded-md bg-secondary/40 py-4">
+    <div className="px-4 rounded-md bg-secondary/40 py-4 space-y-3">
       {/* Views and timestamp */}
       <div className="flex justify-between items-center">
         <p className="text-muted-foreground text-sm">
@@ -46,10 +50,20 @@ const VideoDescriptionBox = (props: ComponentProps) => {
         )}
       </div>
 
+      <div className="border-t pt-3 flex gap-2">
+        {categories?.map((category) => (
+          <VideoCategory
+            key={category.id}
+            id={category.id}
+            label={convertToHashtagStyle(category.name)}
+          />
+        ))}
+      </div>
+
       {/* Description */}
-      <div className="border-t pt-4 mt-3">
+      <div className="mt-2">
         <p
-          className={`text-foreground leading-relaxed transition-all duration-300 ${
+          className={`text-foreground text-sm leading-relaxed transition-all duration-300 ${
             isExpanded ? '' : 'line-clamp-3'
           }`}
         >

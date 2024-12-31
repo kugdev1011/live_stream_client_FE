@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import VideoPlayer from '@/components/VideoPlayer';
+// import VideoPlayer from '@/components/VideoPlayer';
 import useWebSocket from '@/hooks/useWebSocket';
 import AppLayout from '@/layouts/AppLayout';
 import LayoutHeading from '@/layouts/LayoutHeading';
@@ -30,7 +30,7 @@ const TestLiveStream: React.FC = () => {
         <h3>Loading live stream...</h3>
       ) : (
         <div data-vjs-player style={{ borderRadius: '9px' }}>
-          <VideoPlayer
+          {/* <VideoPlayer
             options={{
               autoplay: true,
               controls: true,
@@ -55,7 +55,7 @@ const TestLiveStream: React.FC = () => {
               setIsSuccess: setIsVideoRequestSuccess,
               setIsError: setIsVideoRequestError,
             }}
-          />
+          /> */}
         </div>
       )}
     </AppLayout>

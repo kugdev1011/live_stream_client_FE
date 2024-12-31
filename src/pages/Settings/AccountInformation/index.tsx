@@ -1,3 +1,4 @@
+import { fetchImageWithAuth } from '@/api/image';
 import AppAlert from '@/components/AppAlert';
 import {
   ConfirmationModalProps,
@@ -16,12 +17,17 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { NotifyModalType } from '@/components/UITypes';
 import { UserProfileInfoUpdateRequest } from '@/data/dto/user';
-import { updateUserProfileInfoLS } from '@/data/model/userAccount';
+import {
+  invalidateAccount,
+  updateUserProfileInfoLS,
+} from '@/data/model/userAccount';
+import { LOGOUT_PATH } from '@/data/route';
 import { modalTexts } from '@/data/user';
 import useUserAccount from '@/hooks/useUserAccount';
 import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
 import { updateUserProfileInfo, UserInfoUpdateError } from '@/services/user';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const validationRules = {
   displayName: 'Display name is required, max 50 characters',
@@ -36,6 +42,8 @@ type UserInfoUpdateFormError = {
 };
 
 const AccountInformation = () => {
+  const navigate = useNavigate();
+
   const currentUser = useUserAccount();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -57,6 +65,7 @@ const AccountInformation = () => {
     isOpen: false,
     title: '',
     description: '',
+    onClose: undefined,
   });
   const [confirmModal, setConfirmModal] = useState<ConfirmationModalProps>({
     isDanger: false,
@@ -117,19 +126,16 @@ const AccountInformation = () => {
     });
 
     if (!!data && !_errors) {
-      openNotifyModal(
-        NotifyModalType.SUCCESS,
-        modalTexts.updateInfo.success.title,
-        modalTexts.updateInfo.success.description
-      );
-
       // set ui according to response
       setDisplayName(data?.display_name);
-      if (data?.avatar_file_url)
-        setAvatarImage((prevData) => {
-          return { ...prevData, preview: data.avatar_file_url };
-        });
-
+      if (data?.avatar_file_url) {
+        try {
+          const blobUrl = await fetchImageWithAuth(data.avatar_file_url);
+          setAvatarImage((prev) => ({ ...prev, preview: blobUrl }));
+        } catch (e) {
+          console.error('Failed to fetch avatar preview:', e);
+        }
+      }
       // clear errors
       setFormError({
         displayNameFailure: false,
@@ -145,6 +151,16 @@ const AccountInformation = () => {
         displayName,
         avatarFile: data?.avatar_file_url,
       } as UserProfileInfoUpdateRequest);
+
+      openNotifyModal(
+        NotifyModalType.SUCCESS,
+        modalTexts.updateInfo.success.title,
+        modalTexts.updateInfo.success.description,
+        () => {
+          invalidateAccount();
+          navigate(LOGOUT_PATH);
+        }
+      );
     } else {
       if (_errors) {
         const formError: UserInfoUpdateFormError = {
@@ -168,10 +184,28 @@ const AccountInformation = () => {
 
   useEffect(() => {
     setDisplayName(currentUser?.display_name || '');
-    setAvatarImage((prevData) => {
-      return { ...prevData, preview: currentUser?.avatar_file_name || '' };
-    });
+
+    const fetchAvatarPreview = async () => {
+      if (currentUser?.avatar_file_name) {
+        try {
+          const blobUrl = await fetchImageWithAuth(
+            currentUser.avatar_file_name
+          );
+          setAvatarImage((prev) => ({ ...prev, preview: blobUrl }));
+        } catch (e) {
+          console.error('Failed to fetch avatar preview:', e);
+        }
+      }
+    };
+
+    fetchAvatarPreview();
   }, [currentUser]);
+
+  useEffect(() => {
+    return () => {
+      setAvatarImage({ preview: null, file: null });
+    };
+  }, []);
 
   // Modal dialogs
   const closeConfirmationModal = (): void => {
@@ -186,7 +220,8 @@ const AccountInformation = () => {
   const openNotifyModal = (
     type: NotifyModalType,
     title: string,
-    description: string | JSX.Element
+    description: string | JSX.Element,
+    onClose?: () => void
   ): void => {
     closeConfirmationModal();
     setNotifyModal({
@@ -194,13 +229,20 @@ const AccountInformation = () => {
       title,
       description,
       isOpen: true,
+      onClose,
     });
   };
   const closeNotifyModal = (): void => {
+    if (notifyModal.onClose) {
+      notifyModal.onClose();
+    }
+
     setNotifyModal({
+      type: NotifyModalType.SUCCESS,
       title: '',
       description: '',
       isOpen: false,
+      onClose: undefined,
     });
   };
 

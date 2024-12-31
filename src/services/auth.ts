@@ -56,7 +56,7 @@ export const login = async (
         email,
         username,
         display_name,
-        avatar_file_name,
+        avatar_file_url,
         role_type,
         token,
         expiration_time,
@@ -67,7 +67,7 @@ export const login = async (
         email,
         username,
         display_name,
-        avatar_file_name,
+        avatar_file_url,
         role_type,
         token,
         moment(expiration_time)
@@ -77,7 +77,7 @@ export const login = async (
         email,
         username,
         display_name,
-        avatar_file_name,
+        avatar_file_url,
         role_type,
 
         token,
@@ -151,7 +151,7 @@ export const register = async ({
         email,
         username,
         display_name,
-        avatar_file_name,
+        avatar_file_url,
         role_type,
         token,
         expiration_time,
@@ -162,7 +162,7 @@ export const register = async ({
         email,
         username,
         display_name,
-        avatar_file_name,
+        avatar_file_url,
         role_type,
         token,
         moment(expiration_time)
@@ -172,7 +172,7 @@ export const register = async ({
         email,
         username,
         display_name,
-        avatar_file_name,
+        avatar_file_url,
         role_type,
 
         token,

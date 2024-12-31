@@ -21,7 +21,7 @@ import { DialogClose } from '@radix-ui/react-dialog';
 import { initializeStream, StreamInitializeError } from '@/services/stream';
 import { STREAM_TYPE } from '@/data/types/stream';
 import AppAlert from '@/components/AppAlert';
-import { useSidebar } from '@/components/ui/sidebar';
+import { useSidebar } from '@/components/CustomSidebar';
 import { StreamDetailsResponse } from '@/data/dto/stream';
 import { MultiSelect } from '@/components/MultiSelect';
 import { MAX_CATEGORY_COUNT } from '@/data/validations';

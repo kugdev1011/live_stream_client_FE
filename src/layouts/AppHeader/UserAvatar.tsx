@@ -3,7 +3,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Sidebar,
   SidebarContent,
@@ -12,7 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar';
+} from '@/components/CustomSidebar';
 import React, { useEffect, useState } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { DropdownMenu } from '@/components/ui/dropdown-menu';
@@ -23,7 +22,7 @@ import { useProfileNavItems } from '@/hooks/useProfileNavItems';
 import DefaultPf from '@/assets/images/pf.png';
 import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
 import { UserProfileInfoUpdateRequest } from '@/data/dto/user';
-import { getAvatarFallbackText } from '@/lib/utils';
+import AuthImage from '@/components/AuthImage';
 
 const UserAvatar = React.memo(() => {
   const [isOpen, setIsOpen] = useState(false);
@@ -68,12 +67,15 @@ const UserAvatar = React.memo(() => {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Avatar className="w-8 h-8 cursor-pointer">
-          <AvatarImage src={user?.avatarUrl || ''} className="object-cover" />
-          <AvatarFallback className="text-xs">
-            {getAvatarFallbackText(user?.displayName || 'PF')}
-          </AvatarFallback>
-        </Avatar>
+        <button className="focus:outline-none">
+          <AuthImage
+            type="avatar"
+            src={user?.avatarUrl || ''}
+            className="object-cover"
+            alt={user?.displayName || 'Profile'}
+            displayText={user?.displayName || undefined}
+          />
+        </button>
       </PopoverTrigger>
       <PopoverContent
         className="w-48 overflow-hidden rounded-lg p-0"
@@ -82,15 +84,13 @@ const UserAvatar = React.memo(() => {
         <Sidebar collapsible="none" className="bg-transparent">
           <SidebarContent>
             <div className="flex gap-2 items-center justify-start py-3 pb-2 px-4">
-              <Avatar className="w-8 h-8">
-                <AvatarImage
-                  src={user?.avatarUrl || ''}
-                  className="object-cover"
-                />
-                <AvatarFallback className="text-xs">
-                  {getAvatarFallbackText(user?.displayName || 'PF')}
-                </AvatarFallback>
-              </Avatar>
+              <AuthImage
+                type="avatar"
+                src={user?.avatarUrl || ''}
+                className="w-8 h-8"
+                alt={user?.displayName || 'Profile'}
+                displayText={user?.displayName || undefined}
+              />
               <div className="flex flex-col gap-1">
                 <p className="text-sm">{user?.displayName}</p>
                 <p className="text-xs -mt-1">@{user?.username}</p>

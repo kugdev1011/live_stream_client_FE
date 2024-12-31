@@ -70,6 +70,16 @@ export default {
           ring: 'hsl(var(--sidebar-ring))',
         },
       },
+      fontFamily: {
+        sans: [
+          'Inter',
+          'system-ui',
+          'Avenir',
+          'Helvetica',
+          'Arial',
+          'sans-serif',
+        ],
+      },
     },
   },
   plugins: [require('tailwindcss-animate'), require('tailwind-scrollbar-hide')],

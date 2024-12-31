@@ -16,7 +16,8 @@ import { Sparkles, SquarePlay, VideoOff } from 'lucide-react';
 import { FEED_PATH } from '@/data/route';
 import NotFoundCentered from '@/components/NotFoundCentered';
 import FullscreenLoading from '@/components/FullscreenLoading';
-import VideoPlayerFLV from '@/components/VideoPlayerFLV';
+import VideoPlayeMP4 from '@/components/VideoPlayerMP4';
+import { fetchImageWithAuth } from '@/api/image';
 
 const WatchVideo = () => {
   const { id: videoId } = useParams<{ id: string }>();
@@ -26,9 +27,10 @@ const WatchVideo = () => {
   });
 
   const titleRef = useRef<HTMLHeadingElement | null>(null);
-  const uploaderRef = useRef<HTMLDivElement | null>(null);
+  const streamerAvatarRef = useRef<HTMLDivElement | null>(null);
   const videoContainerRef = useRef<HTMLDivElement | null>(null);
 
+  const [thumbnailSrc, setThumbnailSrc] = useState<string>('');
   // video ui
   const [videoDimensions, setVideoDimensions] = useState<{
     width: number;
@@ -72,18 +74,50 @@ const WatchVideo = () => {
     }
   };
 
-  // make sure video is always in aspect ratio and when on lg screen sizes, title and uploader info should be appear in visible viewport without needing to scroll
+  // make sure video is always in aspect ratio and when on lg screen sizes, title and uploader info should be appear by default in visible viewport without needing to scroll down
   useEffect(() => {
     const calculateVideoHeight = () => {
-      if (titleRef.current && uploaderRef.current) {
-        const titleHeight = titleRef.current.offsetHeight;
-        const uploaderHeight = uploaderRef.current.offsetHeight;
-        const totalOffset = 140; // offset for headers, margins, etc.
-        const availableHeight =
-          window.innerHeight - totalOffset - (titleHeight + uploaderHeight);
+      const headerFooterOffset = 140; // offset for visible title, streamer profile, and reactions
+      if (titleRef.current && streamerAvatarRef.current) {
+        let videoWidth = 0;
+        let videoHeight = 0;
+        let availableHeight = 0;
 
-        const videoHeight = Math.max(availableHeight, 0);
-        const videoWidth = (16 / 9) * videoHeight;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        const titleHeight = titleRef.current.offsetHeight;
+        const streamerAvatarHeight = streamerAvatarRef.current.offsetHeight;
+
+        if (viewportWidth > 1068) {
+          availableHeight = Math.max(
+            viewportHeight -
+              headerFooterOffset -
+              (titleHeight + streamerAvatarHeight),
+            0
+          );
+        }
+
+        // maintain a 16:9 aspect ratio
+        const calculatedHeight = (9 / 16) * viewportWidth;
+
+        if (viewportWidth < 1068) {
+          const padding = 50;
+          // for smaller screens, calculate dimensions based on the available viewport size
+          // ensure the video fits within the width and height constraints
+          videoWidth = Math.min(viewportWidth - padding, 1280); // make width does not exceed 1280px
+          videoHeight = (9 / 16) * videoWidth;
+
+          // check if calculated height exceeds available space
+          if (videoHeight > viewportHeight - headerFooterOffset) {
+            videoHeight = viewportHeight - headerFooterOffset;
+            videoWidth = (16 / 9) * videoHeight;
+          }
+        } else {
+          // for larger screens (1068px and above)
+          videoHeight = Math.min(availableHeight, calculatedHeight);
+          videoWidth = (16 / 9) * videoHeight;
+        }
 
         setVideoDimensions({ width: videoWidth, height: videoHeight });
       }
@@ -96,7 +130,7 @@ const WatchVideo = () => {
     return () => {
       window.removeEventListener('resize', calculateVideoHeight);
     };
-  }, []);
+  }, [videoDetails]);
 
   // update subscribe button, views count, current reaction type
   useEffect(() => {
@@ -113,12 +147,12 @@ const WatchVideo = () => {
     }
   }, [videoDetails]);
 
-  // add view count after few seconds
+  // add view count, fetch thumbnail img after few seconds
   useEffect(() => {
     const addViewAfterDelay = async () => {
       if (videoDetails && videoDetails?.id && !isFetching) {
-        const isSuccess = await addView(videoDetails?.id);
-        if (isSuccess) {
+        const data = await addView(videoDetails?.id);
+        if (data?.is_added) {
           setViewsCount((prev) => prev + 1);
         }
       }
@@ -131,6 +165,17 @@ const WatchVideo = () => {
     return () => {
       clearTimeout(timer);
     };
+  }, [videoDetails, isFetching]);
+
+  // fetch authed thumbnail img
+  useEffect(() => {
+    const fetchAuthThumbnail = async () => {
+      if (videoDetails && !isFetching) {
+        const blobUrl = await fetchImageWithAuth(videoDetails?.thumbnail_url);
+        if (blobUrl) setThumbnailSrc(blobUrl);
+      }
+    };
+    fetchAuthThumbnail();
   }, [videoDetails, isFetching]);
 
   if (!videoId)
@@ -149,7 +194,7 @@ const WatchVideo = () => {
       </AppLayout>
     );
 
-  if (isFetching) {
+  if (!videoDetails && isFetching) {
     return (
       <AppLayout>
         <FullscreenLoading />
@@ -164,13 +209,16 @@ const WatchVideo = () => {
         <div className="w-full flex justify-center bg-black border">
           <div
             ref={videoContainerRef}
-            className="relative shadow-lg w-full"
+            className="relative shadow-lg"
             style={{
               width: videoDimensions ? `${videoDimensions.width}px` : 'auto',
               height: videoDimensions ? `${videoDimensions.height}px` : 'auto',
             }}
           >
-            <VideoPlayerFLV videoUrl={videoDetails?.video_url || ''} />
+            <VideoPlayeMP4
+              url={videoDetails?.video_url || ''}
+              poster={thumbnailSrc}
+            />
           </div>
         </div>
 
@@ -179,7 +227,7 @@ const WatchVideo = () => {
         </h1>
 
         {/* Uploader and Interaction Section */}
-        <div ref={uploaderRef} className="flex space-y-4 items-center">
+        <div ref={streamerAvatarRef} className="flex space-y-4 items-center">
           <div className="flex items-center space-x-4 flex-1">
             <AppAvatar
               url={videoDetails?.avatar_file_url || DefaultPf}
@@ -225,8 +273,9 @@ const WatchVideo = () => {
         {/* Description Box */}
         <VideoDescriptionBox
           totalViews={viewsCount}
-          createdAt={videoDetails?.started_at}
-          description={videoDetails?.description}
+          categories={videoDetails?.categories || []}
+          createdAt={videoDetails?.started_at || ''}
+          description={videoDetails?.description || ''}
         />
 
         {/* Comment box */}

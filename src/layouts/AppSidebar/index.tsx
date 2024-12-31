@@ -6,13 +6,13 @@ import {
   SidebarHeader,
   SidebarRail,
   SidebarTrigger,
-} from '@/components/ui/sidebar';
+} from '@/components/CustomSidebar';
 import { MainNavItems } from './MainNavItems';
 import Logo from './Logo';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="icon" variant="sidebar" {...props}>
       <SidebarHeader>
         <Logo />
       </SidebarHeader>

@@ -1,11 +1,11 @@
 import { Separator } from '@/components/ui/separator';
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarTriggerHangBurger } from '@/components/CustomSidebar';
 import { siteData } from '@/data/site';
 import UserAvatar from './UserAvatar';
 import { Button } from '@/components/ui/button';
 import { PodcastIcon, Radio } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { LIVE_STREAM_PATH } from '@/data/route';
+import { FEED_PATH, LIVE_STREAM_PATH } from '@/data/route';
 import useUserAccount from '@/hooks/useUserAccount';
 import { USER_ROLE } from '@/data/types/role';
 import React, { useEffect, useState } from 'react';
@@ -39,12 +39,23 @@ const AppHeader = React.memo(({ title }: { title?: string }) => {
   }, []);
 
   return (
-    <header className="flex sticky top-0 py-3 bg-background border-b shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:py-3 z-50">
-      <div className="px-4 flex items-center gap-1 md:hidden">
-        <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-sidebar-primary-foreground">
-          {siteData.logo && <siteData.logo />}
-        </div>
-        <SidebarTrigger />
+    <header className="flex fixed w-full top-0 py-2 bg-background border-b shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:py-3 z-50">
+      <div className="px-4 flex items-center gap-1">
+        <SidebarTriggerHangBurger />
+        <Button
+          variant="ghost"
+          onClick={() => navigate(FEED_PATH)}
+          size="lg"
+          className="px-2 w-[146px]"
+        >
+          <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-sidebar-primary-foreground">
+            {siteData.logo && <siteData.logo />}
+          </div>
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate font-semibold">{siteData.name}</span>
+            <span className="truncate text-xs">{siteData.description}</span>
+          </div>
+        </Button>
       </div>
       <div className="flex px-4 justify-between items-center w-full">
         <h1 className="hidden lg:block text-lg font-bold">{title}</h1>
