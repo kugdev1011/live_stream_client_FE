@@ -46,7 +46,7 @@ const useVideosList = (payload: VideosListRequest = {}) => {
       const params: Record<string, unknown> = {
         page,
         limit,
-        status: status || false,
+        status: status || undefined,
         title,
         isMe,
         categoryId1: categoryId1 || undefined,
