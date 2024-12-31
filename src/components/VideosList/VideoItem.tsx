@@ -4,7 +4,6 @@ import { getTimeAgoFormat } from '@/lib/date-time';
 import { Badge } from '../ui/badge';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { STREAMER_PROFILE_PATH, WATCH_VIDEO_PATH } from '@/data/route';
-import AvatarLive from '../AvatarLive';
 import { CONTENT_STATUS } from '@/data/types/stream';
 import TooltipComponent from '../TooltipComponent';
 import AuthImage from '../AuthImage';
@@ -49,10 +48,13 @@ const VideoItem: React.FC<VideoItemProps> = ({ video }) => {
       </div>
 
       <div className="flex gap-4 mt-3">
-        <AvatarLive
+        <AuthImage
+          type="avatar"
           isLive={isLive}
-          avatarUrl={video.avatar_file_url}
-          displayName={video.display_name}
+          src={video?.avatar_file_url || ''}
+          className="object-cover"
+          alt={video?.display_name || 'Profile'}
+          displayText={video?.display_name || undefined}
         />
 
         <div className="space-y-1">

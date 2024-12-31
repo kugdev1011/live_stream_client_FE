@@ -1,10 +1,7 @@
 import FullscreenLoading from '@/components/FullscreenLoading';
 import { MultiSelect } from '@/components/MultiSelect';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import VideosList from '@/components/VideosList';
-import { CONTENT_STATUS } from '@/data/types/stream';
 import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
@@ -22,7 +19,6 @@ import NotFoundCentered from '@/components/NotFoundCentered';
 const Feed = () => {
   const listRef = useRef<HTMLDivElement | null>(null);
 
-  const [isLiveView, setIsLiveView] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
@@ -45,7 +41,7 @@ const Feed = () => {
   } = useVideosList({
     page: DEFAULT_PAGE,
     limit: DEFAULT_PAGE_SIZE,
-    status: isLiveView ? CONTENT_STATUS.LIVE : CONTENT_STATUS.VIDEO,
+    // status: isLiveView ? CONTENT_STATUS.LIVE : CONTENT_STATUS.VIDEO,
     categoryId1: selectedCategories[0]
       ? Number(selectedCategories[0])
       : undefined,
@@ -70,10 +66,6 @@ const Feed = () => {
       fetchNextPage();
     }
   }, [fetchNextPage, isContentsFetching]);
-
-  const handleLiveViewChange = (value: boolean) => {
-    setIsLiveView(value);
-  };
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -123,15 +115,6 @@ const Feed = () => {
             animation={2}
             maxCount={MAX_CATEGORY_COUNT}
           />
-        </div>
-
-        <div className="flex items-center space-x-2 border rounded-md p-[9px]">
-          <Switch
-            id="airplane-mode"
-            checked={isLiveView}
-            onCheckedChange={handleLiveViewChange}
-          />
-          <Label htmlFor="airplane-mode">LIVE</Label>
         </div>
       </div>
 

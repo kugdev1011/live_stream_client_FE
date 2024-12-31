@@ -23,7 +23,7 @@ const TestLiveStream: React.FC = () => {
     useState<boolean>(false);
 
   return (
-    <AppLayout title={title}>
+    <AppLayout>
       <LayoutHeading title={title} />
       <h1 className="text-xl font-bold mb-4">Live Stream</h1>
       {!broadcastUrl ? (

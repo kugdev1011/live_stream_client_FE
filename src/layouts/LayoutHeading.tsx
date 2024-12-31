@@ -1,9 +1,5 @@
 const LayoutHeading = ({ title }: { title: string }) => {
-  return (
-    <h1 className="scroll-m-20 text-xl font-bold tracking-tight block lg:hidden mb-1">
-      {title}
-    </h1>
-  );
+  return <h1 className="text-xl font-bold tracking-tight mb-1">{title}</h1>;
 };
 
 export default LayoutHeading;

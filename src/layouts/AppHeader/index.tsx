@@ -12,7 +12,7 @@ import React, { useEffect, useState } from 'react';
 import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
 import { Badge } from '@/components/ui/badge';
 
-const AppHeader = React.memo(({ title }: { title?: string }) => {
+const AppHeader = React.memo(() => {
   const navigate = useNavigate();
   const currentUser = useUserAccount();
   const handleGoLive = () => navigate(LIVE_STREAM_PATH);
@@ -58,8 +58,6 @@ const AppHeader = React.memo(({ title }: { title?: string }) => {
         </Button>
       </div>
       <div className="flex px-4 justify-between items-center w-full">
-        <h1 className="hidden lg:block text-lg font-bold">{title}</h1>
-
         <div className="ml-auto flex gap-3 items-center">
           {currentUser && currentUser.role_type === USER_ROLE.STREAMER && (
             <>

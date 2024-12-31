@@ -4,6 +4,8 @@ export const MAX_CATEGORY_COUNT = 3;
 export const AUTH2FA_OTP_LENGTH = 6;
 export const FORGOT_PASSWORD_OTP_LENGTH = 6;
 export const MAX_DISPLAY_NAME_COUNT = 50;
+export const MAX_IMAGE_SIZE_IN_MB = 1;
+export const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
 
 // pagination
 export const DEFAULT_PAGE = 1;

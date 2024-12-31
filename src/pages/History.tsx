@@ -5,7 +5,7 @@ const title = 'History';
 
 const History = () => {
   return (
-    <AppLayout title={title}>
+    <AppLayout>
       <LayoutHeading title={title} />
     </AppLayout>
   );

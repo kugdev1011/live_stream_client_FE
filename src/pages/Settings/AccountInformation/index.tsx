@@ -30,8 +30,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const validationRules = {
-  displayName: 'Display name is required, max 50 characters',
-  avatar: 'Profile photo is required.',
+  displayName: 'Required, max 50 characters.',
+  avatar: 'Required, max 1 MB size.',
   common: 'Something went wrong. Please try again.',
 };
 
@@ -93,7 +93,7 @@ const AccountInformation = () => {
     }));
   };
 
-  const handleImagesChange = (file: File) => {
+  const handleImagesChange = (file: File | null) => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -356,6 +356,7 @@ const AccountInformation = () => {
                   preview={avatarImage.preview || ''}
                   onFileChange={(file) => {
                     if (file) handleImagesChange(file);
+                    else handleImagesChange(null);
                   }}
                 />
                 {invalidAvatarImageError && (

@@ -42,7 +42,7 @@ const inputPlaceholders = {
 const validationRules = {
   title: 'Title is required, max 100 characters',
   description: 'Description is required',
-  thumbnail: 'Thumbnail is required',
+  thumbnail: 'Thumbnail is required, max 1 MB size',
   category: 'Category is required',
   common: 'Something went wrong. Please try again.',
 };
@@ -164,7 +164,21 @@ const DetailsForm = (props: ComponentProps) => {
     }));
   };
 
-  const handleImagesChange = (file: File) => {
+  const handleCategoryChange = (value: string[]): void => {
+    setSelectedCategories(value);
+
+    const error = {
+      categoryFailure: false,
+      actionFailure: false,
+    };
+
+    setFormError((prevState: StreamInitializeFormError) => ({
+      ...prevState,
+      ...error,
+    }));
+  };
+
+  const handleImagesChange = (file: File | null) => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -299,7 +313,7 @@ const DetailsForm = (props: ComponentProps) => {
                 <MultiSelect
                   isError={categoryInputInvalid}
                   options={categories}
-                  onValueChange={setSelectedCategories}
+                  onValueChange={handleCategoryChange}
                   defaultValue={selectedCategories}
                   placeholder={inputPlaceholders.category}
                   animation={0}
@@ -328,6 +342,7 @@ const DetailsForm = (props: ComponentProps) => {
                   preview={thumbnailImage.preview || ''}
                   onFileChange={(file) => {
                     if (file) handleImagesChange(file);
+                    else handleImagesChange(null);
                   }}
                 />
                 {invalidThumbnailImageError && (

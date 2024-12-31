@@ -5,7 +5,7 @@ const title = 'Liked Videos';
 
 const LikedVideos = () => {
   return (
-    <AppLayout title={title}>
+    <AppLayout>
       <LayoutHeading title={title} />
     </AppLayout>
   );

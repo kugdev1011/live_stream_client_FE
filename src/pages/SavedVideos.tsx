@@ -5,7 +5,7 @@ const title = 'Saved Videos';
 
 const SavedVideos = () => {
   return (
-    <AppLayout title={title}>
+    <AppLayout>
       <LayoutHeading title={title} />
     </AppLayout>
   );

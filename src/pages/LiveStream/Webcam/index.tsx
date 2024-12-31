@@ -620,7 +620,7 @@ const LiveStreamWebcam = () => {
   };
 
   return (
-    <AppLayout title={title}>
+    <AppLayout>
       <LayoutHeading title={title} />
 
       {isResourcePermissionDenied ? (

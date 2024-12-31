@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import AppLayout from '@/layouts/AppLayout';
 import DefaultPf from '@/assets/images/pf.png';
 import { Button } from '@/components/ui/button';
-import AppAvatar from '@/components/AppAvatar';
 import VideoDescriptionBox from '@/components/VideoDescriptionBox';
 import useVideoDetails from '@/hooks/useVideoDetails';
 import { useParams } from 'react-router-dom';
@@ -18,6 +17,7 @@ import NotFoundCentered from '@/components/NotFoundCentered';
 import FullscreenLoading from '@/components/FullscreenLoading';
 import VideoPlayeMP4 from '@/components/VideoPlayerMP4';
 import { fetchImageWithAuth } from '@/api/image';
+import AuthImage from '@/components/AuthImage';
 
 const WatchVideo = () => {
   const { id: videoId } = useParams<{ id: string }>();
@@ -229,9 +229,11 @@ const WatchVideo = () => {
         {/* Uploader and Interaction Section */}
         <div ref={streamerAvatarRef} className="flex space-y-4 items-center">
           <div className="flex items-center space-x-4 flex-1">
-            <AppAvatar
-              url={videoDetails?.avatar_file_url || DefaultPf}
-              classes="w-12 h-12 rounded-full"
+            <AuthImage
+              className="w-12 h-12 rounded-full"
+              type="avatar"
+              alt={videoDetails?.display_name || ''}
+              src={videoDetails?.avatar_file_url || DefaultPf}
             />
             <div>
               <h3 className="text-md font-medium">

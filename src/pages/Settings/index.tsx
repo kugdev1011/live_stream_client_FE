@@ -47,7 +47,7 @@ const Settings = () => {
   };
 
   return (
-    <AppLayout title={title}>
+    <AppLayout>
       <LayoutHeading title={title} />
 
       <Tabs value={activeTab} onValueChange={handleTabChange}>

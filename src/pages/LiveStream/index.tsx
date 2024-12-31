@@ -56,10 +56,10 @@ const LiveStream = () => {
   }));
 
   return (
-    <AppLayout title={title}>
+    <AppLayout>
       <LayoutHeading title={title} />
 
-      <div className="container flex justify-center items-center">
+      <div className="flex justify-center items-center">
         <Card className="shadow-none border-none">
           <CardHeader className="px-0 pt-0">
             <CardTitle>Go Live</CardTitle>
