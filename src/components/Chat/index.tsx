@@ -99,7 +99,7 @@ const Chat = (props: ComponentProps) => {
               )}
             >
               <MessageItem
-                isSelfSent={message.username === currentUser.username}
+                // isSelfSent={message.username === currentUser.username}
                 content={message.content}
                 avatarUrl={message.avatar_url}
                 displayName={message.display_name}

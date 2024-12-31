@@ -1,15 +1,14 @@
 import { getFormattedDate } from '@/lib/date-time';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { User } from 'lucide-react';
+import AuthImage from '../AuthImage';
 
 interface ComponentProps {
-  isSelfSent: boolean;
+  isSelfSent?: boolean;
   avatarUrl: string;
   displayName: string;
   content: string;
@@ -17,23 +16,19 @@ interface ComponentProps {
 }
 
 const MessageItem = (props: ComponentProps) => {
-  const { isSelfSent, avatarUrl, displayName, content, createdAt } = props;
+  const { avatarUrl, displayName, content, createdAt } = props;
 
   return (
     <div className="p-0.5">
       <TooltipProvider>
         <Tooltip>
-          <div className="flex gap-1">
-            <Avatar className="w-5 h-5 cursor-pointer">
-              <AvatarImage src={avatarUrl} />
-              <AvatarFallback
-                className={`text-xs ${
-                  isSelfSent ? 'bg-purple-500' : 'bg-green-500'
-                }`}
-              >
-                <User className="w-3 h-3" />
-              </AvatarFallback>
-            </Avatar>
+          <div className="flex gap-1 items-center">
+            <AuthImage
+              className="w-7 h-7 object-cover"
+              type="avatar"
+              src={avatarUrl}
+              alt={displayName}
+            />
             <p className="text-justify">{displayName}</p>
           </div>
           <TooltipTrigger asChild>

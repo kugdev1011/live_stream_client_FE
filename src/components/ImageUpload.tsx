@@ -3,6 +3,7 @@ import { Image, Upload, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { Button } from './ui/button';
+import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE_IN_MB } from '@/data/validations';
 
 interface ComponentProps {
   isCircle?: boolean;
@@ -14,8 +15,6 @@ interface ComponentProps {
   isError?: boolean;
   onFileChange?: (file: File | null) => void;
 }
-
-const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
 
 const ImageUpload = (props: ComponentProps): JSX.Element => {
   const {
@@ -37,13 +36,23 @@ const ImageUpload = (props: ComponentProps): JSX.Element => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
 
-    if (file && ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
-      onFileChange && onFileChange(file);
+    if (file) {
+      // check file size
+      const fileSizeMB = file.size / (1024 * 1024); // conver to mb
+      if (fileSizeMB > MAX_IMAGE_SIZE_IN_MB) {
+        setImagePreview(null);
+        onFileChange && onFileChange(null);
+        return;
+      }
+
+      // check file type
+      if (ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        const reader = new FileReader();
+        reader.onloadend = () => setImagePreview(reader.result as string);
+        reader.readAsDataURL(file);
+        onFileChange && onFileChange(file);
+      }
     } else {
-      alert('Please upload a file in PNG, JPG, or JPEG format.');
       setImagePreview(null);
       onFileChange && onFileChange(null);
     }

@@ -226,6 +226,7 @@ const VideoComment = ({ videoId }: ComponentProps) => {
           <div key={comment.id} className="flex items-start w-full">
             <div className="flex space-x-4 w-full">
               <AppAvatar
+                classes="w-10 h-10 object-cover"
                 url={comment?.avatar_url}
                 fallback={getAvatarFallbackText(comment?.display_name)}
               />
@@ -326,6 +327,13 @@ const VideoComment = ({ videoId }: ComponentProps) => {
           >
             {isLoading ? 'Loading...' : 'Load more'}
           </Button>
+        </div>
+      )}
+
+      {/* end of result */}
+      {comments.length === totalItems && (
+        <div className="mt-4 flex justify-center text-muted-foreground italic text-sm">
+          <p className="p-0">— End of comments —</p>
         </div>
       )}
 
