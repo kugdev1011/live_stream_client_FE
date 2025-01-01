@@ -20,12 +20,14 @@ const AuthImage = React.forwardRef<HTMLElement, AuthImageProps>(
 
     useEffect(() => {
       const loadImage = async () => {
-        try {
-          const blobUrl = await fetchImageWithAuth(src);
-          setImageSrc(blobUrl);
-        } catch (e) {
-          console.error('Image fetch failed:', e);
-          setError(true);
+        if (src) {
+          try {
+            const blobUrl = await fetchImageWithAuth(src);
+            setImageSrc(blobUrl);
+          } catch (e) {
+            console.error('Image fetch failed:', e);
+            setError(true);
+          }
         }
       };
 
