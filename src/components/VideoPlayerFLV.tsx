@@ -29,6 +29,8 @@ const VideoPlayerFLV: React.FC<VideoPlayerProps> = ({
   onLoadVideo,
 }) => {
   const navigate = useNavigate();
+
+  const posterRef = useRef(poster);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const playerRef = useRef<Player | null>();
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +50,7 @@ const VideoPlayerFLV: React.FC<VideoPlayerProps> = ({
             aspectRatio: '16:9',
             fluid: true,
             responsive: true,
-            poster,
+            poster: posterRef.current,
             techOrder: ['flvjs', 'html5'],
             flvjs: {
               mediaDataSource: {
@@ -75,9 +77,11 @@ const VideoPlayerFLV: React.FC<VideoPlayerProps> = ({
           type: 'application/x-mpegURL',
         });
 
-        player?.play()?.catch(() => {
-          setError('Unable to play the video stream.');
-        });
+        setTimeout(() => {
+          player?.play()?.catch(() => {
+            setError('Unable to play the video stream.');
+          });
+        }, 1000);
       }
     };
 
@@ -89,7 +93,11 @@ const VideoPlayerFLV: React.FC<VideoPlayerProps> = ({
         playerRef.current = null;
       }
     };
-  }, [url, token, poster]);
+  }, [url, token]);
+
+  useEffect(() => {
+    posterRef.current = poster;
+  }, [poster]);
 
   return (
     <div
@@ -103,7 +111,7 @@ const VideoPlayerFLV: React.FC<VideoPlayerProps> = ({
       {!error && (
         <video
           ref={videoRef}
-          onLoad={onLoadVideo}
+          onLoad={onLoadVideo && onLoadVideo}
           className="video-js vjs-theme-city vjs-big-play-centered"
           style={{
             width: `${
@@ -120,8 +128,8 @@ const VideoPlayerFLV: React.FC<VideoPlayerProps> = ({
           <VideoOff className="w-7 h-7 mb-3" />
           <p className="text-lg font-semibold">Ooops!</p>
           <p className="text-sm text-gray-300">
-            Check your network and reload the page. <br /> Otherwise, this video
-            may not be available anymore.
+            Check your network and refresh the page. <br /> Otherwise, this
+            video may not be available anymore.
           </p>
           <div className="flex gap-2 items-center justify-center">
             <Button

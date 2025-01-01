@@ -51,7 +51,7 @@ const VideoPlayerMP4: React.FC<VideoPlayerProps> = ({
               poster: posterRef.current,
             },
             () => {
-              console.log('Player initialized');
+              console.log('MP4 Player initialized');
             }
           );
 
@@ -110,8 +110,8 @@ const VideoPlayerMP4: React.FC<VideoPlayerProps> = ({
           <VideoOff className="w-7 h-7 mb-3" />
           <p className="text-lg font-semibold">Ooops!</p>
           <p className="text-sm text-gray-300">
-            Check your network and reload the page. <br /> Otherwise, this video
-            may not be available anymore.
+            Check your network and refresh the page. <br /> Otherwise, this
+            video may not be available anymore.
           </p>
           <div className="flex gap-2 items-center justify-center">
             <Button
