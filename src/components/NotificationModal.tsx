@@ -64,7 +64,7 @@ const NotificationModal = (props: NotificationModalProps): JSX.Element => {
             </div>
           </AlertDialogTitle>
           {!isImage ? (
-            <AlertDialogDescription className="text-justify leading-5 tracking-normal">
+            <AlertDialogDescription className="leading-5 tracking-normal">
               {description}
             </AlertDialogDescription>
           ) : (

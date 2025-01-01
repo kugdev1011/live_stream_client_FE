@@ -29,7 +29,7 @@ const MessageItem = (props: ComponentProps) => {
               src={avatarUrl}
               alt={displayName}
             />
-            <p className="text-justify">{displayName}</p>
+            <p className="text-justify">{displayName || 'Unknown'}</p>
           </div>
           <TooltipTrigger asChild>
             <p className="mt-1">{content}</p>

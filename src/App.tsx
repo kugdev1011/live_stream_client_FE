@@ -22,6 +22,7 @@ import {
   TEST_LIVE_STREAM_PATH,
   STREAMER_PROFILE_PATH,
   WATCH_VIDEO_PATH,
+  WATCH_LIVE_PATH,
 } from './data/route';
 import Register from './pages/Auth/Register';
 import Login from './pages/Auth/Login';
@@ -38,6 +39,7 @@ import ForgotPassword from './pages/Auth/ForgotPassword';
 import Feed from './pages/Feed';
 import UserProfile from './pages/UserProfile';
 import WatchVideo from './pages/WatchVideo';
+import WatchLive from './pages/WatchLive';
 
 function App() {
   return (
@@ -85,6 +87,10 @@ function App() {
         <Route
           path={WATCH_VIDEO_PATH}
           element={<ProtectedRoute element={<WatchVideo />} />}
+        />
+        <Route
+          path={WATCH_LIVE_PATH}
+          element={<ProtectedRoute element={<WatchLive />} />}
         />
 
         {/* Streamers */}

@@ -1,11 +1,10 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout';
-import LayoutHeading from '@/layouts/LayoutHeading';
 import { LetterText, MessageSquare } from 'lucide-react';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import DetailsForm from './DetailsForm';
 import { useNavigate } from 'react-router-dom';
-import { LIVE_STREAM_PATH } from '@/data/route';
+import { LIVE_STREAM_PATH, WATCH_VIDEO_PATH } from '@/data/route';
 import { retrieveAuthToken } from '@/data/model/userAccount';
 import {
   NotificationModalProps,
@@ -48,8 +47,6 @@ import { CategoryResponse } from '@/data/dto/category';
 import { getObjectsByIds, convertToHashtagStyle } from '@/lib/utils';
 import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
 import VideoCategory from '@/components/VideoCategory';
-
-const title = 'Go Live';
 
 const LiveStreamWebcam = () => {
   const navigate = useNavigate();
@@ -99,6 +96,7 @@ const LiveStreamWebcam = () => {
     isOpen: false,
     title: '',
     description: '',
+    onClose: undefined,
   });
   const [confirmModal, setConfirmModal] = useState<ConfirmationModalProps>({
     isDanger: false,
@@ -284,9 +282,26 @@ const LiveStreamWebcam = () => {
     openNotifyModal(
       NotifyModalType.SUCCESS,
       modalTexts.stream.successEnd.title,
-      modalTexts.stream.successEnd.description
+      modalTexts.stream.successEnd.description,
+      () => {
+        navigate(
+          WATCH_VIDEO_PATH.replace(':id', streamDetails?.id?.toString() || '')
+        );
+      }
     );
-    navigate(LIVE_STREAM_PATH);
+  };
+
+  const handleStreamForceEnd = () => {
+    openNotifyModal(
+      NotifyModalType.SUCCESS,
+      modalTexts.stream.forceEnd.title,
+      modalTexts.stream.forceEnd.description,
+      () => {
+        navigate(
+          WATCH_VIDEO_PATH.replace(':id', streamDetails?.id?.toString() || '')
+        );
+      }
+    );
   };
 
   const handleReactOnLive = ({ reaction }: OnReactOnLiveParams) => {
@@ -393,6 +408,15 @@ const LiveStreamWebcam = () => {
 
   useEffect(() => {
     if (isStreamStarted && streamDetails) {
+      // prevent creating a new ws connection if one already exists
+      if (
+        chatWsRef.current &&
+        chatWsRef.current.readyState === WebSocket.OPEN
+      ) {
+        console.log('Websocket connection already exists');
+        return;
+      }
+
       const token = retrieveAuthToken();
       if (!token) return;
 
@@ -480,12 +504,7 @@ const LiveStreamWebcam = () => {
 
             emitStreamEndEvent();
 
-            // TODO: may need to redirect to some page(s)
-            openNotifyModal(
-              NotifyModalType.ERROR,
-              'Live Ended!',
-              'Your live has been ended'
-            );
+            handleStreamForceEnd();
           }
           // On getting empty result
           else if (_.isEmpty(response)) {
@@ -601,7 +620,8 @@ const LiveStreamWebcam = () => {
   const openNotifyModal = (
     type: NotifyModalType,
     title: string,
-    description: string | JSX.Element
+    description: string | JSX.Element,
+    onClose?: () => void
   ): void => {
     closeConfirmationModal();
     setNotifyModal({
@@ -609,20 +629,25 @@ const LiveStreamWebcam = () => {
       title,
       description,
       isOpen: true,
+      onClose,
     });
   };
   const closeNotifyModal = (): void => {
+    if (notifyModal.onClose) {
+      notifyModal.onClose();
+    }
+
     setNotifyModal({
+      type: NotifyModalType.SUCCESS,
       title: '',
       description: '',
       isOpen: false,
+      onClose: undefined,
     });
   };
 
   return (
     <AppLayout>
-      <LayoutHeading title={title} />
-
       {isResourcePermissionDenied ? (
         <ResourcePermissionDeniedOverlay
           onGoBack={handleClosePermissionOverlay}
@@ -647,7 +672,7 @@ const LiveStreamWebcam = () => {
                 <div className="flex-1 flex items-center justify-center border rounded-md overflow-hidden relative">
                   {/* Live indicators */}
                   {isStreamStarted && (
-                    <div className="absolute top-3 left-3">
+                    <div className="absolute top-3 left-3 z-20">
                       <LiveIndicator
                         isStreamStarted={isStreamStarted}
                         likeCount={liveInitialStats.like_count}
@@ -719,7 +744,7 @@ const LiveStreamWebcam = () => {
                     </Popover>
                   </div>
                   {/* Start - Mobile stream details card */}
-                  {!isChatVisible && (
+                  {!isChatVisible && isStreamStarted && (
                     <div className="block w-full md:hidden">
                       <div className="flex justify-between items-start">
                         <StreamerAvatar />
@@ -733,7 +758,7 @@ const LiveStreamWebcam = () => {
                       </div>
                       <div className="mt-3 bg-muted p-4 rounded-lg">
                         <p className="text-xl font-semibold">
-                          {streamDetails?.title || 'No Title Was Given'}
+                          {streamDetails?.title || ''}
                         </p>
                         <p className="text-xs">
                           <span className="text-muted-foreground">
@@ -761,8 +786,7 @@ const LiveStreamWebcam = () => {
                         </div>
 
                         <p className="mt-2">
-                          {streamDetails?.description ||
-                            'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Alias, eligendi veniam a, ut fuga consequatur optio voluptas reiciendis, debitis unde harum! Soluta, amet voluptatibus fugit perspiciatis maxime exercitationem ipsam quisquam.'}
+                          {streamDetails?.description || ''}
                         </p>
                       </div>
                     </div>

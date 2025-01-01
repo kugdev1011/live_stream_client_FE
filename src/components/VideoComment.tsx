@@ -233,7 +233,7 @@ const VideoComment = ({ videoId }: ComponentProps) => {
               <div className="space-y-1 w-full">
                 <div className="flex items-center justify-start space-x-2">
                   <p className="font-semibold text-sm">
-                    {comment?.display_name}
+                    {comment?.display_name || 'Unknown'}
                   </p>
                   <p className="text-xs text-muted-foreground">•</p>
                   <p className="text-xs text-muted-foreground">

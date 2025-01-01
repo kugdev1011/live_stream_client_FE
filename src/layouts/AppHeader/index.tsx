@@ -20,20 +20,26 @@ const AppHeader = React.memo(() => {
   const [isStreamingLive, setIsStreamingLive] = useState(false);
 
   useEffect(() => {
-    const handleStreamLive = () => {
-      setIsStreamingLive(true);
-    };
+    const handleLiveStart = () => setIsStreamingLive(true);
+    const handleLiveEnd = () => setIsStreamingLive(false);
 
+    // event subscribes
     EventEmitter.subscribe(
       EVENT_EMITTER_NAME.LIVE_STREAM_START,
-      handleStreamLive
+      handleLiveStart
     );
+    EventEmitter.subscribe(EVENT_EMITTER_NAME.LIVE_STREAM_END, handleLiveEnd);
 
     // Cleanup subscription on unmount
     return () => {
       EventEmitter.unsubscribe(
         EVENT_EMITTER_NAME.LIVE_STREAM_START,
-        handleStreamLive
+        handleLiveStart
+      );
+
+      EventEmitter.unsubscribe(
+        EVENT_EMITTER_NAME.LIVE_STREAM_END,
+        handleLiveEnd
       );
     };
   }, []);

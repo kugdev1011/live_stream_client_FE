@@ -7,8 +7,12 @@ export const modalTexts = {
     },
     successEnd: {
       title: 'Stream Ended Successfully!',
-      description:
-        'You have ended stream successfully. Now, you can view it in your profile.',
+      description: 'You have ended stream successfully.',
+    },
+    // ended because of connection lost or end by admin (trigger when stream end ws event)
+    forceEnd: {
+      title: 'Stream Ended!',
+      description: 'Your stream has been ended.',
     },
     confirmToEnd: {
       title: 'End Live Stream: Are You Sure?',

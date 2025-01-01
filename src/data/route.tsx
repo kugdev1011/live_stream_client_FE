@@ -29,6 +29,7 @@ export const LIVE_STREAM_SOFTWARE_PATH = LIVE_STREAM_PATH + '/software';
 export const STREAMER_PROFILE_PATH = APP_PREFIX_PATH + '/s';
 
 export const WATCH_VIDEO_PATH = APP_PREFIX_PATH + '/watch/:id';
+export const WATCH_LIVE_PATH = APP_PREFIX_PATH + '/watch/live/:id';
 
 export const SETTINGS_PATH = APP_PREFIX_PATH + '/settings';
 
@@ -42,6 +43,7 @@ export const LEFT_MAIN_MENU: Record<USER_ROLE, string[]> = {
   [USER_ROLE.STREAMER]: [
     FEED_PATH,
     WATCH_VIDEO_PATH,
+    WATCH_LIVE_PATH,
     SUBSCRIPTIONS_PATH,
 
     LIVE_STREAM_PATH,
@@ -59,6 +61,7 @@ export const LEFT_MAIN_MENU: Record<USER_ROLE, string[]> = {
   [USER_ROLE.USER]: [
     FEED_PATH,
     WATCH_VIDEO_PATH,
+    WATCH_LIVE_PATH,
     SUBSCRIPTIONS_PATH,
     HISTORY_PATH,
     LIKED_VIDEOS_PATH,
@@ -71,6 +74,7 @@ export const LEFT_MAIN_MENU: Record<USER_ROLE, string[]> = {
   [USER_ROLE.ADMIN]: [
     FEED_PATH,
     WATCH_VIDEO_PATH,
+    WATCH_LIVE_PATH,
     SUBSCRIPTIONS_PATH,
     HISTORY_PATH,
     LIKED_VIDEOS_PATH,
@@ -81,6 +85,7 @@ export const LEFT_MAIN_MENU: Record<USER_ROLE, string[]> = {
   [USER_ROLE.SUPERADMIN]: [
     FEED_PATH,
     WATCH_VIDEO_PATH,
+    WATCH_LIVE_PATH,
     SUBSCRIPTIONS_PATH,
     HISTORY_PATH,
     LIKED_VIDEOS_PATH,
