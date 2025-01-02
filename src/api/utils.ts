@@ -71,6 +71,7 @@ const liveStreamApi = async (request: ApiRequest): Promise<ApiResponse> => {
       success = true;
       apiResponse = axiosResponse.data;
       resHeaders = axiosResponse.headers;
+      code = axiosResponse?.status;
     } catch (e: unknown) {
       success = false;
 

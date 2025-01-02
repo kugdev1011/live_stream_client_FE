@@ -35,43 +35,44 @@ const VideoPlayerMP4: React.FC<VideoPlayerProps> = ({
     if (!url) return;
 
     const initializeVideoPlayer = async () => {
-      try {
-        const videoBlobUrl = await fetchVideoWithAuth(url);
+      const { success, result } = await fetchVideoWithAuth(url);
 
-        if (!playerRef.current && videoRef.current) {
-          const player = videojs(
-            videoRef.current,
-            {
-              autoplay: false,
-              controls: true,
-              muted: false,
-              preload: 'auto',
-              aspectRatio: '16:9',
-              fluid: true,
-              responsive: true,
-              poster: posterRef.current,
-            },
-            () => {
-              logger.log('MP4 Player initialized');
-            }
-          );
-
-          playerRef.current = player;
-        }
-
-        playerRef.current?.src({
-          src: videoBlobUrl,
-          type: 'video/mp4',
-        });
-
-        playerRef.current?.load();
-
-        setTimeout(() => {
-          playerRef.current?.play();
-        }, 1000);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error fetching video');
+      if (!success) {
+        setError(result);
+        return;
       }
+
+      if (!playerRef.current && videoRef.current) {
+        const player = videojs(
+          videoRef.current,
+          {
+            autoplay: false,
+            controls: true,
+            muted: false,
+            preload: 'auto',
+            aspectRatio: '16:9',
+            fluid: true,
+            responsive: true,
+            poster: posterRef.current,
+          },
+          () => {
+            logger.log('MP4 Player initialized');
+          }
+        );
+
+        playerRef.current = player;
+      }
+
+      playerRef.current?.src({
+        src: result, // video blob url
+        type: 'video/mp4',
+      });
+
+      playerRef.current?.load();
+
+      setTimeout(() => {
+        playerRef.current?.play();
+      }, 1000);
     };
 
     initializeVideoPlayer();
@@ -80,6 +81,7 @@ const VideoPlayerMP4: React.FC<VideoPlayerProps> = ({
 
     return () => {
       if (playerRef.current && videoElement) {
+        setError(null);
         playerRef.current.dispose();
         playerRef.current = null;
         logger.log('MP4 Player disposed');
@@ -112,8 +114,7 @@ const VideoPlayerMP4: React.FC<VideoPlayerProps> = ({
           <VideoOff className="w-7 h-7 mb-3" />
           <p className="text-lg font-semibold">Ooops!</p>
           <p className="text-sm text-gray-300">
-            Check your network and refresh the page. <br /> Otherwise, this
-            video may not be available anymore.
+            {error || 'Unexpected error occured'}
           </p>
           <div className="flex gap-2 items-center justify-center">
             <Button

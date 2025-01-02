@@ -16,3 +16,10 @@ export const enum CONTENT_STATUS {
   UPCOMING = 'upcoming', // premire scheduled-streams
   VIDEO = 'video', // stream ended
 }
+
+export const enum VIDEO_FETCH_STATUS_CODE {
+  ENCODING = 'ENCODING',
+  OK = 'OK',
+  NOT_FOUND = 'NOT_FOUND',
+  UNKNOWN = 'UNKNOWN',
+}
