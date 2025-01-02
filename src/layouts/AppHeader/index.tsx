@@ -13,23 +13,22 @@ import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
 import { Badge } from '@/components/ui/badge';
 
 const AppHeader = React.memo(() => {
+  console.log('rerendered app header');
+
   const navigate = useNavigate();
   const currentUser = useUserAccount();
   const handleGoLive = () => navigate(LIVE_STREAM_PATH);
 
   const [isStreamingLive, setIsStreamingLive] = useState(false);
 
+  const handleLiveStart = () => setIsStreamingLive(true);
+  const handleLiveEnd = () => setIsStreamingLive(false);
+
+  // event subscribes
+  EventEmitter.subscribe(EVENT_EMITTER_NAME.LIVE_STREAM_START, handleLiveStart);
+  EventEmitter.subscribe(EVENT_EMITTER_NAME.LIVE_STREAM_END, handleLiveEnd);
+
   useEffect(() => {
-    const handleLiveStart = () => setIsStreamingLive(true);
-    const handleLiveEnd = () => setIsStreamingLive(false);
-
-    // event subscribes
-    EventEmitter.subscribe(
-      EVENT_EMITTER_NAME.LIVE_STREAM_START,
-      handleLiveStart
-    );
-    EventEmitter.subscribe(EVENT_EMITTER_NAME.LIVE_STREAM_END, handleLiveEnd);
-
     // Cleanup subscription on unmount
     return () => {
       EventEmitter.unsubscribe(

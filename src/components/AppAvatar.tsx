@@ -1,5 +1,4 @@
-import AuthImage from './AuthImage';
-import { Avatar, AvatarFallback } from './ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 interface ComponentProps {
   url: string;
@@ -10,12 +9,7 @@ interface ComponentProps {
 const AppAvatar = ({ url, classes, fallback = 'PF' }: ComponentProps) => {
   return (
     <Avatar className={`w-8 h-8 cursor-pointer ${classes}`}>
-      <AuthImage
-        type="avatar"
-        src={url}
-        alt={fallback}
-        className="object-cover"
-      />
+      <AvatarImage src={url} alt={fallback} className="object-cover" />
       <AvatarFallback className="text-sm">{fallback}</AvatarFallback>
     </Avatar>
   );

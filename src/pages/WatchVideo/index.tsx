@@ -17,7 +17,7 @@ import NotFoundCentered from '@/components/NotFoundCentered';
 import FullscreenLoading from '@/components/FullscreenLoading';
 import VideoPlayerMP4 from '@/components/VideoPlayerMP4';
 import { fetchImageWithAuth } from '@/api/image';
-import AuthImage from '@/components/AuthImage';
+import AppAvatar from '@/components/AppAvatar';
 
 const WatchVideo = () => {
   const { id: videoId } = useParams<{ id: string }>();
@@ -229,12 +229,7 @@ const WatchVideo = () => {
         {/* Uploader and Interaction Section */}
         <div ref={streamerAvatarRef} className="flex space-y-4 items-center">
           <div className="flex items-center space-x-4 flex-1">
-            <AuthImage
-              className="w-12 h-12 rounded-full"
-              type="avatar"
-              alt={videoDetails?.display_name || ''}
-              src={videoDetails?.avatar_file_url || DefaultPf}
-            />
+            <AppAvatar url={videoDetails?.avatar_file_url || DefaultPf} />
             <div>
               <h3 className="text-md font-medium">
                 {videoDetails?.display_name}
