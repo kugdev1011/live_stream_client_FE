@@ -10,11 +10,11 @@ import {
   LiveCommentInfo,
 } from '@/data/dto/chat';
 import { retrieveAuthToken } from '@/data/model/userAccount';
-import { useIsMobile } from './useMobile';
+import { useIsMobile } from '../useMobile';
 import { OnReactOnLiveParams } from '@/components/Chat/Reactions';
 import { toast } from 'sonner';
 
-const chatWsURL = import.meta.env.VITE_WS_STREAM_URL;
+const wsURL = import.meta.env.VITE_WS_STREAM_URL;
 
 export function useLiveChatWebSocket(videoId: string | null) {
   const isMobile = useIsMobile();
@@ -66,15 +66,13 @@ export function useLiveChatWebSocket(videoId: string | null) {
   useEffect(() => {
     if (!videoId) return;
 
-    const token = retrieveAuthToken();
-    if (!token) return;
-
     if (chatWsRef.current && chatWsRef.current.readyState === WebSocket.OPEN)
       return;
 
-    const chatWs = new WebSocket(
-      `${chatWsURL}/${videoId}/interaction?token=${encodeURIComponent(token)}`
-    );
+    const url = getWsURL(videoId);
+    if (!url) return;
+
+    const chatWs = new WebSocket(url);
     chatWsRef.current = chatWs;
 
     chatWs.onopen = () => setIsStreamStarted(true);
@@ -147,7 +145,7 @@ export function useLiveChatWebSocket(videoId: string | null) {
         }
       } catch (error) {
         console.error('Error parsing WebSocket message:', error);
-        toast('Chat is unavailable now!');
+        toast('Chat is unavailable!');
       }
     };
     chatWs.onmessage = handleMessage;
@@ -161,7 +159,7 @@ export function useLiveChatWebSocket(videoId: string | null) {
       setIsChatVisible(false);
       if (chatWs.readyState === WebSocket.OPEN) {
         chatWs.close();
-        toast('Chat is unavailable now!');
+        toast('Chat is unavailable!');
       }
     };
 
@@ -184,5 +182,17 @@ export function useLiveChatWebSocket(videoId: string | null) {
 
     sendReaction,
     sendComment,
+
+    setIsStreamStarted,
   };
 }
+
+const getWsURL = (videoId: string): string | null => {
+  const token = retrieveAuthToken();
+  if (!token) {
+    toast('Please reload the page');
+    return null;
+  }
+
+  return `${wsURL}/${videoId}/interaction?token=${encodeURIComponent(token)}`;
+};

@@ -81,6 +81,7 @@ const VideoPlayerMP4: React.FC<VideoPlayerProps> = ({
       if (playerRef.current && videoElement) {
         playerRef.current.dispose();
         playerRef.current = null;
+        console.log('MP4 Player disposed');
       }
     };
   }, [url]);

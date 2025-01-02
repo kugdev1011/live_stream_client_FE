@@ -26,7 +26,7 @@ import {
   NotifyModal,
 } from '@/components/NotificationModal';
 import FullscreenLoading from '@/components/FullscreenLoading';
-import { useLiveChatWebSocket } from '@/hooks/useLiveChatWebSocket';
+import { useLiveChatWebSocket } from '@/hooks/webSocket/useLiveChatWebSocket';
 import { WATCH_VIDEO_PATH } from '@/data/route';
 import { modalTexts } from '@/data/stream';
 import { fetchImageWithAuth } from '@/api/image';
@@ -104,7 +104,7 @@ const WatchLive = () => {
   useEffect(() => {
     if (videoDetails && isLiveEndEventReceived) {
       openNotifyModal(
-        NotifyModalType.ERROR,
+        NotifyModalType.SUCCESS,
         modalTexts.stream.forceEnd.title,
         modalTexts.stream.forceEnd.description,
         () =>

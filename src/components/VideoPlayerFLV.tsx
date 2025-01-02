@@ -91,6 +91,7 @@ const VideoPlayerFLV: React.FC<VideoPlayerProps> = ({
       if (playerRef.current) {
         playerRef.current.dispose();
         playerRef.current = null;
+        console.log('FLV Player disposed');
       }
     };
   }, [url, token]);
