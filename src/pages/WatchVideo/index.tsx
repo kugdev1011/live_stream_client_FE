@@ -15,7 +15,7 @@ import { Sparkles, SquarePlay, VideoOff } from 'lucide-react';
 import { FEED_PATH } from '@/data/route';
 import NotFoundCentered from '@/components/NotFoundCentered';
 import FullscreenLoading from '@/components/FullscreenLoading';
-import VideoPlayeMP4 from '@/components/VideoPlayerMP4';
+import VideoPlayerMP4 from '@/components/VideoPlayerMP4';
 import { fetchImageWithAuth } from '@/api/image';
 import AuthImage from '@/components/AuthImage';
 
@@ -215,7 +215,7 @@ const WatchVideo = () => {
               height: videoDimensions ? `${videoDimensions.height}px` : 'auto',
             }}
           >
-            <VideoPlayeMP4
+            <VideoPlayerMP4
               url={videoDetails?.video_url || ''}
               poster={thumbnailSrc}
             />

@@ -47,7 +47,10 @@ export interface VideoDetailsResponse {
   title: string;
   description: string;
   thumbnail_url: string;
+  broadcast_url: string;
   video_url: string;
+  status: CONTENT_STATUS;
+  created_at: string;
   started_at: string;
 
   user_id: number;

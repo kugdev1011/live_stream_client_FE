@@ -25,7 +25,7 @@ import { Reaction, ReactionStats } from '@/data/chat';
 
 const STREAM_API = '/streams';
 const STREAM_INITIALIZE_API = STREAM_API + '/start';
-const VIDEO_DETAILS_API = STREAM_API + '/:videoId/video';
+const VIDEO_DETAILS_API = STREAM_API + '/:videoId';
 const SUBSCRIBE_API = 'subscribe';
 const ADD_VIEW_API = STREAM_API + '/:videoId/add-view';
 const REACT_API = STREAM_API + '/:videoId/like';

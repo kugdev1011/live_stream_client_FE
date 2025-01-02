@@ -3,7 +3,11 @@ import { StreamsResponse } from '@/data/dto/stream';
 import { getTimeAgoFormat } from '@/lib/date-time';
 import { Badge } from '../ui/badge';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { STREAMER_PROFILE_PATH, WATCH_VIDEO_PATH } from '@/data/route';
+import {
+  STREAMER_PROFILE_PATH,
+  WATCH_LIVE_PATH,
+  WATCH_VIDEO_PATH,
+} from '@/data/route';
 import { CONTENT_STATUS } from '@/data/types/stream';
 import TooltipComponent from '../TooltipComponent';
 import AuthImage from '../AuthImage';
@@ -18,7 +22,9 @@ const VideoItem: React.FC<VideoItemProps> = ({ video }) => {
   const isLive = video.status === CONTENT_STATUS.LIVE;
 
   const handleWatchVideo = () => {
-    const path = WATCH_VIDEO_PATH.replace(':id', video.id.toString());
+    let path = '';
+    if (isLive) path = WATCH_LIVE_PATH.replace(':id', video.id.toString());
+    else path = WATCH_VIDEO_PATH.replace(':id', video.id.toString());
     navigate(path);
   };
 

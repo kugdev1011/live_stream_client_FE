@@ -1,28 +1,33 @@
-import { fetchVideoWithAuth } from '@/api/video';
 import React, { useEffect, useRef, useState } from 'react';
 import videojs from 'video.js';
 import Player from 'video.js/dist/types/player';
 import 'video.js/dist/video-js.css';
+import 'videojs-flvjs';
 import { Button } from './ui/button';
 import { useNavigate } from 'react-router-dom';
 import { FEED_PATH } from '@/data/route';
 import { RotateCw, SquarePlay, VideoOff } from 'lucide-react';
 import DefaultThumbnail from '@/assets/images/video-thumbnail.jpg';
 
-type PlayerOptions = typeof videojs.options;
-
 interface VideoPlayerProps {
   url?: string;
-  options?: PlayerOptions;
-  styles?: string;
+  token: string;
   poster?: string;
+  styles?: string;
+  videoWidth?: number | string;
+  videoHeight?: number | string;
+  onLoadVideo?: () => void;
 }
 
-const VideoPlayerMP4: React.FC<VideoPlayerProps> = ({
+const VideoPlayerFLV: React.FC<VideoPlayerProps> = ({
   url,
+  token,
   poster,
   styles,
-}: VideoPlayerProps) => {
+  videoWidth,
+  videoHeight,
+  onLoadVideo,
+}) => {
   const navigate = useNavigate();
 
   const posterRef = useRef(poster);
@@ -33,58 +38,63 @@ const VideoPlayerMP4: React.FC<VideoPlayerProps> = ({
   useEffect(() => {
     if (!url) return;
 
-    const initializeVideoPlayer = async () => {
-      try {
-        const videoBlobUrl = await fetchVideoWithAuth(url);
-
-        if (!playerRef.current && videoRef.current) {
-          const player = videojs(
-            videoRef.current,
-            {
-              autoplay: false,
-              controls: true,
-              muted: false,
-              preload: 'auto',
-              aspectRatio: '16:9',
-              fluid: true,
-              responsive: true,
-              poster: posterRef.current,
+    const initializeFLVPlayer = () => {
+      if (!playerRef.current && videoRef.current) {
+        const player = videojs(
+          videoRef.current,
+          {
+            autoplay: true,
+            controls: false,
+            muted: false,
+            preload: 'auto',
+            aspectRatio: '16:9',
+            fluid: true,
+            responsive: true,
+            poster: posterRef.current,
+            techOrder: ['flvjs', 'html5'],
+            flvjs: {
+              mediaDataSource: {
+                isLive: true,
+                cors: true,
+                withCredentials: true,
+              },
+              config: {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
             },
-            () => {
-              console.log('MP4 Player initialized');
-            }
-          );
+          },
+          () => {
+            console.log('FLV Player initialized');
+          }
+        );
 
-          playerRef.current = player;
-        }
+        playerRef.current = player;
 
-        playerRef.current?.src({
-          src: videoBlobUrl,
-          type: 'video/mp4',
+        player.src({
+          src: url,
+          type: 'application/x-mpegURL',
         });
 
-        playerRef.current?.load();
-
         setTimeout(() => {
-          playerRef.current?.play();
+          player?.play()?.catch(() => {
+            setError('Unable to play the video stream.');
+          });
         }, 1000);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error fetching video');
       }
     };
 
-    initializeVideoPlayer();
-
-    const videoElement = videoRef.current;
+    initializeFLVPlayer();
 
     return () => {
-      if (playerRef.current && videoElement) {
+      if (playerRef.current) {
         playerRef.current.dispose();
         playerRef.current = null;
-        console.log('MP4 Player disposed');
+        console.log('FLV Player disposed');
       }
     };
-  }, [url]);
+  }, [url, token]);
 
   useEffect(() => {
     posterRef.current = poster;
@@ -92,7 +102,7 @@ const VideoPlayerMP4: React.FC<VideoPlayerProps> = ({
 
   return (
     <div
-      className={`${styles} relative w-full h-full`}
+      className={`${styles} relative w-full h-full flex justify-center`}
       style={{
         backgroundImage: error && poster ? `url(${poster})` : DefaultThumbnail,
         backgroundSize: 'cover',
@@ -102,8 +112,16 @@ const VideoPlayerMP4: React.FC<VideoPlayerProps> = ({
       {!error && (
         <video
           ref={videoRef}
+          onLoad={onLoadVideo && onLoadVideo}
           className="video-js vjs-theme-city vjs-big-play-centered"
-          controls
+          style={{
+            width: `${
+              typeof videoWidth === 'number' ? videoWidth + 'px' : videoWidth
+            }`,
+            height: `${
+              typeof videoHeight === 'number' ? videoHeight + 'px' : videoHeight
+            }`,
+          }}
         ></video>
       )}
       {error && (
@@ -132,4 +150,4 @@ const VideoPlayerMP4: React.FC<VideoPlayerProps> = ({
   );
 };
 
-export default VideoPlayerMP4;
+export default VideoPlayerFLV;

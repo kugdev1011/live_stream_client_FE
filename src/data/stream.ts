@@ -1,14 +1,18 @@
 export const modalTexts = {
   stream: {
     successStart: {
-      title: 'Go Live: Stream Started Successfully!',
+      title: 'Go Live: Live Started Successfully!',
       description:
         "You're live now! Engage with viewers and share your passion. Keep an eye on chat and stats—you're doing great!",
     },
     successEnd: {
-      title: 'Stream Ended Successfully!',
-      description:
-        'You have ended stream successfully. Now, you can view it in your profile.',
+      title: 'Live Ended Successfully!',
+      description: 'You have ended live stream successfully.',
+    },
+    // ended because of connection lost or end by admin (trigger when stream end ws event)
+    forceEnd: {
+      title: 'Live Ended!',
+      description: 'Live has been ended.',
     },
     confirmToEnd: {
       title: 'End Live Stream: Are You Sure?',

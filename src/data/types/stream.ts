@@ -13,5 +13,6 @@ export enum STREAM_TYPE {
 
 export const enum CONTENT_STATUS {
   LIVE = 'live', // currently streaming
+  UPCOMING = 'upcoming', // premire scheduled-streams
   VIDEO = 'video', // stream ended
 }

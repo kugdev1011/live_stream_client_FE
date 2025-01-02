@@ -1,12 +1,10 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout';
-import LayoutHeading from '@/layouts/LayoutHeading';
 import { LetterText, MessageSquare } from 'lucide-react';
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import DetailsForm from './DetailsForm';
 import { useNavigate } from 'react-router-dom';
-import { LIVE_STREAM_PATH } from '@/data/route';
-import { retrieveAuthToken } from '@/data/model/userAccount';
+import { LIVE_STREAM_PATH, WATCH_VIDEO_PATH } from '@/data/route';
 import {
   NotificationModalProps,
   NotifyModal,
@@ -26,17 +24,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import StreamDetailsCard from './StreamDetailsCard';
-import {
-  LiveInteractionType,
-  LiveInitialStatsResponse,
-  LiveReactionRequest,
-  LiveReactionResponse,
-  LiveCommentRequest,
-  isLiveCommentInfoObj,
-  LiveCommentInfo,
-} from '@/data/dto/chat';
-import { OnReactOnLiveParams } from '@/components/Chat/Reactions';
-import _ from 'lodash';
 import useUserAccount from '@/hooks/useUserAccount';
 import ControlButtons from './ControlButtons';
 import StreamerAvatar from '@/components/StreamerAvatar';
@@ -48,33 +35,27 @@ import { CategoryResponse } from '@/data/dto/category';
 import { getObjectsByIds, convertToHashtagStyle } from '@/lib/utils';
 import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
 import VideoCategory from '@/components/VideoCategory';
-
-const title = 'Go Live';
+import { useLiveChatWebSocket } from '@/hooks/webSocket/useLiveChatWebSocket';
+import { useLiveStreamWebSocket } from '@/hooks/webSocket/useLiveStreamWebSocket';
 
 const LiveStreamWebcam = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const currentUser = useUserAccount();
 
-  const streamWsRef = useRef<WebSocket | null>(null);
-  const chatWsRef = useRef<WebSocket | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [isResourcePermissionDenied, setIsResourcePermissionDenied] =
-    useState(false);
   const [videoDimensions, setVideoDimensions] = useState({
     width: 0,
     height: 0,
   });
+  const [isMicOn, setIsMicOn] = useState(true);
+  const [isResourcePermissionDenied, setIsResourcePermissionDenied] =
+    useState(false);
   const [streamCategories, setStreamCategories] = useState<CategoryResponse[]>(
     []
   );
-  const [isStreamStarted, setIsStreamStarted] = useState(false);
-  const [isMicOn, setIsMicOn] = useState(true); // Default to mic on
-  const [isStreamInitializeModelOpen, setIsStreamInitializeModalOpen] =
-    useState(false);
-  const [isChatVisible, setIsChatVisible] = useState(false);
   const [streamDetails, setStreamDetails] = useState<StreamDetailsResponse>({
     id: null,
     title: null,
@@ -85,20 +66,14 @@ const LiveStreamWebcam = () => {
     category_ids: [],
     started_at: null,
   });
-  const [liveViewersCount, setLiveViewersCount] = useState(0);
-  const [liveInitialStats, setLiveInitialStats] =
-    useState<LiveInitialStatsResponse>({
-      type: LiveInteractionType.INITIAL,
-      comments: [],
-      like_count: 0,
-      like_info: {},
-      current_like_type: undefined,
-    });
+  const [isStreamInitializeModelOpen, setIsStreamInitializeModalOpen] =
+    useState(false);
   const [notifyModal, setNotifyModal] = useState<NotificationModalProps>({
     type: NotifyModalType.SUCCESS,
     isOpen: false,
     title: '',
     description: '',
+    onClose: undefined,
   });
   const [confirmModal, setConfirmModal] = useState<ConfirmationModalProps>({
     isDanger: false,
@@ -110,33 +85,39 @@ const LiveStreamWebcam = () => {
     onCancel: () => {},
   });
 
-  // Toggles chat visibility
-  const handleToggleChat = () => {
-    setIsChatVisible(!isChatVisible);
-  };
+  // live chat interaction websocket
+  const {
+    isChatVisible,
+    isStreamStarted,
+    isLiveEndEventReceived,
+    liveInitialStats,
+    liveViewersCount,
+    toggleChat,
+    openChat,
+    sendReaction,
+    sendComment,
+    setIsStreamStarted,
+  } = useLiveChatWebSocket(streamDetails?.id?.toString() || null);
 
-  // Toggles the microphone on or off for the current video stream.
-  const handleToggleMic = () => {
-    if (videoRef.current) {
-      const mediaStream = videoRef.current.srcObject as MediaStream;
-      if (mediaStream) {
-        const audioTrack = mediaStream.getAudioTracks()[0];
-        if (audioTrack) {
-          audioTrack.enabled = !audioTrack.enabled;
-          setIsMicOn(audioTrack.enabled);
-        }
-      }
-    }
-  };
+  // stream websocket
+  const { startStream, stopStream } = useLiveStreamWebSocket({
+    videoRef,
+    setIsStreamStarted,
+    setStreamDetails,
+  });
 
-  // Toggles stream initialize modal to start a stream. Without this step, can't stream.
-  const handleInitializeStreamModalToggle = (): void => {
+  // toggle stream initialize modal to start a stream. Without this step, can't stream.
+  const handleInitializeStreamModalToggle = (): void =>
     setIsStreamInitializeModalOpen(!isStreamInitializeModelOpen);
-  };
 
-  // Shows success modal after submitting stream initialization steps
+  // show success modal and start streaming after submitting stream initialization steps
   const handleInitializeStreamSuccess = (data: StreamDetailsResponse): void => {
     if (data.id) {
+      setIsStreamInitializeModalOpen(false);
+
+      setIsStreamStarted(true);
+      if (!isMobile) openChat();
+
       const {
         id,
         title,
@@ -146,11 +127,6 @@ const LiveStreamWebcam = () => {
         broadcast_url,
         category_ids,
       } = data;
-
-      setIsStreamStarted(true);
-      if (!isMobile) setIsChatVisible(true);
-      setIsStreamInitializeModalOpen(false);
-
       setStreamDetails({
         id,
         title,
@@ -168,90 +144,17 @@ const LiveStreamWebcam = () => {
         modalTexts.stream.successStart.description
       );
 
-      startStreaming(data.id);
+      startStream(data.id);
     }
   };
 
-  // Cancels streaming. Stops using webcam and audio.
+  // cancel streaming. stop using webcam and audio.
   const handleInitializeStreamCancel = (): void => {
     stopWebcamAndAudio();
     navigate(LIVE_STREAM_PATH);
   };
 
-  // Starts stream using websocket
-  const startStreaming = (id: number) => {
-    if (!videoRef.current) return;
-
-    const video = videoRef.current as HTMLVideoElement & {
-      captureStream(): MediaStream;
-    };
-
-    const token = retrieveAuthToken();
-    if (!token) {
-      console.error('Error: JWT token not found in localStorage');
-      return;
-    }
-
-    // Open WebSocket connection with token as a query parameter
-    const wsURL = import.meta.env.VITE_WS_STREAM_URL;
-    const streamWs = new WebSocket(
-      `${wsURL}/${id}?token=${encodeURIComponent(token)}`
-    );
-
-    streamWsRef.current = streamWs;
-
-    streamWs.onopen = () => {
-      console.log('WebSocket connection established');
-      setIsStreamStarted(true);
-
-      emitStreamStartEvent();
-
-      // Start sending video frames
-      const stream = video.captureStream();
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'video/webm; codecs=vp8',
-      });
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          streamWs.send(event.data);
-        }
-      };
-
-      mediaRecorder.start(100); // Send data every 100ms
-
-      streamWs.onclose = () => {
-        console.log('WebSocket connection closed');
-        mediaRecorder.stop();
-        setIsStreamStarted(false);
-        setIsChatVisible(false);
-      };
-
-      streamWs.onerror = (err) => {
-        console.error('WebSocket error:', err);
-        mediaRecorder.stop();
-        setIsStreamStarted(false);
-        setIsChatVisible(false);
-      };
-    };
-
-    streamWs.onmessage = (event) => {
-      try {
-        const response = JSON.parse(event.data);
-        if (response && response?.started_at) {
-          setStreamDetails((prevStats) => {
-            const updatedStats = { ...prevStats };
-            updatedStats.started_at = response.started_at;
-            return updatedStats;
-          });
-        }
-      } catch (error) {
-        console.error('Error parsing Stream WebSocket message:', error);
-      }
-    };
-  };
-
-  // Shows confirm modal to end stream
+  // show confirm modal before ending stream
   const handleEndStream = () => {
     openConfirmModal(
       modalTexts.stream.confirmToEnd.title,
@@ -262,63 +165,42 @@ const LiveStreamWebcam = () => {
     );
   };
 
-  // Ends stream, terminates ws connection, stops using webcam & mic
+  // end stream, terminates ws connection, stops using webcam & mic
   const handleEndStreamConfirmed = () => {
+    EventEmitter.emit(EVENT_EMITTER_NAME.LIVE_STREAM_END);
     setIsStreamStarted(false);
-
-    emitStreamEndEvent();
-
-    // End websocket
-    if (streamWsRef.current) {
-      streamWsRef.current.close();
-      streamWsRef.current = null;
-    }
-
+    stopStream();
     stopWebcamAndAudio();
-
-    handleStreamEndSuccess();
-  };
-
-  // Shows notify modal
-  const handleStreamEndSuccess = () => {
     openNotifyModal(
       NotifyModalType.SUCCESS,
       modalTexts.stream.successEnd.title,
-      modalTexts.stream.successEnd.description
+      modalTexts.stream.successEnd.description,
+      () => {
+        navigate(
+          WATCH_VIDEO_PATH.replace(':id', streamDetails?.id?.toString() || '')
+        );
+      }
     );
+  };
+
+  // toggle the microphone on or off for the current video stream.
+  const handleToggleMic = () => {
+    if (videoRef.current) {
+      const mediaStream = videoRef.current.srcObject as MediaStream;
+      if (mediaStream) {
+        const audioTrack = mediaStream.getAudioTracks()[0];
+        if (audioTrack) {
+          audioTrack.enabled = !audioTrack.enabled;
+          setIsMicOn(audioTrack.enabled);
+        }
+      }
+    }
+  };
+
+  // Close permission denied overlay and go back to index page
+  const handleClosePermissionOverlay = () => {
+    setIsResourcePermissionDenied(false);
     navigate(LIVE_STREAM_PATH);
-  };
-
-  const handleReactOnLive = ({ reaction }: OnReactOnLiveParams) => {
-    if (!chatWsRef.current || chatWsRef.current.readyState !== WebSocket.OPEN) {
-      console.error('Chat WebSocket is not open');
-      return;
-    }
-
-    const likeStatus = liveInitialStats.current_like_type !== reaction;
-    const message: LiveReactionRequest = {
-      type: LiveInteractionType.LIKE,
-      data: {
-        like_status: likeStatus,
-        like_type: reaction,
-      },
-    };
-
-    chatWsRef.current.send(JSON.stringify(message));
-  };
-
-  const handleCommentOnLive = (content: string) => {
-    if (!chatWsRef.current || chatWsRef.current.readyState !== WebSocket.OPEN) {
-      console.error('Chat WebSocket is not open');
-      return;
-    }
-
-    const message: LiveCommentRequest = {
-      type: LiveInteractionType.COMMENT,
-      data: { content },
-    };
-
-    chatWsRef.current.send(JSON.stringify(message));
   };
 
   // 1) Get video metadata for setting dimensions
@@ -375,198 +257,6 @@ const LiveStreamWebcam = () => {
     }
   };
 
-  // Slose permission denied overlay and go back to index page
-  const handleClosePermissionOverlay = () => {
-    setIsResourcePermissionDenied(false);
-    navigate(LIVE_STREAM_PATH);
-  };
-
-  // emit stream start event
-  const emitStreamStartEvent = () => {
-    EventEmitter.emit(EVENT_EMITTER_NAME.LIVE_STREAM_START);
-  };
-
-  // emit stream end event
-  const emitStreamEndEvent = () => {
-    EventEmitter.emit(EVENT_EMITTER_NAME.LIVE_STREAM_END);
-  };
-
-  useEffect(() => {
-    if (isStreamStarted && streamDetails) {
-      const token = retrieveAuthToken();
-      if (!token) return;
-
-      const chatWsURL = import.meta.env.VITE_WS_STREAM_URL;
-      const chatWs = new WebSocket(
-        `${chatWsURL}/${
-          streamDetails.id
-        }/interaction?token=${encodeURIComponent(token)}`
-      );
-      chatWsRef.current = chatWs;
-
-      chatWs.onopen = () => {
-        console.log('WebSocket connection for chat established');
-        if (!isMobile) setIsChatVisible(true);
-      };
-
-      chatWs.onmessage = (event) => {
-        try {
-          const response = JSON.parse(event.data);
-
-          // On receiving initial message
-          if (response && response?.type === LiveInteractionType.INITIAL) {
-            setLiveInitialStats(response);
-          }
-          // On receiving a reaction
-          else if (response && response?.type === LiveInteractionType.LIKE) {
-            const liveReactionResponse = response as LiveReactionResponse;
-            setLiveInitialStats((prevStats) => {
-              const { like_type, like_status } = liveReactionResponse.data;
-
-              if (!like_status) {
-                return {
-                  ...prevStats,
-                  current_like_type: undefined,
-                };
-              }
-
-              const updatedStats = { ...prevStats };
-              updatedStats.current_like_type = like_type;
-
-              return updatedStats;
-            });
-          }
-          // On commenting
-          else if (response && isLiveCommentInfoObj(response)) {
-            setLiveInitialStats((prevStats) => {
-              const updatedStats = {
-                ...prevStats,
-                comments: [
-                  ...prevStats.comments,
-                  response,
-                ] as LiveCommentInfo[],
-              };
-              return updatedStats;
-            });
-          }
-          // On getting reactions stats
-          else if (
-            response &&
-            response?.type === LiveInteractionType.LIKE_INFO
-          ) {
-            setLiveInitialStats((prevStats) => {
-              const updatedStats = {
-                ...prevStats,
-                // like_count: response?.data?.total || prevStats.like_count,
-                like_count: response?.data?.total || 0,
-                like_info: { ...response?.data },
-              };
-              return updatedStats;
-            });
-          }
-          // On getting viewers count update
-          else if (
-            response &&
-            response?.type === LiveInteractionType.VIEW_INFO
-          ) {
-            setLiveViewersCount(response?.data?.total);
-          }
-          // On getting stream ended event
-          else if (
-            response &&
-            response?.type === LiveInteractionType.LIVE_ENDED
-          ) {
-            setIsStreamStarted(false);
-
-            emitStreamEndEvent();
-
-            // TODO: may need to redirect to some page(s)
-            openNotifyModal(
-              NotifyModalType.ERROR,
-              'Live Ended!',
-              'Your live has been ended'
-            );
-          }
-          // On getting empty result
-          else if (_.isEmpty(response)) {
-            setLiveInitialStats((prevStats) => {
-              const updatedStats = {
-                ...prevStats,
-                like_count: 0,
-                like_info: {},
-                current_like_type: undefined,
-              };
-              return updatedStats;
-            });
-          }
-        } catch (err) {
-          console.error('Error parsing WebSocket message:', err);
-        }
-      };
-
-      chatWs.onclose = () => {
-        console.log('Chat WebSocket connection closed');
-        setIsChatVisible(false);
-
-        if (chatWs.readyState === WebSocket.OPEN) {
-          chatWs.close();
-        }
-      };
-
-      chatWs.onerror = (err) => {
-        console.error('Chat WebSocket error:', err);
-        setIsChatVisible(false);
-
-        if (chatWs.readyState === WebSocket.OPEN) {
-          chatWs.close();
-        }
-      };
-    }
-
-    return () => {
-      if (chatWsRef.current?.readyState === WebSocket.OPEN) {
-        chatWsRef.current.close();
-      }
-    };
-  }, [isStreamStarted, streamDetails]);
-
-  // Open camera and mic, fetch categories as soon as this page is rendered
-  useEffect(() => {
-    const startWebcam = async () => {
-      try {
-        // Request access to the webcam
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-        setIsResourcePermissionDenied(false);
-      } catch (error) {
-        console.error('Error accessing webcam:', error);
-        setIsResourcePermissionDenied(true);
-      }
-    };
-    startWebcam();
-
-    const getCategories = async () => {
-      const data = await fetchCategories();
-      if (data) setStreamCategories(data);
-    };
-    getCategories();
-
-    return () => {
-      if (videoRef.current?.srcObject) {
-        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-        tracks.forEach((track) => track.stop());
-      }
-      if (streamWsRef.current) {
-        streamWsRef.current.close();
-      }
-    };
-  }, []);
-
   // Modal dialogs
   const openConfirmModal = (
     title: string,
@@ -598,31 +288,91 @@ const LiveStreamWebcam = () => {
       onCancel: () => {},
     });
   };
-  const openNotifyModal = (
-    type: NotifyModalType,
-    title: string,
-    description: string | JSX.Element
-  ): void => {
-    closeConfirmationModal();
-    setNotifyModal({
-      type,
-      title,
-      description,
-      isOpen: true,
-    });
-  };
+  const openNotifyModal = useCallback(
+    (
+      type: NotifyModalType,
+      title: string,
+      description: string | JSX.Element,
+      onClose?: () => void
+    ): void => {
+      closeConfirmationModal();
+      setNotifyModal({
+        type,
+        title,
+        description,
+        isOpen: true,
+        onClose,
+      });
+    },
+    []
+  );
   const closeNotifyModal = (): void => {
+    if (notifyModal.onClose) {
+      notifyModal.onClose();
+    }
+
     setNotifyModal({
+      type: NotifyModalType.SUCCESS,
       title: '',
       description: '',
       isOpen: false,
+      onClose: undefined,
     });
   };
 
+  // Open camera and mic, fetch categories as soon as this page is rendered
+  useEffect(() => {
+    const startWebcam = async () => {
+      try {
+        // Request access to the webcam
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+        setIsResourcePermissionDenied(false);
+      } catch (error) {
+        console.error('Error accessing webcam:', error);
+        setIsResourcePermissionDenied(true);
+      }
+    };
+    startWebcam();
+
+    const getCategories = async () => {
+      const data = await fetchCategories();
+      if (data) setStreamCategories(data);
+    };
+    getCategories();
+
+    const currentVideoRef = videoRef.current;
+    return () => {
+      if (currentVideoRef?.srcObject) {
+        const tracks = (currentVideoRef.srcObject as MediaStream).getTracks();
+        tracks.forEach((track) => track.stop());
+      }
+    };
+  }, []);
+
+  // show modal alert when live ends
+  useEffect(() => {
+    if (streamDetails && isLiveEndEventReceived) {
+      openNotifyModal(
+        NotifyModalType.SUCCESS,
+        modalTexts.stream.forceEnd.title,
+        modalTexts.stream.forceEnd.description,
+        () => {
+          navigate(
+            WATCH_VIDEO_PATH.replace(':id', streamDetails?.id?.toString() || '')
+          );
+        }
+      );
+    }
+  }, [isLiveEndEventReceived, streamDetails, navigate, openNotifyModal]);
+
   return (
     <AppLayout>
-      <LayoutHeading title={title} />
-
       {isResourcePermissionDenied ? (
         <ResourcePermissionDeniedOverlay
           onGoBack={handleClosePermissionOverlay}
@@ -647,7 +397,7 @@ const LiveStreamWebcam = () => {
                 <div className="flex-1 flex items-center justify-center border rounded-md overflow-hidden relative">
                   {/* Live indicators */}
                   {isStreamStarted && (
-                    <div className="absolute top-3 left-3">
+                    <div className="absolute top-3 left-3 z-20">
                       <LiveIndicator
                         isStreamStarted={isStreamStarted}
                         likeCount={liveInitialStats.like_count}
@@ -688,9 +438,9 @@ const LiveStreamWebcam = () => {
                     <Chat
                       currentUser={currentUser}
                       initialStats={liveInitialStats}
-                      onToggleVisibility={handleToggleChat}
-                      onReactOnLive={handleReactOnLive}
-                      onCommentOnLive={handleCommentOnLive}
+                      onToggleVisibility={toggleChat}
+                      onReactOnLive={sendReaction}
+                      onCommentOnLive={sendComment}
                     />
                   </div>
                 )}
@@ -719,12 +469,12 @@ const LiveStreamWebcam = () => {
                     </Popover>
                   </div>
                   {/* Start - Mobile stream details card */}
-                  {!isChatVisible && (
+                  {!isChatVisible && isStreamStarted && (
                     <div className="block w-full md:hidden">
                       <div className="flex justify-between items-start">
                         <StreamerAvatar />
                         <Button
-                          onClick={handleToggleChat}
+                          onClick={toggleChat}
                           variant="outline"
                           size="sm"
                         >
@@ -733,7 +483,7 @@ const LiveStreamWebcam = () => {
                       </div>
                       <div className="mt-3 bg-muted p-4 rounded-lg">
                         <p className="text-xl font-semibold">
-                          {streamDetails?.title || 'No Title Was Given'}
+                          {streamDetails?.title || ''}
                         </p>
                         <p className="text-xs">
                           <span className="text-muted-foreground">
@@ -761,8 +511,7 @@ const LiveStreamWebcam = () => {
                         </div>
 
                         <p className="mt-2">
-                          {streamDetails?.description ||
-                            'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Alias, eligendi veniam a, ut fuga consequatur optio voluptas reiciendis, debitis unde harum! Soluta, amet voluptatibus fugit perspiciatis maxime exercitationem ipsam quisquam.'}
+                          {streamDetails?.description || ''}
                         </p>
                       </div>
                     </div>
@@ -787,7 +536,7 @@ const LiveStreamWebcam = () => {
               {/* Chat toggle button */}
               <div className="hidden md:inline-block absolute right-5">
                 {isStreamStarted && (
-                  <Button variant="ghost" size="sm" onClick={handleToggleChat}>
+                  <Button variant="ghost" size="sm" onClick={toggleChat}>
                     <MessageSquare /> {isChatVisible ? 'Hide' : 'Show'} chat
                   </Button>
                 )}
