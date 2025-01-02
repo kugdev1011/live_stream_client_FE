@@ -42,7 +42,6 @@ const UserAvatar = React.memo(() => {
 
   const handleAccountChange = useCallback(
     (updatedUser: UserProfileInfoUpdateRequest) => {
-      console.log('ok -> ', updatedUser);
       setUser((prevData) => {
         return {
           ...prevData,

@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { FEED_PATH } from '@/data/route';
 import { RotateCw, SquarePlay, VideoOff } from 'lucide-react';
 import DefaultThumbnail from '@/assets/images/video-thumbnail.jpg';
+import logger from '@/lib/logger';
 
 type PlayerOptions = typeof videojs.options;
 
@@ -51,7 +52,7 @@ const VideoPlayerMP4: React.FC<VideoPlayerProps> = ({
               poster: posterRef.current,
             },
             () => {
-              console.log('MP4 Player initialized');
+              logger.log('MP4 Player initialized');
             }
           );
 
@@ -81,7 +82,7 @@ const VideoPlayerMP4: React.FC<VideoPlayerProps> = ({
       if (playerRef.current && videoElement) {
         playerRef.current.dispose();
         playerRef.current = null;
-        console.log('MP4 Player disposed');
+        logger.log('MP4 Player disposed');
       }
     };
   }, [url]);

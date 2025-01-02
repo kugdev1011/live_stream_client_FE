@@ -7,6 +7,7 @@ import {
   ApiService,
 } from '@/data/api';
 import { retrieveAuthToken } from '@/data/model/userAccount';
+import logger from '@/lib/logger';
 
 const apiInstance = axios.create({ baseURL: import.meta.env.VITE_BE_API_URL });
 
@@ -80,9 +81,9 @@ const liveStreamApi = async (request: ApiRequest): Promise<ApiResponse> => {
           message = errorResponse.message;
         }
       } else if (e instanceof Error) {
-        console.error(`Unexpected error: ${e.message}`);
+        logger.error(`Unexpected error: ${e.message}`);
       } else {
-        console.error('An unknown error occurred.');
+        logger.error('An unknown error occurred.');
       }
 
       if (!code) {

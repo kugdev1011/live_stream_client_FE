@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import React, { useEffect, useRef } from 'react';
 
 interface VideoPlayerProps {
@@ -29,12 +30,12 @@ const VideoPlayerVanilla: React.FC<VideoPlayerProps> = ({
 
           videoRef.current!.src = blobUrl;
         } else {
-          console.error('Failed to load video:', xhr.statusText);
+          logger.error('Failed to load video:', xhr.statusText);
         }
       };
 
       xhr.onerror = () => {
-        console.error('An error occurred during the video request');
+        logger.error('An error occurred during the video request');
       };
 
       xhr.send();

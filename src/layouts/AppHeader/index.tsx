@@ -13,8 +13,6 @@ import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
 import { Badge } from '@/components/ui/badge';
 
 const AppHeader = React.memo(() => {
-  console.log('rerendered app header');
-
   const navigate = useNavigate();
   const currentUser = useUserAccount();
   const handleGoLive = () => navigate(LIVE_STREAM_PATH);

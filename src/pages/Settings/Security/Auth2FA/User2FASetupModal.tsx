@@ -22,6 +22,7 @@ import { RotateCw, Smartphone } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { AUTH2FA_OTP_LENGTH } from '@/data/validations';
+import logger from '@/lib/logger';
 
 type User2FAFormError = {
   actionFailure: boolean;
@@ -87,7 +88,7 @@ const User2FASetupModal = (props: ComponentProps) => {
         await navigator.clipboard.writeText(twoFAData.secret);
         toast('Copied setup key to your clipboard.');
       } catch (error) {
-        console.error('Failed to copy:', error);
+        logger.error('Failed to copy:', error);
         toast("Can't copy setup key.");
       }
     }

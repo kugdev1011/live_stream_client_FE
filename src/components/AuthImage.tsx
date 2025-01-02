@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import DefaultImg from '@/assets/images/video-thumbnail.jpg';
 import { fetchImageWithAuth } from '@/api/image';
+import logger from '@/lib/logger';
 
 interface AuthImageProps {
   src: string;
@@ -22,7 +23,7 @@ const AuthImage = React.forwardRef<HTMLElement, AuthImageProps>(
             const blobUrl = await fetchImageWithAuth(src);
             setImageSrc(blobUrl);
           } catch (e) {
-            console.error('Image fetch failed:', e);
+            logger.error('Image fetch failed:', e);
             setError(true);
           }
         }
