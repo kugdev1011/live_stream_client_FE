@@ -1,4 +1,3 @@
-import { fetchImageWithAuth } from '@/api/image';
 import AppAlert from '@/components/AppAlert';
 import {
   ConfirmationModalProps,
@@ -129,13 +128,12 @@ const AccountInformation = () => {
       // set ui according to response
       setDisplayName(data?.display_name);
       if (data?.avatar_file_url) {
-        try {
-          const blobUrl = await fetchImageWithAuth(data.avatar_file_url);
-          setAvatarImage((prev) => ({ ...prev, preview: blobUrl }));
-        } catch (e) {
-          console.error('Failed to fetch avatar preview:', e);
-        }
+        setAvatarImage((prevData) => ({
+          ...prevData,
+          preview: data.avatar_file_url,
+        }));
       }
+
       // clear errors
       setFormError({
         displayNameFailure: false,
@@ -184,21 +182,10 @@ const AccountInformation = () => {
 
   useEffect(() => {
     setDisplayName(currentUser?.display_name || '');
-
-    const fetchAvatarPreview = async () => {
-      if (currentUser?.avatar_file_name) {
-        try {
-          const blobUrl = await fetchImageWithAuth(
-            currentUser.avatar_file_name
-          );
-          setAvatarImage((prev) => ({ ...prev, preview: blobUrl }));
-        } catch (e) {
-          console.error('Failed to fetch avatar preview:', e);
-        }
-      }
-    };
-
-    fetchAvatarPreview();
+    setAvatarImage((prevData) => ({
+      ...prevData,
+      preview: currentUser?.avatar_file_name || '',
+    }));
   }, [currentUser]);
 
   useEffect(() => {

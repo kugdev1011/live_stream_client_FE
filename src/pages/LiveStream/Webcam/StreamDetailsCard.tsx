@@ -14,7 +14,6 @@ const StreamDetailsCard: React.FC<{
     <div className="backdrop-blur bg-white/30 dark:bg-black/50">
       {data?.thumbnail_url && (
         <AuthImage
-          type="image"
           src={data?.thumbnail_url}
           alt={data?.title || 'Thumbnail'}
           className="w-full h-48 object-cover rounded-t"

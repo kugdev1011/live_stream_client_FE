@@ -1,6 +1,7 @@
 import { StreamDetailsResponse } from '@/data/dto/stream';
 import { retrieveAuthToken } from '@/data/model/userAccount';
 import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
+import logger from '@/lib/logger';
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
@@ -20,7 +21,7 @@ export const useLiveStreamWebSocket = ({
   const streamWsRef = useRef<WebSocket | null>(null);
 
   const cleanupStream = (reason: string, mediaRecorder?: MediaRecorder) => {
-    console.log(reason);
+    logger.log(reason);
     if (mediaRecorder) mediaRecorder.stop();
     setIsStreamStarted(false);
     streamWsRef.current = null;
@@ -28,7 +29,7 @@ export const useLiveStreamWebSocket = ({
 
   const startStream = (streamId: number) => {
     if (streamWsRef.current) {
-      console.warn('WebSocket is already initialized.');
+      logger.warn('WebSocket is already initialized.');
       return;
     }
 
@@ -54,7 +55,7 @@ export const useLiveStreamWebSocket = ({
     streamWsRef.current = streamWs;
 
     streamWs.onopen = () => {
-      console.log('WebSocket connection established');
+      logger.log('WebSocket connection established');
       setIsStreamStarted(true);
 
       EventEmitter.emit(EVENT_EMITTER_NAME.LIVE_STREAM_START);
@@ -87,17 +88,17 @@ export const useLiveStreamWebSocket = ({
           }));
         }
       } catch (error) {
-        console.error('Error parsing Stream WebSocket message:', error);
+        logger.error('Error parsing Stream WebSocket message:', error);
       }
     };
   };
 
   const stopStream = () => {
     if (streamWsRef.current) {
-      console.log('Closing WebSocket connection');
+      logger.log('Closing WebSocket connection');
       streamWsRef.current.close();
       streamWsRef.current = null;
-    } else console.warn('No active WebSocket connection to close.');
+    } else logger.warn('No active WebSocket connection to close.');
   };
 
   useEffect(() => {

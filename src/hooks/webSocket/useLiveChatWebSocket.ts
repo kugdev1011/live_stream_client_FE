@@ -13,6 +13,7 @@ import { retrieveAuthToken } from '@/data/model/userAccount';
 import { useIsMobile } from '../useMobile';
 import { OnReactOnLiveParams } from '@/components/Chat/Reactions';
 import { toast } from 'sonner';
+import logger from '@/lib/logger';
 
 const wsURL = import.meta.env.VITE_WS_STREAM_URL;
 
@@ -144,7 +145,7 @@ export function useLiveChatWebSocket(videoId: string | null) {
           }));
         }
       } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
+        logger.error('Error parsing WebSocket message:', error);
         toast('Chat is unavailable!');
       }
     };

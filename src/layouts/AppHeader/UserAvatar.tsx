@@ -12,32 +12,36 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/CustomSidebar';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { DropdownMenu } from '@/components/ui/dropdown-menu';
 import { ModeSwitcher } from '@/components/ModeSwitcher';
-import useUserAccount from '@/hooks/useUserAccount';
-import { UserAccountModel } from '@/data/model/userAccount';
+import { getLoggedInUserInfo } from '@/data/model/userAccount';
 import { useProfileNavItems } from '@/hooks/useProfileNavItems';
 import DefaultPf from '@/assets/images/pf.png';
 import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
 import { UserProfileInfoUpdateRequest } from '@/data/dto/user';
-import AuthImage from '@/components/AuthImage';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { getAvatarFallbackText } from '@/lib/utils';
 
 const UserAvatar = React.memo(() => {
   const [isOpen, setIsOpen] = useState(false);
 
   const profileNavItems = useProfileNavItems();
-  const currentUser: UserAccountModel = useUserAccount();
+  const currentUser = React.useMemo(() => getLoggedInUserInfo(), []);
 
-  const [user, setUser] = useState({
-    username: currentUser?.username,
-    displayName: currentUser?.display_name,
-    avatarUrl: currentUser?.avatar_file_name,
+  const [user, setUser] = useState<{
+    username: string;
+    displayName: string;
+    avatarUrl: string;
+  }>({
+    username: '',
+    displayName: '',
+    avatarUrl: '',
   });
 
-  useEffect(() => {
-    const handleAccountChange = (updatedUser: UserProfileInfoUpdateRequest) => {
+  const handleAccountChange = useCallback(
+    (updatedUser: UserProfileInfoUpdateRequest) => {
       setUser((prevData) => {
         return {
           ...prevData,
@@ -48,7 +52,18 @@ const UserAvatar = React.memo(() => {
               : DefaultPf,
         };
       });
-    };
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (currentUser)
+      setUser((prev) => ({
+        ...prev,
+        username: currentUser?.username || 'unknown',
+        displayName: currentUser?.display_name || 'Unknown',
+        avatarUrl: currentUser?.avatar_file_name || DefaultPf,
+      }));
 
     EventEmitter.subscribe(
       EVENT_EMITTER_NAME.USER_PROFILE_UPDATE,
@@ -62,20 +77,17 @@ const UserAvatar = React.memo(() => {
         handleAccountChange
       );
     };
-  }, []);
+  }, [currentUser, handleAccountChange]);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <button className="focus:outline-none">
-          <AuthImage
-            type="avatar"
-            src={user?.avatarUrl || ''}
-            className="object-cover"
-            alt={user?.displayName || 'Profile'}
-            displayText={user?.displayName || undefined}
-          />
-        </button>
+        <Avatar className="w-8 h-8 cursor-pointer">
+          <AvatarImage src={user?.avatarUrl} />
+          <AvatarFallback>
+            {getAvatarFallbackText(user?.displayName || 'NA')}
+          </AvatarFallback>
+        </Avatar>
       </PopoverTrigger>
       <PopoverContent
         className="w-48 overflow-hidden rounded-lg p-0"
@@ -84,13 +96,14 @@ const UserAvatar = React.memo(() => {
         <Sidebar collapsible="none" className="bg-transparent">
           <SidebarContent>
             <div className="flex gap-2 items-center justify-start py-3 pb-2 px-4">
-              <AuthImage
-                type="avatar"
-                src={user?.avatarUrl || ''}
-                className="w-8 h-8"
-                alt={user?.displayName || 'Profile'}
-                displayText={user?.displayName || undefined}
-              />
+              {/* <AppAvatar url={user?.avatarUrl || ''} /> */}
+              <Avatar className="w-8 h-8">
+                <AvatarImage src={user?.avatarUrl} />
+                <AvatarFallback>
+                  {getAvatarFallbackText(user?.displayName || 'NA')}
+                </AvatarFallback>
+              </Avatar>
+
               <div className="flex flex-col gap-1">
                 <p className="text-sm">{user?.displayName}</p>
                 <p className="text-xs -mt-1">@{user?.username}</p>

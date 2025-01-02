@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { FEED_PATH } from '@/data/route';
 import { RotateCw, SquarePlay, VideoOff } from 'lucide-react';
 import DefaultThumbnail from '@/assets/images/video-thumbnail.jpg';
+import logger from '@/lib/logger';
 
 interface VideoPlayerProps {
   url?: string;
@@ -66,7 +67,7 @@ const VideoPlayerFLV: React.FC<VideoPlayerProps> = ({
             },
           },
           () => {
-            console.log('FLV Player initialized');
+            logger.log('FLV Player initialized');
           }
         );
 
@@ -91,7 +92,7 @@ const VideoPlayerFLV: React.FC<VideoPlayerProps> = ({
       if (playerRef.current) {
         playerRef.current.dispose();
         playerRef.current = null;
-        console.log('FLV Player disposed');
+        logger.log('FLV Player disposed');
       }
     };
   }, [url, token]);

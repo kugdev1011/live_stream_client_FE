@@ -37,6 +37,7 @@ import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
 import VideoCategory from '@/components/VideoCategory';
 import { useLiveChatWebSocket } from '@/hooks/webSocket/useLiveChatWebSocket';
 import { useLiveStreamWebSocket } from '@/hooks/webSocket/useLiveStreamWebSocket';
+import logger from '@/lib/logger';
 
 const LiveStreamWebcam = () => {
   const navigate = useNavigate();
@@ -250,7 +251,7 @@ const LiveStreamWebcam = () => {
 
         // Stop all tracks (audio and video)
         mediaStream.getTracks().forEach((track) => {
-          console.log(`Stopping track: ${track.kind}`);
+          logger.log(`Stopping track: ${track.kind}`);
           track.stop();
         });
       }
@@ -334,7 +335,7 @@ const LiveStreamWebcam = () => {
         }
         setIsResourcePermissionDenied(false);
       } catch (error) {
-        console.error('Error accessing webcam:', error);
+        logger.error('Error accessing webcam:', error);
         setIsResourcePermissionDenied(true);
       }
     };

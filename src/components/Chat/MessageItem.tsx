@@ -5,7 +5,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import AuthImage from '../AuthImage';
+import AppAvatar from '../AppAvatar';
 
 interface ComponentProps {
   isSelfSent?: boolean;
@@ -23,12 +23,7 @@ const MessageItem = (props: ComponentProps) => {
       <TooltipProvider>
         <Tooltip>
           <div className="flex gap-1 items-center">
-            <AuthImage
-              className="w-7 h-7 object-cover"
-              type="avatar"
-              src={avatarUrl}
-              alt={displayName}
-            />
+            <AppAvatar url={avatarUrl} />
             <p className="text-justify">{displayName || 'Unknown'}</p>
           </div>
           <TooltipTrigger asChild>

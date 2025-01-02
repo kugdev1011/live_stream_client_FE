@@ -11,6 +11,7 @@ import {
 import { CONTENT_STATUS } from '@/data/types/stream';
 import TooltipComponent from '../TooltipComponent';
 import AuthImage from '../AuthImage';
+import AppAvatar from '../AppAvatar';
 
 interface VideoItemProps {
   video: StreamsResponse;
@@ -46,7 +47,6 @@ const VideoItem: React.FC<VideoItemProps> = ({ video }) => {
         className={`overflow-hidden aspect-video rounded-lg border border-background group-hover:border-primary group-hover:border-spacing-3 group-hover:border-4 transition-all ease-in-out duration-300`}
       >
         <AuthImage
-          type="image"
           src={video.thumbnail_url}
           alt={video.title}
           className="w-full h-full object-cover"
@@ -54,14 +54,7 @@ const VideoItem: React.FC<VideoItemProps> = ({ video }) => {
       </div>
 
       <div className="flex gap-4 mt-3">
-        <AuthImage
-          type="avatar"
-          isLive={isLive}
-          src={video?.avatar_file_url || ''}
-          className="object-cover"
-          alt={video?.display_name || 'Profile'}
-          displayText={video?.display_name || undefined}
-        />
+        <AppAvatar url={video?.avatar_file_url || ''} />
 
         <div className="space-y-1">
           <TooltipComponent

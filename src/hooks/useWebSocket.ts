@@ -1,3 +1,4 @@
+import logger from '@/lib/logger';
 import { useEffect, useState } from 'react';
 
 const useWebSocket = (url: string) => {
@@ -7,12 +8,12 @@ const useWebSocket = (url: string) => {
     const socket = new WebSocket(url);
 
     socket.onopen = () => {
-      console.log('WebSocket connection established.');
+      logger.log('WebSocket connection established.');
     };
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log('Received data: ', data);
+      logger.log('Received data: ', data);
 
       if (data.broadcast_url) {
         setBroadcastUrl(data.broadcast_url);
@@ -20,11 +21,11 @@ const useWebSocket = (url: string) => {
     };
 
     socket.onerror = (error) => {
-      console.error('WebSocket error: ', error);
+      logger.error('WebSocket error: ', error);
     };
 
     socket.onclose = () => {
-      console.log('WebSocket connection closed.');
+      logger.log('WebSocket connection closed.');
     };
 
     return () => {
