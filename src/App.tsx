@@ -23,6 +23,7 @@ import {
   STREAMER_PROFILE_PATH,
   WATCH_VIDEO_PATH,
   WATCH_LIVE_PATH,
+  FEED_SEARCH_PATH,
 } from './data/route';
 import Register from './pages/Auth/Register';
 import Login from './pages/Auth/Login';
@@ -40,6 +41,7 @@ import Feed from './pages/Feed';
 import UserProfile from './pages/UserProfile';
 import WatchVideo from './pages/WatchVideo';
 import WatchLive from './pages/WatchLive';
+import FeedSearch from './pages/Feed/Search';
 
 function App() {
   return (
@@ -51,6 +53,10 @@ function App() {
         <Route
           path={FEED_PATH}
           element={<ProtectedRoute element={<Feed />} />}
+        />
+        <Route
+          path={FEED_SEARCH_PATH}
+          element={<ProtectedRoute element={<FeedSearch />} />}
         />
 
         <Route

@@ -1,41 +1,73 @@
-import React from 'react';
 import { Button } from '@/components/ui/button';
-import {
-  CommandDialog,
-  CommandEmpty,
-  CommandInput,
-  CommandList,
-} from '@/components/ui/command';
-import { type DialogProps } from '@radix-ui/react-dialog';
-import { DialogTitle } from '@/components/ui/dialog';
-import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { FEED_SEARCH_PATH, SEARCH_QUERY_KEYWORD } from '@/data/route';
+import { Search, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-export function SearchBox({ ...props }: DialogProps) {
-  const [open, setOpen] = React.useState(false);
+const SearchBox = ({ onSearch }: { onSearch: (value: string) => void }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [inputValue, setInputValue] = useState('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setInputValue(e.target.value);
+
+  const handleClear = () => {
+    setInputValue('');
+    onSearch('');
+  };
+
+  const handleSearch = () => {
+    const _query = inputValue.trim();
+    if (_query) {
+      onSearch(_query);
+      navigate(
+        `${FEED_SEARCH_PATH}?${SEARCH_QUERY_KEYWORD}=${encodeURIComponent(
+          _query
+        )}`
+      );
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  useEffect(() => {
+    const query = new URLSearchParams(location.search).get(
+      SEARCH_QUERY_KEYWORD
+    );
+    if (query) setInputValue(query);
+  }, [location]);
+
   return (
-    <>
+    <div className="relative">
+      <Input
+        value={inputValue}
+        onChange={handleChange}
+        onKeyDown={handleKeyPress}
+        type="text"
+        placeholder="Search"
+        className="pl-4 py-[16px] text-sm bg-zinc-200/50 dark:bg-muted/50 border-none focus-visible:outline focus-visible:dark:outline-gray-700 outline-gray-300 min-w-[300px]"
+      />
+      {inputValue && (
+        <X
+          className="w-3 h-3 absolute right-16 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
+          onClick={handleClear}
+        />
+      )}
       <Button
-        className="hover:bg-secondary w-1/3"
         variant="secondary"
-        size="sm"
-        onClick={() => setOpen(true)}
-        {...props}
+        className="absolute right-0 top-0 px-4 rounded-none rounded-tr-md rounded-br-md border-none focus-visible:outline focus-visible:dark:outline-gray-700 outline-gray-300"
+        onClick={handleSearch}
       >
-        <Search /> Search...
+        <Search />
       </Button>
-      <CommandDialog
-        open={open}
-        onOpenChange={(isOpen) => {
-          setOpen(isOpen);
-        }}
-      >
-        <DialogTitle></DialogTitle>
-        <CommandInput placeholder="Search..." />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          {/* Trending Search/Content can be here */}
-        </CommandList>
-      </CommandDialog>
-    </>
+    </div>
   );
-}
+};
+
+export default SearchBox;
