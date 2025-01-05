@@ -13,6 +13,7 @@ import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import FetchingError from './FetchingError';
 import EndOfResults from './EndOfResults';
 import NotFoundCentered from '@/components/NotFoundCentered';
+import { VIDEO_LIST_STYLE } from '@/data/types/ui/video';
 
 const FeedPage = () => {
   const listRef = useRef<HTMLDivElement | null>(null);
@@ -100,7 +101,7 @@ const FeedPage = () => {
       >
         {/* Videos List */}
         {!contentFetchError && contents.length > 0 && (
-          <VideosList videos={contents} />
+          <VideosList videos={contents} style={VIDEO_LIST_STYLE.GRID} />
         )}
 
         {/* Fetching error, api error, server down */}
