@@ -141,3 +141,5 @@ export const ROUTE_PATH_INFO = {
     Icon: <Settings2 />,
   },
 };
+
+export const GLOBAL_CONTENT_UNSEARCHABLE_PAGES = [SETTINGS_PATH];

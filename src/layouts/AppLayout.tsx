@@ -5,19 +5,27 @@ import { AppSidebar } from './AppSidebar';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { Toaster } from '@/components/ui/sonner';
 import { SearchProvider } from '@/context/SearchContext';
+import { GLOBAL_CONTENT_UNSEARCHABLE_PAGES } from '@/data/route';
+import { useLocation } from 'react-router-dom';
 
 interface AppLayoutProps {
   children: ReactNode;
 }
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
+  const { pathname } = useLocation();
+
+  const isSearchDisabled = GLOBAL_CONTENT_UNSEARCHABLE_PAGES.includes(pathname);
+
+  console.log(pathname);
+  console.log(isSearchDisabled);
   return (
     <ThemeProvider>
       <SearchProvider>
         <SidebarProvider>
           <AppSidebar />
           <SidebarInset>
-            <AppHeader />
+            <AppHeader isSearchEnabled={!isSearchDisabled} />
             {/* enable for animation for drawer bounce back */}
             {/* <div vaul-drawer-wrapper="" className="bg-background"> */}
             <main className="flex flex-1 flex-col gap-4 p-6 pt-4 overflow-hidden mt-[56px]">
