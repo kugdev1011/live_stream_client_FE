@@ -17,8 +17,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   const isSearchDisabled = GLOBAL_CONTENT_UNSEARCHABLE_PAGES.includes(pathname);
 
-  console.log(pathname);
-  console.log(isSearchDisabled);
   return (
     <ThemeProvider>
       <SearchProvider>
@@ -28,7 +26,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             <AppHeader isSearchEnabled={!isSearchDisabled} />
             {/* enable for animation for drawer bounce back */}
             {/* <div vaul-drawer-wrapper="" className="bg-background"> */}
-            <main className="flex flex-1 flex-col gap-4 p-6 pt-4 overflow-hidden mt-[56px]">
+            <main className="flex flex-1 flex-col gap-4 p-6 overflow-hidden mt-[56px]">
               {children}
               <Toaster />
             </main>

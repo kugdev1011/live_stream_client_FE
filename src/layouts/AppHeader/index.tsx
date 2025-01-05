@@ -69,7 +69,7 @@ const AppHeader = React.memo(
     }, [isMobile]);
 
     return (
-      <header className="flex justify-between fixed w-full top-0 py-2 bg-background border-b shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:py-3 z-50">
+      <header className="flex justify-between fixed w-full top-0 py-2 border-b shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:py-3 z-50 backdrop-blur bg-background/70">
         {!isSmallSearchExpanded && (
           <div className="px-4 flex items-center gap-1">
             <SidebarTriggerHangBurger />

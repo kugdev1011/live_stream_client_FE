@@ -1,40 +1,90 @@
 import AppLayout from '@/layouts/AppLayout';
 import { SEARCH_QUERY_KEYWORD } from '@/data/route';
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/data/validations';
+import {
+  DEFAULT_LG_VIDEO_API_SIZE,
+  DEFAULT_PAGE,
+  DEFAULT_SM_VIDEO_API_SIZE,
+} from '@/data/validations';
 import useVideosList from '@/hooks/useVideosList';
 import { useLocation } from 'react-router-dom';
 import NotFoundCentered from '@/components/NotFoundCentered';
 import { VideoOff } from 'lucide-react';
-import FullscreenLoading from '@/components/FullscreenLoading';
-import { VIDEO_LIST_STYLE } from '@/data/types/ui/video';
-import VideosList from '@/components/VideosList';
+import { VIDEO_ITEM_STYLE } from '@/data/types/ui/video';
+import { useCallback, useRef, useState } from 'react';
+import EndOfResults from '../EndOfResults';
+import VideoItem from '@/components/VideosList/VideoItem';
+import InlineLoading from '../../../components/InlineLoading';
+import FetchingError from '../FetchingError';
+import { useIsMobile } from '@/hooks/useMobile';
 
 const FeedSearch = () => {
+  const isMobile = useIsMobile();
   const location = useLocation();
   const query = new URLSearchParams(location.search).get(SEARCH_QUERY_KEYWORD);
+  const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE);
 
   // fetch videos
   const {
-    contents,
-    // totalItems,
-    isLoading: isContentsFetching,
-    error: contentFetchError,
-    // refetchContents,
-    // fetchNextPage,
+    videos,
+    hasMore,
+    isLoading,
+    error: isFetchingError,
+    refetchVideos,
   } = useVideosList({
-    page: DEFAULT_PAGE,
-    limit: DEFAULT_PAGE_SIZE,
+    page: currentPage,
+    limit: isMobile ? DEFAULT_SM_VIDEO_API_SIZE : DEFAULT_LG_VIDEO_API_SIZE,
     title: query || '',
   });
 
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const lastVideoElementRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (isLoading) return;
+      if (observerRef.current) observerRef.current.disconnect();
+      observerRef.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setCurrentPage((prev) => prev + 1);
+        }
+      });
+      if (node) observerRef.current.observe(node); // Observe the last element in the list
+    },
+    [isLoading, hasMore]
+  );
+
   return (
     <AppLayout>
-      {!isContentsFetching && !contentFetchError && contents.length > 0 && (
-        <VideosList videos={contents} style={VIDEO_LIST_STYLE.LIST} />
-      )}
+      <div className="md:container lg:px-[10rem] md:mx-auto flex flex-col justify-center gap-4">
+        {!isFetchingError &&
+          videos.length > 0 &&
+          videos.map((video, index) => {
+            if (videos.length === index + 1)
+              return (
+                <div ref={lastVideoElementRef}>
+                  <VideoItem
+                    key={index}
+                    video={video}
+                    style={VIDEO_ITEM_STYLE.FLEX_ROW}
+                  />
+                </div>
+              );
+            else
+              return (
+                <div>
+                  <VideoItem
+                    key={index}
+                    video={video}
+                    style={VIDEO_ITEM_STYLE.FLEX_ROW}
+                  />
+                </div>
+              );
+          })}
+      </div>
 
-      {/* No results */}
-      {!isContentsFetching && contents.length === 0 && (
+      {!isFetchingError && !isLoading && !hasMore && <EndOfResults />}
+
+      {!isFetchingError && isLoading && <InlineLoading />}
+
+      {!isFetchingError && !isLoading && videos.length === 0 && (
         <NotFoundCentered
           Icon={<VideoOff className="text-white" />}
           title="No Video Found!"
@@ -42,8 +92,9 @@ const FeedSearch = () => {
         />
       )}
 
-      {/* Loading... */}
-      {isContentsFetching && <FullscreenLoading />}
+      {isFetchingError && (
+        <FetchingError isLoading={isLoading} onRefetch={refetchVideos} />
+      )}
     </AppLayout>
   );
 };

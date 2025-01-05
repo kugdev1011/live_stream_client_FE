@@ -67,7 +67,7 @@ const SearchBox = ({ onSearch }: { onSearch: (value: string) => void }) => {
         onKeyDown={handleKeyPress}
         type="text"
         placeholder="Search"
-        className="pl-4 py-[16px] text-sm bg-zinc-200/50 dark:bg-muted/50 border-none focus-visible:outline focus-visible:dark:outline-gray-700 outline-gray-300 min-w-[300px]"
+        className="pl-4 py-[16px] text-sm bg-zinc-200/50 dark:bg-muted/50 border-none focus-visible:outline focus-visible:dark:outline-gray-700 outline-gray-300 min-w-[300px] focus:shadow-md"
       />
       {inputValue ? (
         <X
@@ -81,7 +81,7 @@ const SearchBox = ({ onSearch }: { onSearch: (value: string) => void }) => {
       )}
       <Button
         variant="secondary"
-        className="absolute right-0 top-0 px-4 rounded-none rounded-tr-md rounded-br-md border-none focus-visible:outline focus-visible:dark:outline-gray-700 outline-gray-300"
+        className="absolute right-0 top-0 px-4 rounded-none rounded-tr-md rounded-br-md border-none focus-visible:outline focus-visible:dark:outline-gray-700 outline-gray-300 bg-primary/10 hover:bg-primary/20"
         onClick={handleSearch}
       >
         <Search />
