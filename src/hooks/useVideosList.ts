@@ -7,9 +7,10 @@ const useVideosList = (payload: VideosListRequest = {}) => {
   const {
     page = DEFAULT_PAGE,
     limit = DEFAULT_PAGE_SIZE,
-    categoryId1 = 0,
-    categoryId2 = 0,
-    categoryId3 = 0,
+    categoryId1,
+    categoryId2,
+    categoryId3,
+    status,
     title = '',
     isMe = false,
   } = payload;
@@ -36,9 +37,10 @@ const useVideosList = (payload: VideosListRequest = {}) => {
           limit,
           title,
           isMe,
-          categoryId1: categoryId1 || undefined,
-          categoryId2: categoryId2 || undefined,
-          categoryId3: categoryId3 || undefined,
+          status,
+          categoryId1,
+          categoryId2,
+          categoryId3,
         };
 
         const response = await fetchVideosList(params);
@@ -72,6 +74,7 @@ const useVideosList = (payload: VideosListRequest = {}) => {
     categoryId1,
     categoryId2,
     categoryId3,
+    status,
     page,
     limit,
     isMe,

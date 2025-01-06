@@ -115,3 +115,9 @@ html {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+/* added for enabling horizontal scrolling for categories */
+main {
+  flex-grow: 1;
+  overflow-x: auto;
+}

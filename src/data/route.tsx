@@ -11,6 +11,7 @@ import {
 
 export const RESULTS_PATH_KEYWORD = 'results';
 export const SEARCH_QUERY_KEYWORD = 'q';
+export const CATEGORY_FILTER_KEYWORD = 'category';
 
 export const APP_PREFIX_PATH = '/app';
 export const AUTH_PREFIX_PATH = '/auth';
@@ -143,3 +144,4 @@ export const ROUTE_PATH_INFO = {
 };
 
 export const GLOBAL_CONTENT_UNSEARCHABLE_PAGES = [SETTINGS_PATH];
+export const GLOBAL_CATEGORY_FILTERABLE_PAGES = [FEED_PATH, FEED_SEARCH_PATH];

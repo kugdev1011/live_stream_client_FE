@@ -1,11 +1,23 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { FEED_SEARCH_PATH, SEARCH_QUERY_KEYWORD } from '@/data/route';
+import { CategoryResponse } from '@/data/dto/category';
+import {
+  CATEGORY_FILTER_KEYWORD,
+  FEED_SEARCH_PATH,
+  SEARCH_QUERY_KEYWORD,
+} from '@/data/route';
+import { FixedCategories } from '@/data/types/category';
 import { Search, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const SearchBox = ({ onSearch }: { onSearch: (value: string) => void }) => {
+const SearchBox = ({
+  filteredCategory,
+  onSearch,
+}: {
+  filteredCategory: CategoryResponse;
+  onSearch: (value: string) => void;
+}) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState('');
@@ -17,17 +29,24 @@ const SearchBox = ({ onSearch }: { onSearch: (value: string) => void }) => {
   const handleClear = () => {
     setInputValue('');
     onSearch('');
+
+    const params = new URLSearchParams(location.search);
+    params.delete(SEARCH_QUERY_KEYWORD);
+    navigate(`${location.pathname}?${params.toString()}`);
   };
 
   const handleSearch = () => {
     const _query = inputValue.trim();
     if (_query) {
       onSearch(_query);
-      navigate(
-        `${FEED_SEARCH_PATH}?${SEARCH_QUERY_KEYWORD}=${encodeURIComponent(
-          _query
-        )}`
-      );
+
+      const params = new URLSearchParams(location.search);
+      params.set(SEARCH_QUERY_KEYWORD, _query);
+
+      if (filteredCategory && filteredCategory.id !== FixedCategories[0].id)
+        params.set(CATEGORY_FILTER_KEYWORD, String(filteredCategory.id));
+
+      navigate(`${FEED_SEARCH_PATH}?${params.toString()}`);
     }
   };
 

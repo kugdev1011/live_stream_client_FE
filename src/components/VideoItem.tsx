@@ -1,7 +1,11 @@
 import React from 'react';
 import { StreamsResponse } from '@/data/dto/stream';
-import { getMicrosecondsToHHMMSS, getTimeAgoFormat } from '@/lib/date-time';
-import { Badge } from '../ui/badge';
+import {
+  getFormattedDate,
+  getMicrosecondsToHHMMSS,
+  getTimeAgoFormat,
+} from '@/lib/date-time';
+import { Badge } from './ui/badge';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   FEED_SEARCH_PATH,
@@ -10,9 +14,9 @@ import {
   WATCH_VIDEO_PATH,
 } from '@/data/route';
 import { CONTENT_STATUS } from '@/data/types/stream';
-import TooltipComponent from '../TooltipComponent';
-import AuthImage from '../AuthImage';
-import AppAvatar from '../AppAvatar';
+import TooltipComponent from './TooltipComponent';
+import AuthImage from './AuthImage';
+import AppAvatar from './AppAvatar';
 import { useIsMobile } from '@/hooks/useMobile';
 import { VIDEO_ITEM_STYLE } from '@/data/types/ui/video';
 
@@ -50,7 +54,7 @@ const VideoItem: React.FC<VideoItemProps> = ({ video, style }) => {
       <div
         className={`overflow-hidden aspect-video rounded-lg hover:rounded-none border border-transparent hover:border-primary hover:border-4 transition-all ease-in-out duration-300 ${
           isSearchPage ? 'md:max-w-[350px] md:min-w-[240px]' : ''
-        } ${video?.status === CONTENT_STATUS.VIDEO ? 'relative' : ''}`}
+        } relative`}
       >
         {/* live status */}
         {video?.status === CONTENT_STATUS.LIVE && (
@@ -59,6 +63,13 @@ const VideoItem: React.FC<VideoItemProps> = ({ video, style }) => {
             className="absolute top-2.5 left-2.5 bg-red-600 text-white text-xs font-bold py-0.5 px-1 rounded-[5px]"
           >
             LIVE
+          </Badge>
+        )}
+
+        {/* upcoming status */}
+        {video?.status === CONTENT_STATUS.UPCOMING && (
+          <Badge className="absolute top-2.5 left-2.5 bg-green-600 hover:bg-green-800 text-white text-xs font-bold py-0.5 px-1 rounded-[5px]">
+            Upcoming
           </Badge>
         )}
 
@@ -71,20 +82,35 @@ const VideoItem: React.FC<VideoItemProps> = ({ video, style }) => {
         )}
 
         {/* views */}
-        <OverlayStats
-          classes="bottom-2 left-2"
-          content={`${video?.views} view${video?.views > 1 ? 's' : ''}`}
-        />
+        {video?.status === CONTENT_STATUS.VIDEO && (
+          <OverlayStats
+            classes="bottom-2 left-2"
+            content={`${video?.views} view${video?.views > 1 ? 's' : ''}`}
+          />
+        )}
 
-        {/* uploaded/streamed time */}
-        <OverlayStats
-          classes="bottom-2 right-2"
-          content={`${
-            video.status === 'live'
-              ? `Live ${getTimeAgoFormat(video.started_at)}`
-              : getTimeAgoFormat(video.started_at)
-          }`}
-        />
+        {/* uploaded/streamed/upcoming time */}
+        {video?.status === CONTENT_STATUS.LIVE && (
+          <OverlayStats
+            classes="bottom-2 right-2"
+            content={`Live ${getTimeAgoFormat(video.started_at)}`}
+          />
+        )}
+        {video?.status === CONTENT_STATUS.VIDEO && (
+          <OverlayStats
+            classes="bottom-2 right-2"
+            content={getTimeAgoFormat(video.started_at)}
+          />
+        )}
+        {video?.status === CONTENT_STATUS.UPCOMING && (
+          <OverlayStats
+            classes="bottom-2 right-2"
+            content={`Live on ${getFormattedDate(
+              new Date(video?.scheduled_at || ''),
+              true
+            )}`}
+          />
+        )}
 
         {/* thumbnail image */}
         <AuthImage
