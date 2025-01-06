@@ -11,6 +11,7 @@ export const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_PAGE_SIZE = 10;
 export const DEFAULT_SM_VIDEO_API_SIZE = 5;
+export const DEFAULT_MD_VIDEO_API_SIZE = 8;
 export const DEFAULT_LG_VIDEO_API_SIZE = 12;
 
 export const RECORD_VIEW_AFTER_SECONDS = 10; // 10 seconds

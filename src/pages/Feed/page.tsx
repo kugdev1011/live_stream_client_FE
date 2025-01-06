@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   DEFAULT_LG_VIDEO_API_SIZE,
+  DEFAULT_MD_VIDEO_API_SIZE,
   DEFAULT_PAGE,
   DEFAULT_SM_VIDEO_API_SIZE,
 } from '@/data/validations';
@@ -14,13 +15,26 @@ import { VIDEO_ITEM_STYLE } from '@/data/types/ui/video';
 import InlineLoading from '@/components/InlineLoading';
 import VideoItem from '@/components/VideoItem';
 import { debounce } from 'lodash';
-import { useIsMobile } from '@/hooks/useMobile';
 import { useCategory } from '@/context/CategoryContext';
 import { FixedCategories } from '@/data/types/category';
 import { CONTENT_STATUS } from '@/data/types/stream';
+import { useScreenSize } from '@/hooks/useScreenSize';
 
 const FeedPage = () => {
-  const isMobile = useIsMobile();
+  // fetch videos limit based on screen size
+  const screenSize = useScreenSize();
+  const getLimitForScreenSize = () => {
+    switch (screenSize) {
+      case 'sm':
+        return DEFAULT_SM_VIDEO_API_SIZE;
+      case 'md':
+        return DEFAULT_MD_VIDEO_API_SIZE;
+      case 'lg':
+        return DEFAULT_LG_VIDEO_API_SIZE;
+      default:
+        return DEFAULT_SM_VIDEO_API_SIZE;
+    }
+  };
 
   const { filteredCategory } = useCategory();
   const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE);
@@ -34,7 +48,7 @@ const FeedPage = () => {
     refetchVideos,
   } = useVideosList({
     page: currentPage,
-    limit: isMobile ? DEFAULT_SM_VIDEO_API_SIZE : DEFAULT_LG_VIDEO_API_SIZE,
+    limit: getLimitForScreenSize(),
     categoryId1:
       filteredCategory?.id === FixedCategories[0].id ||
       filteredCategory?.id === FixedCategories[1].id
