@@ -9,8 +9,11 @@ import {
   ThumbsUp,
 } from 'lucide-react';
 
-export const APP_PREFIX_PATH = '/app';
+export const RESULTS_PATH_KEYWORD = 'results';
+export const SEARCH_QUERY_KEYWORD = 'q';
+export const CATEGORY_FILTER_KEYWORD = 'category';
 
+export const APP_PREFIX_PATH = '/app';
 export const AUTH_PREFIX_PATH = '/auth';
 export const LOGIN_PATH = AUTH_PREFIX_PATH + '/login';
 export const REGISTRATION_PATH = AUTH_PREFIX_PATH + '/register';
@@ -18,6 +21,7 @@ export const LOGOUT_PATH = AUTH_PREFIX_PATH + '/logout';
 export const FORGOT_PASSWORD_PATH = AUTH_PREFIX_PATH + '/forgot-password';
 
 export const FEED_PATH = APP_PREFIX_PATH + '/feed';
+export const FEED_SEARCH_PATH = FEED_PATH + '/' + RESULTS_PATH_KEYWORD;
 export const SUBSCRIPTIONS_PATH = APP_PREFIX_PATH + '/subscriptions';
 export const HISTORY_PATH = APP_PREFIX_PATH + '/history';
 export const LIKED_VIDEOS_PATH = APP_PREFIX_PATH + '/liked';
@@ -138,3 +142,6 @@ export const ROUTE_PATH_INFO = {
     Icon: <Settings2 />,
   },
 };
+
+export const GLOBAL_CONTENT_UNSEARCHABLE_PAGES = [SETTINGS_PATH];
+export const GLOBAL_CATEGORY_FILTERABLE_PAGES = [FEED_PATH, FEED_SEARCH_PATH];

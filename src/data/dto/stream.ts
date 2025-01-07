@@ -32,6 +32,7 @@ export interface StreamsResponse {
   broadcast_url: string;
   video_url: string;
   started_at: string;
+  scheduled_at?: string;
   user_id: number;
   display_name: string;
   avatar_file_url: string;
