@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  DEFAULT_LG_VIDEO_API_SIZE,
-  DEFAULT_MD_VIDEO_API_SIZE,
-  DEFAULT_PAGE,
-  DEFAULT_SM_VIDEO_API_SIZE,
-} from '@/data/validations';
+import { DATA_API_LIMIT, DEFAULT_PAGE } from '@/data/validations';
 import useVideosList from '@/hooks/useVideosList';
 import { VideoOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -22,21 +17,7 @@ import { useScreenSize } from '@/hooks/useScreenSize';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const FeedPage = () => {
-  // fetch videos limit based on screen size
   const screenSize = useScreenSize();
-  const getLimitForScreenSize = () => {
-    switch (screenSize) {
-      case 'sm':
-        return DEFAULT_SM_VIDEO_API_SIZE;
-      case 'md':
-        return DEFAULT_MD_VIDEO_API_SIZE;
-      case 'lg':
-        return DEFAULT_LG_VIDEO_API_SIZE;
-      default:
-        return DEFAULT_SM_VIDEO_API_SIZE;
-    }
-  };
-
   const { filteredCategory } = useCategory();
   const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE);
 
@@ -49,7 +30,7 @@ const FeedPage = () => {
     refetchVideos,
   } = useVideosList({
     page: currentPage,
-    limit: getLimitForScreenSize(),
+    limit: DATA_API_LIMIT[screenSize], // fetch videos based on screen size
     categoryId1:
       filteredCategory?.id === FixedCategories[0].id ||
       filteredCategory?.id === FixedCategories[1].id
@@ -81,7 +62,7 @@ const FeedPage = () => {
   }, [filteredCategory]);
 
   const renderSkeletons = () => {
-    const skeletonsCount = getLimitForScreenSize();
+    const skeletonsCount = DATA_API_LIMIT[screenSize];
     return Array.from({ length: skeletonsCount }).map((_, index) => (
       <div key={index} className="w-full h-full">
         <Skeleton className="w-full h-48 bg-secondary" />
