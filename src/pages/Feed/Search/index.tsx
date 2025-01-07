@@ -1,11 +1,6 @@
 import AppLayout from '@/layouts/AppLayout';
 import { CATEGORY_FILTER_KEYWORD, SEARCH_QUERY_KEYWORD } from '@/data/route';
-import {
-  DEFAULT_LG_VIDEO_API_SIZE,
-  DEFAULT_MD_VIDEO_API_SIZE,
-  DEFAULT_PAGE,
-  DEFAULT_SM_VIDEO_API_SIZE,
-} from '@/data/validations';
+import { DATA_API_LIMIT, DEFAULT_PAGE } from '@/data/validations';
 import useVideosList from '@/hooks/useVideosList';
 import { useLocation } from 'react-router-dom';
 import NotFoundCentered from '@/components/NotFoundCentered';
@@ -21,20 +16,7 @@ import { CONTENT_STATUS } from '@/data/types/stream';
 import { useScreenSize } from '@/hooks/useScreenSize';
 
 const FeedSearch = () => {
-  // fetch videos limit based on screen size
   const screenSize = useScreenSize();
-  const getLimitForScreenSize = () => {
-    switch (screenSize) {
-      case 'sm':
-        return DEFAULT_SM_VIDEO_API_SIZE;
-      case 'md':
-        return DEFAULT_MD_VIDEO_API_SIZE;
-      case 'lg':
-        return DEFAULT_LG_VIDEO_API_SIZE;
-      default:
-        return DEFAULT_SM_VIDEO_API_SIZE;
-    }
-  };
 
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -54,7 +36,7 @@ const FeedSearch = () => {
     refetchVideos,
   } = useVideosList({
     page: currentPage,
-    limit: getLimitForScreenSize(),
+    limit: DATA_API_LIMIT[screenSize], // fetch videos based on screen size
     title: _searchQuery || undefined,
     categoryId1:
       _filteredCategoryId === FixedCategories[0].id ||

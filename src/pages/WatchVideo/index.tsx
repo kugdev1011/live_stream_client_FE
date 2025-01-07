@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import VideoDescriptionBox from '@/components/VideoDescriptionBox';
 import useVideoDetails from '@/hooks/useVideoDetails';
 import { useParams } from 'react-router-dom';
-import { formatReactionCount } from '@/lib/utils';
+import { formatKMBCount } from '@/lib/utils';
 import Reactions from '@/components/Chat/Reactions';
 import { Reaction, ReactionStats } from '@/data/chat';
 import { addView, reactOnVideo, subscribeUnsubscribe } from '@/services/stream';
@@ -235,7 +235,7 @@ const WatchVideo = () => {
                 {videoDetails?.display_name}
               </h3>
               <p className="text-gray-400 text-sm">
-                {formatReactionCount(subscribedCount)} Subscribers
+                {formatKMBCount(subscribedCount)} Subscribers
               </p>
             </div>
             {!videoDetails?.is_owner && (
