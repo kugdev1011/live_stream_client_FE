@@ -34,11 +34,14 @@ const VideoItem: React.FC<VideoItemProps> = ({ video, style }) => {
   const isFlexStyle = !isMobile && style === VIDEO_ITEM_STYLE.FLEX_ROW;
   const isFlexStyleMobile = isMobile && style === VIDEO_ITEM_STYLE.FLEX_ROW;
 
+  const isVideo = video.status === CONTENT_STATUS.VIDEO;
   const isLive = video.status === CONTENT_STATUS.LIVE;
+  const isUpcoming = video.status === CONTENT_STATUS.UPCOMING;
 
   const handleWatchVideo = () => {
     let path = '';
-    if (isLive) path = WATCH_LIVE_PATH.replace(':id', video.id.toString());
+    if (isLive || isUpcoming)
+      path = WATCH_LIVE_PATH.replace(':id', video.id.toString());
     else path = WATCH_VIDEO_PATH.replace(':id', video.id.toString());
     navigate(path);
   };
@@ -57,7 +60,7 @@ const VideoItem: React.FC<VideoItemProps> = ({ video, style }) => {
         } relative`}
       >
         {/* live status */}
-        {video?.status === CONTENT_STATUS.LIVE && (
+        {isLive && (
           <Badge
             variant="destructive"
             className="absolute top-2.5 left-2.5 bg-red-600 text-white text-xs font-bold py-0.5 px-1 rounded-[5px]"
@@ -67,14 +70,14 @@ const VideoItem: React.FC<VideoItemProps> = ({ video, style }) => {
         )}
 
         {/* upcoming status */}
-        {video?.status === CONTENT_STATUS.UPCOMING && (
+        {isUpcoming && (
           <Badge className="absolute top-2.5 left-2.5 bg-green-600 hover:bg-green-800 text-white text-xs font-bold py-0.5 px-1 rounded-[5px]">
             Upcoming
           </Badge>
         )}
 
         {/* duration */}
-        {video?.status === CONTENT_STATUS.VIDEO && (
+        {isVideo && (
           <OverlayStats
             classes="top-2 left-2"
             content={getMicrosecondsToHHMMSS(video?.duration)}
@@ -82,7 +85,7 @@ const VideoItem: React.FC<VideoItemProps> = ({ video, style }) => {
         )}
 
         {/* views */}
-        {video?.status === CONTENT_STATUS.VIDEO && (
+        {isVideo && (
           <OverlayStats
             classes="bottom-2 left-2"
             content={`${video?.views} view${video?.views > 1 ? 's' : ''}`}
@@ -90,19 +93,19 @@ const VideoItem: React.FC<VideoItemProps> = ({ video, style }) => {
         )}
 
         {/* uploaded/streamed/upcoming time */}
-        {video?.status === CONTENT_STATUS.LIVE && (
+        {isLive && (
           <OverlayStats
             classes="bottom-2 right-2"
             content={`Live ${getTimeAgoFormat(video.started_at)}`}
           />
         )}
-        {video?.status === CONTENT_STATUS.VIDEO && (
+        {isVideo && (
           <OverlayStats
             classes="bottom-2 right-2"
             content={getTimeAgoFormat(video.started_at)}
           />
         )}
-        {video?.status === CONTENT_STATUS.UPCOMING && (
+        {isUpcoming && (
           <OverlayStats
             classes="bottom-2 right-2"
             content={`Live on ${getFormattedDate(
@@ -114,6 +117,7 @@ const VideoItem: React.FC<VideoItemProps> = ({ video, style }) => {
 
         {/* thumbnail image */}
         <AuthImage
+          isThumbnail
           src={video.thumbnail_url}
           alt={video.title}
           className="w-full h-full object-cover"

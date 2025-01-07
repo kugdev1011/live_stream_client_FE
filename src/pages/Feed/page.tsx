@@ -19,6 +19,7 @@ import { useCategory } from '@/context/CategoryContext';
 import { FixedCategories } from '@/data/types/category';
 import { CONTENT_STATUS } from '@/data/types/stream';
 import { useScreenSize } from '@/hooks/useScreenSize';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const FeedPage = () => {
   // fetch videos limit based on screen size
@@ -79,21 +80,32 @@ const FeedPage = () => {
     setCurrentPage(1);
   }, [filteredCategory]);
 
+  const renderSkeletons = () => {
+    const skeletonsCount = getLimitForScreenSize();
+    return Array.from({ length: skeletonsCount }).map((_, index) => (
+      <div key={index} className="w-full h-full">
+        <Skeleton className="w-full h-48 bg-secondary" />
+      </div>
+    ));
+  };
+
   return (
     <React.Fragment>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto mt-10">
         {/* Videos List */}
-        {!isFetchingError &&
-          videos.length > 0 &&
-          videos.map((video, index) => {
-            return (
-              <VideoItem
-                key={index}
-                video={video}
-                style={VIDEO_ITEM_STYLE.FLEX_COL}
-              />
-            );
-          })}
+        {isLoading
+          ? renderSkeletons()
+          : !isFetchingError &&
+            videos.length > 0 &&
+            videos.map((video, index) => {
+              return (
+                <VideoItem
+                  key={index}
+                  video={video}
+                  style={VIDEO_ITEM_STYLE.FLEX_COL}
+                />
+              );
+            })}
 
         {!isFetchingError && !isLoading && videos.length === 0 && (
           <NotFoundCentered
