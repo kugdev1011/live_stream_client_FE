@@ -20,15 +20,28 @@ import AuthImage from './AuthImage';
 import AppAvatar from './AppAvatar';
 import { useIsMobile } from '@/hooks/useMobile';
 import { VIDEO_ITEM_STYLE } from '@/data/types/ui/video';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
+import { LucideIcon, MoreVertical } from 'lucide-react';
+import { Button } from './ui/button';
 
 interface VideoItemProps {
   video: StreamsResponse;
   style?: VIDEO_ITEM_STYLE;
+  actions?: Array<{
+    Icon?: LucideIcon;
+    label: string;
+    onClick: (video: StreamsResponse) => void;
+  }>;
 }
 
 const SingleItemStyleInThesePages = [FEED_SEARCH_PATH, LIKED_VIDEOS_PATH];
 
-const VideoItem: React.FC<VideoItemProps> = ({ video, style }) => {
+const VideoItem: React.FC<VideoItemProps> = ({ video, style, actions }) => {
   const location = useLocation();
   const isSingleItemStyle = !!SingleItemStyleInThesePages.find((path) =>
     location.pathname.includes(path)
@@ -54,121 +67,152 @@ const VideoItem: React.FC<VideoItemProps> = ({ video, style }) => {
   return (
     <div
       className={`overflow-hidden relative cursor-pointer ${
-        isFlexStyle ? 'flex gap-3' : ''
+        isFlexStyle ? 'flex gap-3 justify-between' : ''
       }`}
       onClick={handleWatchVideo}
     >
-      {/* thumbnail */}
-      <div
-        className={`overflow-hidden aspect-video rounded-lg hover:rounded-none border border-transparent hover:border-primary hover:border-4 transition-all ease-in-out duration-300 ${
-          isSingleItemStyle ? 'md:max-w-[350px] md:min-w-[240px]' : ''
-        } relative`}
-      >
-        {/* live status */}
-        {isLive && (
-          <Badge
-            variant="destructive"
-            className="absolute top-2.5 left-2.5 bg-red-600 text-white text-xs font-bold py-0.5 px-1 rounded-[5px]"
-          >
-            LIVE
-          </Badge>
-        )}
-
-        {/* upcoming status */}
-        {isUpcoming && (
-          <Badge className="absolute top-2.5 left-2.5 bg-green-600 hover:bg-green-800 text-white text-xs font-bold py-0.5 px-1 rounded-[5px]">
-            Upcoming
-          </Badge>
-        )}
-
-        {/* duration */}
-        {isVideo && (
-          <OverlayStats
-            classes="top-2 left-2"
-            content={getMicrosecondsToHHMMSS(video?.duration)}
-          />
-        )}
-
-        {/* views */}
-        {isVideo && (
-          <OverlayStats
-            classes="bottom-2 left-2"
-            content={`${video?.views} view${video?.views > 1 ? 's' : ''}`}
-          />
-        )}
-
-        {/* uploaded/streamed/upcoming time */}
-        {isLive && (
-          <OverlayStats
-            classes="bottom-2 right-2"
-            content={`Live ${getTimeAgoFormat(video.started_at)}`}
-          />
-        )}
-        {isVideo && (
-          <OverlayStats
-            classes="bottom-2 right-2"
-            content={getTimeAgoFormat(video.started_at)}
-          />
-        )}
-        {isUpcoming && (
-          <OverlayStats
-            classes="bottom-2 right-2"
-            content={`Live on ${getFormattedDate(
-              new Date(video?.scheduled_at || ''),
-              true
-            )}`}
-          />
-        )}
-
-        {/* thumbnail image */}
-        <AuthImage
-          isThumbnail
-          src={video.thumbnail_url}
-          alt={video.title}
-          className="w-full h-full object-cover"
-        />
-      </div>
-
-      <div className="flex gap-4 mt-3">
-        {style !== VIDEO_ITEM_STYLE.FLEX_ROW && (
-          <AppAvatar url={video?.avatar_file_url || ''} />
-        )}
-
-        <div className={`space-y-${isFlexStyle ? '2' : '1'}`}>
-          {/* title - 2 lines at most */}
-          <TooltipComponent
-            text={video.title}
-            children={
-              <p
-                className={`${
-                  isFlexStyle ? 'text-base md:text-lg lg:text-xl' : 'text-base'
-                } hover:text-primary font-bold line-clamp-2 text-ellipsis`}
-              >
-                {video.title}
-              </p>
-            }
-          />
-
-          {/* avatar and streamer name */}
-          <div
-            className={`${
-              isFlexStyle || isFlexStyleMobile
-                ? 'flex gap-2 items-center'
-                : 'flex gap-2'
-            }`}
-          >
-            {(isFlexStyle || isFlexStyleMobile) && (
-              <AppAvatar url={video?.avatar_file_url || ''} />
-            )}
-            <NavLink
-              to={`${STREAMER_PROFILE_PATH}/${video.user_id}`}
-              className="text-sm font-medium text-muted-foreground"
+      <div className={`${isSingleItemStyle ? 'flex gap-4' : ''}`}>
+        {/* thumbnail */}
+        <div
+          className={`overflow-hidden aspect-video rounded-lg hover:rounded-none border border-transparent hover:border-primary hover:border-4 transition-all ease-in-out duration-300 ${
+            isSingleItemStyle ? 'md:max-w-[350px] md:min-w-[240px]' : ''
+          } relative`}
+        >
+          {/* live status */}
+          {isLive && (
+            <Badge
+              variant="destructive"
+              className="absolute top-2.5 left-2.5 bg-red-600 text-white text-xs font-bold py-0.5 px-1 rounded-[5px]"
             >
-              {video.display_name}
-            </NavLink>
+              LIVE
+            </Badge>
+          )}
+
+          {/* upcoming status */}
+          {isUpcoming && (
+            <Badge className="absolute top-2.5 left-2.5 bg-green-600 hover:bg-green-800 text-white text-xs font-bold py-0.5 px-1 rounded-[5px]">
+              Upcoming
+            </Badge>
+          )}
+
+          {/* duration */}
+          {isVideo && (
+            <OverlayStats
+              classes="top-2 left-2"
+              content={getMicrosecondsToHHMMSS(video?.duration)}
+            />
+          )}
+
+          {/* views */}
+          {isVideo && (
+            <OverlayStats
+              classes="bottom-2 left-2"
+              content={`${video?.views} view${video?.views > 1 ? 's' : ''}`}
+            />
+          )}
+
+          {/* uploaded/streamed/upcoming time */}
+          {isLive && (
+            <OverlayStats
+              classes="bottom-2 right-2"
+              content={`Live ${getTimeAgoFormat(video.started_at)}`}
+            />
+          )}
+          {isVideo && (
+            <OverlayStats
+              classes="bottom-2 right-2"
+              content={getTimeAgoFormat(video.started_at)}
+            />
+          )}
+          {isUpcoming && (
+            <OverlayStats
+              classes="bottom-2 right-2"
+              content={`Live on ${getFormattedDate(
+                new Date(video?.scheduled_at || ''),
+                true
+              )}`}
+            />
+          )}
+
+          {/* thumbnail image */}
+          <AuthImage
+            isThumbnail
+            src={video.thumbnail_url}
+            alt={video.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        <div className="flex gap-4 mt-3">
+          {style !== VIDEO_ITEM_STYLE.FLEX_ROW && (
+            <AppAvatar url={video?.avatar_file_url || ''} />
+          )}
+
+          <div className={`space-y-${isFlexStyle ? '2' : '1'}`}>
+            {/* title - 2 lines at most */}
+            <TooltipComponent
+              text={video.title}
+              children={
+                <p
+                  className={`${
+                    isFlexStyle
+                      ? 'text-base md:text-lg lg:text-xl'
+                      : 'text-base'
+                  } hover:text-primary font-bold line-clamp-2 text-ellipsis`}
+                >
+                  {video.title}
+                </p>
+              }
+            />
+
+            {/* avatar and streamer name */}
+            <div
+              className={`${
+                isFlexStyle || isFlexStyleMobile
+                  ? 'flex gap-2 items-center'
+                  : 'flex gap-2'
+              }`}
+            >
+              {(isFlexStyle || isFlexStyleMobile) && (
+                <AppAvatar url={video?.avatar_file_url || ''} />
+              )}
+              <NavLink
+                to={`${STREAMER_PROFILE_PATH}/${video.user_id}`}
+                className="text-sm font-medium text-muted-foreground"
+              >
+                {video.display_name}
+              </NavLink>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Actions */}
+      {!!actions && actions.length > 0 && (
+        <div className="flex items-start">
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button variant="ghost" className="px-2.5">
+                <MoreVertical className="w-5 h-5 cursor-pointer text-muted-foreground hover:text-primary" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {actions.map((action, idx) => (
+                <DropdownMenuItem
+                  key={idx}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    action.onClick(video);
+                  }}
+                >
+                  {action.Icon && <action.Icon />}
+                  {action.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
     </div>
   );
 };

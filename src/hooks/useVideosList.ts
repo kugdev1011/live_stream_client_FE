@@ -90,6 +90,7 @@ const useVideosList = (payload: VideosListRequest = {}) => {
 
   return {
     videos,
+    setVideos,
     isLoading,
     hasMore,
     totalItems,
