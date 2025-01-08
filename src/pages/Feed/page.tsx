@@ -3,8 +3,7 @@ import { DATA_API_LIMIT, DEFAULT_PAGE } from '@/data/validations';
 import useVideosList from '@/hooks/useVideosList';
 import { VideoOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import FetchingError from './FetchingError';
-import EndOfResults from './EndOfResults';
+import EndOfResults from '../../components/EndOfResults';
 import NotFoundCentered from '@/components/NotFoundCentered';
 import { VIDEO_ITEM_STYLE } from '@/data/types/ui/video';
 import InlineLoading from '@/components/InlineLoading';
@@ -15,6 +14,7 @@ import { FixedCategories } from '@/data/types/category';
 import { CONTENT_STATUS } from '@/data/types/stream';
 import { useScreenSize } from '@/hooks/useScreenSize';
 import { Skeleton } from '@/components/ui/skeleton';
+import ApiFetchingError from '@/components/ApiFetchingError';
 
 const FeedPage = () => {
   const screenSize = useScreenSize();
@@ -104,7 +104,11 @@ const FeedPage = () => {
       )}
 
       {isFetchingError && (
-        <FetchingError isLoading={isLoading} onRefetch={refetchVideos} />
+        <ApiFetchingError
+          label="Sorry, can't fetch videos right now!"
+          isLoading={isLoading}
+          onRefetch={refetchVideos}
+        />
       )}
     </React.Fragment>
   );

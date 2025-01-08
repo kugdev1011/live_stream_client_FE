@@ -7,13 +7,13 @@ import NotFoundCentered from '@/components/NotFoundCentered';
 import { VideoOff } from 'lucide-react';
 import { VIDEO_ITEM_STYLE } from '@/data/types/ui/video';
 import { useCallback, useRef, useState } from 'react';
-import EndOfResults from '../EndOfResults';
+import EndOfResults from '../../../components/EndOfResults';
 import VideoItem from '@/components/VideoItem';
 import InlineLoading from '../../../components/InlineLoading';
-import FetchingError from '../FetchingError';
 import { FixedCategories } from '@/data/types/category';
 import { CONTENT_STATUS } from '@/data/types/stream';
 import { useScreenSize } from '@/hooks/useScreenSize';
+import ApiFetchingError from '@/components/ApiFetchingError';
 
 const FeedSearch = () => {
   const screenSize = useScreenSize();
@@ -108,7 +108,11 @@ const FeedSearch = () => {
       )}
 
       {isFetchingError && (
-        <FetchingError isLoading={isLoading} onRefetch={refetchVideos} />
+        <ApiFetchingError
+          label="Sorry, can't fetch videos right now!"
+          isLoading={isLoading}
+          onRefetch={refetchVideos}
+        />
       )}
     </AppLayout>
   );

@@ -81,7 +81,8 @@ export const apiFetchVideosList = async (
     limit,
     title,
     status,
-    isMe,
+    is_me,
+    is_liked,
     categoryId1,
     categoryId2,
     categoryId3,
@@ -91,7 +92,8 @@ export const apiFetchVideosList = async (
     limit,
     title,
     status,
-    isMe,
+    is_me,
+    is_liked,
   });
 
   const categoriesFilter = _.compact([categoryId1, categoryId2, categoryId3])
