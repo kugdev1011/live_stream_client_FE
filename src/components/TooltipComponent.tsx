@@ -16,11 +16,13 @@ const TooltipComponent = (props: ComponentProps) => {
 
   return (
     <TooltipProvider>
-      <Tooltip>
+      <Tooltip delayDuration={100}>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
         {text && (
           <TooltipContent
-            className="bg-secondary dark:bg-white text-black dark:text-black max-w-full"
+            arrowPadding={10}
+            sideOffset={6}
+            className="TooltipContent bg-secondary dark:bg-white text-black dark:text-black"
             align={align || 'start'}
           >
             <p>{text}</p>
