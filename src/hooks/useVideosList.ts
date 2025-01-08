@@ -12,7 +12,8 @@ const useVideosList = (payload: VideosListRequest = {}) => {
     categoryId3,
     status,
     title = '',
-    isMe = false,
+    is_me = false,
+    is_liked = false,
   } = payload;
 
   const [videos, setVideos] = useState<StreamsResponse[]>([]);
@@ -36,7 +37,8 @@ const useVideosList = (payload: VideosListRequest = {}) => {
           page,
           limit,
           title,
-          isMe,
+          is_me,
+          is_liked,
           status,
           categoryId1,
           categoryId2,
@@ -77,13 +79,14 @@ const useVideosList = (payload: VideosListRequest = {}) => {
     status,
     page,
     limit,
-    isMe,
+    is_me,
+    is_liked,
     refetchKey,
   ]);
 
   useEffect(() => {
     setVideos([]);
-  }, [title, categoryId1, categoryId2, categoryId3, isMe]);
+  }, [title, categoryId1, categoryId2, categoryId3, is_me, is_liked]);
 
   return {
     videos,

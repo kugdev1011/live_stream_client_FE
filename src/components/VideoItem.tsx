@@ -9,6 +9,7 @@ import { Badge } from './ui/badge';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   FEED_SEARCH_PATH,
+  LIKED_VIDEOS_PATH,
   STREAMER_PROFILE_PATH,
   WATCH_LIVE_PATH,
   WATCH_VIDEO_PATH,
@@ -25,9 +26,13 @@ interface VideoItemProps {
   style?: VIDEO_ITEM_STYLE;
 }
 
+const SingleItemStyleInThesePages = [FEED_SEARCH_PATH, LIKED_VIDEOS_PATH];
+
 const VideoItem: React.FC<VideoItemProps> = ({ video, style }) => {
   const location = useLocation();
-  const isSearchPage = location.pathname.includes(FEED_SEARCH_PATH);
+  const isSingleItemStyle = !!SingleItemStyleInThesePages.find((path) =>
+    location.pathname.includes(path)
+  );
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
@@ -56,7 +61,7 @@ const VideoItem: React.FC<VideoItemProps> = ({ video, style }) => {
       {/* thumbnail */}
       <div
         className={`overflow-hidden aspect-video rounded-lg hover:rounded-none border border-transparent hover:border-primary hover:border-4 transition-all ease-in-out duration-300 ${
-          isSearchPage ? 'md:max-w-[350px] md:min-w-[240px]' : ''
+          isSingleItemStyle ? 'md:max-w-[350px] md:min-w-[240px]' : ''
         } relative`}
       >
         {/* live status */}

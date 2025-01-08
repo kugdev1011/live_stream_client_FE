@@ -2,12 +2,17 @@ import { Button } from '@/components/ui/button';
 import { AlertCircle, RotateCw } from 'lucide-react';
 
 interface ComponentProps {
+  label?: string;
   isLoading: boolean;
   onRefetch: () => void;
 }
 
-const FetchingError = (props: ComponentProps) => {
-  const { isLoading, onRefetch } = props;
+const ApiFetchingError = (props: ComponentProps) => {
+  const {
+    label = "Sorry, can't fetch contents right now!",
+    isLoading,
+    onRefetch,
+  } = props;
 
   return (
     <div className="child-center">
@@ -15,9 +20,7 @@ const FetchingError = (props: ComponentProps) => {
         <div className="bg-red-200 dark:bg-red-800 p-2 rounded-full">
           <AlertCircle className="text-red-500" />
         </div>
-        <p className="text-base font-medium">
-          Sorry, can't fetch subscriptions right now!
-        </p>
+        <p className="text-base font-medium">{label}</p>
         <Button variant="outline" onClick={onRefetch}>
           <RotateCw className="w-4 h-4" />
           {isLoading ? 'Retrying...' : 'Retry'}
@@ -27,4 +30,4 @@ const FetchingError = (props: ComponentProps) => {
   );
 };
 
-export default FetchingError;
+export default ApiFetchingError;

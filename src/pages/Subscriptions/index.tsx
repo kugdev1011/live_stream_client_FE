@@ -7,7 +7,6 @@ import AppLayout from '@/layouts/AppLayout';
 import LayoutHeading from '@/layouts/LayoutHeading';
 import { UsersRound } from 'lucide-react';
 import { useState } from 'react';
-import FetchingError from './FetchingError';
 import SubscriptionItem from './SubscriptionItem';
 import {
   ConfirmationModalProps,
@@ -16,6 +15,7 @@ import {
 import { modalTexts } from '@/data/subscription';
 import { subscribeUnsubscribe } from '@/services/stream';
 import { toast } from 'sonner';
+import ApiFetchingError from '@/components/ApiFetchingError';
 
 const title = 'Subscriptions';
 
@@ -145,7 +145,11 @@ const Subscriptions = () => {
       )}
 
       {isFetchingError && (
-        <FetchingError isLoading={isLoading} onRefetch={refetchSubscriptions} />
+        <ApiFetchingError
+          label="Sorry, can't fetch subscriptions right now!"
+          isLoading={isLoading}
+          onRefetch={refetchSubscriptions}
+        />
       )}
 
       <ConfirmModal
