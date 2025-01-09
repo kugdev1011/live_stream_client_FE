@@ -24,7 +24,7 @@ import AppAlert from '@/components/AppAlert';
 import { useSidebar } from '@/components/CustomSidebar';
 import { StreamDetailsResponse } from '@/data/dto/stream';
 import { MultiSelect } from '@/components/MultiSelect';
-import { MAX_CATEGORY_COUNT } from '@/data/validations';
+import { MAX_CATEGORY_COUNT, StreamDetailsRules } from '@/data/validations';
 import { FORM_MODE } from '@/data/types/ui/form';
 import AuthImage from '@/components/AuthImage';
 import VideoCategory from '@/components/VideoCategory';
@@ -186,32 +186,40 @@ const DetailsForm = (props: ComponentProps) => {
 
   // input handlers
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    setTitle(e.target.value);
+    const value = e.target.value;
 
-    const error = {
-      titleFailure: false,
-      actionFailure: false,
-    };
+    if (value.length <= StreamDetailsRules.title.max) {
+      setTitle(e.target.value);
 
-    setFormError((prevState: StreamInitializeFormError) => ({
-      ...prevState,
-      ...error,
-    }));
+      const error = {
+        titleFailure: false,
+        actionFailure: false,
+      };
+
+      setFormError((prevState: StreamInitializeFormError) => ({
+        ...prevState,
+        ...error,
+      }));
+    }
   };
   const handleDescriptionChange = (
     e: ChangeEvent<HTMLTextAreaElement>
   ): void => {
-    setDescription(e.target.value);
+    const value = e.target.value;
 
-    const error = {
-      descriptionFailure: false,
-      actionFailure: false,
-    };
+    if (value.length <= StreamDetailsRules.description.max) {
+      setDescription(e.target.value);
 
-    setFormError((prevState: StreamInitializeFormError) => ({
-      ...prevState,
-      ...error,
-    }));
+      const error = {
+        descriptionFailure: false,
+        actionFailure: false,
+      };
+
+      setFormError((prevState: StreamInitializeFormError) => ({
+        ...prevState,
+        ...error,
+      }));
+    }
   };
   const handleCategoryChange = (value: string[]): void => {
     setSelectedCategories(value);
@@ -379,9 +387,14 @@ const DetailsForm = (props: ComponentProps) => {
 
             {/* title */}
             <div className="grid gap-3">
-              <Label htmlFor="title">
-                Title {!isViewMode && <RequiredInput />}
-              </Label>
+              <div className="flex justify-between items-center">
+                <Label htmlFor="title">
+                  Title {!isViewMode && <RequiredInput />}
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  {title?.length}/{StreamDetailsRules.title.max}
+                </p>
+              </div>
               <Input
                 id="title"
                 type="text"
@@ -402,9 +415,14 @@ const DetailsForm = (props: ComponentProps) => {
 
             {/* description */}
             <div className="grid gap-3 mt-3">
-              <Label htmlFor="description">
-                Description {!isViewMode && <RequiredInput />}
-              </Label>
+              <div className="flex justify-between items-center">
+                <Label htmlFor="description">
+                  Description {!isViewMode && <RequiredInput />}
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  {description?.length}/{StreamDetailsRules.description.max}
+                </p>
+              </div>
               <Textarea
                 value={description}
                 onChange={handleDescriptionChange}
