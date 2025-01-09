@@ -89,9 +89,13 @@ export const ForgotPasswordSchema = z
     path: ['confirmPassword'],
   });
 
-export const StreamInitializeRules = {
+export const StreamDetailsRules = {
   title: {
     min: 1,
     max: 100,
+  },
+  description: {
+    min: 1,
+    max: 500,
   },
 };
