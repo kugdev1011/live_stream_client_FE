@@ -91,7 +91,7 @@ const LikedVideos = () => {
                       actions={[
                         {
                           label: 'Remove from Liked videos',
-                          onClick: () => console.log('Edit clicked'),
+                          onClick: handleRemoveFromLikedVideos,
                         },
                       ]}
                     />

@@ -11,9 +11,9 @@ const useVideosList = (payload: VideosListRequest = {}) => {
     categoryId2,
     categoryId3,
     status,
-    title = '',
-    is_me = false,
-    is_liked = false,
+    title = undefined,
+    is_me = undefined,
+    is_liked = undefined,
   } = payload;
 
   const [videos, setVideos] = useState<StreamsResponse[]>([]);

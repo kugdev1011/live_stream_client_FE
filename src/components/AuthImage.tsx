@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import DefaultImg from '@/assets/images/video-thumbnail.jpg';
 import { fetchImageWithAuth } from '@/api/image';
 import logger from '@/lib/logger';
@@ -54,6 +54,4 @@ const AuthImage = React.forwardRef<HTMLElement, AuthImageProps>(
 
 AuthImage.displayName = 'AuthImage';
 
-const MemoizedAuthImge = memo(AuthImage);
-
-export default MemoizedAuthImge;
+export default AuthImage;

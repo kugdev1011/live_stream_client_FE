@@ -15,7 +15,6 @@ import {
   WATCH_VIDEO_PATH,
 } from '@/data/route';
 import { CONTENT_STATUS } from '@/data/types/stream';
-import TooltipComponent from './TooltipComponent';
 import AuthImage from './AuthImage';
 import AppAvatar from './AppAvatar';
 import { useIsMobile } from '@/hooks/useMobile';
@@ -150,20 +149,14 @@ const VideoItem: React.FC<VideoItemProps> = ({ video, style, actions }) => {
 
           <div className={`space-y-${isFlexStyle ? '2' : '1'}`}>
             {/* title - 2 lines at most */}
-            <TooltipComponent
-              text={video.title}
-              children={
-                <p
-                  className={`${
-                    isFlexStyle
-                      ? 'text-base md:text-lg lg:text-xl'
-                      : 'text-base'
-                  } hover:text-primary font-bold line-clamp-2 text-ellipsis`}
-                >
-                  {video.title}
-                </p>
-              }
-            />
+            <p
+              title={video.title}
+              className={`${
+                isFlexStyle ? 'text-base md:text-lg lg:text-xl' : 'text-base'
+              } hover:text-primary font-bold line-clamp-2 text-ellipsis`}
+            >
+              {video.title}
+            </p>
 
             {/* avatar and streamer name */}
             <div
