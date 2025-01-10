@@ -1,5 +1,5 @@
 import { Navigate, Route, BrowserRouter, Routes } from 'react-router-dom';
-import History from './pages/History';
+import WatchedHistory from './pages/WatchedHistory';
 import Subscriptions from './pages/Subscriptions';
 import LikedVideos from './pages/LikedVideos';
 import SavedVideos from './pages/SavedVideos';
@@ -65,7 +65,7 @@ function App() {
         />
         <Route
           path={HISTORY_PATH}
-          element={<ProtectedRoute element={<History />} />}
+          element={<ProtectedRoute element={<WatchedHistory />} />}
         />
         <Route
           path={LIKED_VIDEOS_PATH}

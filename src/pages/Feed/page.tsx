@@ -5,7 +5,6 @@ import { VideoOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import EndOfResults from '../../components/EndOfResults';
 import NotFoundCentered from '@/components/NotFoundCentered';
-import { VIDEO_ITEM_STYLE } from '@/data/types/ui/video';
 import InlineLoading from '@/components/InlineLoading';
 import VideoItem from '@/components/VideoItem';
 import { debounce } from 'lodash';
@@ -80,11 +79,9 @@ const FeedPage = () => {
             videos.length > 0 &&
             videos.map((video, index) => {
               return (
-                <VideoItem
-                  key={index}
-                  video={video}
-                  style={VIDEO_ITEM_STYLE.FLEX_COL}
-                />
+                <div key={index}>
+                  <VideoItem video={video} isSingle={false} isGrid />
+                </div>
               );
             })}
 

@@ -1,28 +1,22 @@
+import ApiFetchingError from '@/components/ApiFetchingError';
+import EndOfResults from '@/components/EndOfResults';
+import InlineLoading from '@/components/InlineLoading';
+import NotFoundCentered from '@/components/NotFoundCentered';
 import VideoItem from '@/components/VideoItem';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/data/validations';
 import useVideosList from '@/hooks/useVideosList';
 import AppLayout from '@/layouts/AppLayout';
 import LayoutHeading from '@/layouts/LayoutHeading';
+import { VideoOff } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
-import EndOfResults from '../../components/EndOfResults';
-import InlineLoading from '@/components/InlineLoading';
-import NotFoundCentered from '@/components/NotFoundCentered';
-import { Trash2, VideoOff } from 'lucide-react';
-import ApiFetchingError from '@/components/ApiFetchingError';
-import { StreamsResponse } from '@/data/dto/stream';
-import { reactOnVideo } from '@/services/stream';
-import { Reaction } from '@/data/chat';
-import { toast } from 'sonner';
-import { CONTENT_STATUS } from '@/data/types/stream';
 
-const title = 'Liked Videos';
+const title = 'Watch History';
 
-const LikedVideos = () => {
+const WatchedHistory = () => {
   const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE);
 
   const {
     videos,
-    setVideos,
     totalItems,
     hasMore,
     isLoading,
@@ -31,8 +25,7 @@ const LikedVideos = () => {
   } = useVideosList({
     page: currentPage,
     limit: DEFAULT_PAGE_SIZE,
-    is_liked: true,
-    status: CONTENT_STATUS.VIDEO,
+    is_history: true,
   });
 
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -50,25 +43,6 @@ const LikedVideos = () => {
     [isLoading, hasMore]
   );
 
-  const handleRemoveFromLikedVideos = async (video: StreamsResponse) => {
-    // unlike videos
-    const data = await reactOnVideo({
-      videoId: video.id,
-      likeStatus: false,
-      likeType: Reaction.LIKE, // this is unnecessary, because we are removing given reaction
-    });
-    if (data) {
-      setVideos((prev) => {
-        const oldVideos = prev;
-        const updatedVideos = oldVideos.filter((v) => v.id !== video.id);
-        return updatedVideos;
-      });
-      toast('Removed reaction!');
-    } else {
-      toast.error('Cannot remove reaction at this moment!');
-    }
-  };
-
   return (
     <AppLayout>
       <div className="md:container lg:px-[10rem] md:mx-auto flex flex-col justify-center gap-4">
@@ -83,30 +57,13 @@ const LikedVideos = () => {
               if (videos.length === index + 1)
                 return (
                   <div key={index} ref={lastVideoElementRef}>
-                    <VideoItem
-                      video={video}
-                      actions={[
-                        {
-                          label: 'Remove from Liked videos',
-                          onClick: handleRemoveFromLikedVideos,
-                        },
-                      ]}
-                    />
+                    <VideoItem video={video} />
                   </div>
                 );
               else
                 return (
-                  <div key={index}>
-                    <VideoItem
-                      video={video}
-                      actions={[
-                        {
-                          Icon: Trash2,
-                          label: 'Remove from Liked videos',
-                          onClick: handleRemoveFromLikedVideos,
-                        },
-                      ]}
-                    />
+                  <div>
+                    <VideoItem video={video} />
                   </div>
                 );
             })}
@@ -138,4 +95,4 @@ const LikedVideos = () => {
   );
 };
 
-export default LikedVideos;
+export default WatchedHistory;

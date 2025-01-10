@@ -6,10 +6,8 @@ import {
   getTimeAgoFormat,
 } from '@/lib/date-time';
 import { Badge } from './ui/badge';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
-  FEED_SEARCH_PATH,
-  LIKED_VIDEOS_PATH,
   STREAMER_PROFILE_PATH,
   WATCH_LIVE_PATH,
   WATCH_VIDEO_PATH,
@@ -18,7 +16,6 @@ import { CONTENT_STATUS } from '@/data/types/stream';
 import AuthImage from './AuthImage';
 import AppAvatar from './AppAvatar';
 import { useIsMobile } from '@/hooks/useMobile';
-import { VIDEO_ITEM_STYLE } from '@/data/types/ui/video';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,10 +24,12 @@ import {
 } from './ui/dropdown-menu';
 import { LucideIcon, MoreVertical } from 'lucide-react';
 import { Button } from './ui/button';
+import { cn } from '@/lib/utils';
 
 interface VideoItemProps {
   video: StreamsResponse;
-  style?: VIDEO_ITEM_STYLE;
+  isSingle?: boolean; // not in grid
+  isGrid?: boolean;
   actions?: Array<{
     Icon?: LucideIcon;
     label: string;
@@ -38,19 +37,16 @@ interface VideoItemProps {
   }>;
 }
 
-const SingleItemStyleInThesePages = [FEED_SEARCH_PATH, LIKED_VIDEOS_PATH];
-
-const VideoItem: React.FC<VideoItemProps> = ({ video, style, actions }) => {
-  const location = useLocation();
-  const isSingleItemStyle = !!SingleItemStyleInThesePages.find((path) =>
-    location.pathname.includes(path)
-  );
+const VideoItem: React.FC<VideoItemProps> = ({
+  video,
+  isSingle = true,
+  isGrid = false,
+  actions,
+}) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
-  const isFlexStyle = !isMobile && style === VIDEO_ITEM_STYLE.FLEX_ROW;
-  const isFlexStyleMobile = isMobile && style === VIDEO_ITEM_STYLE.FLEX_ROW;
-
+  const isSingleStyleMobile = isMobile && isSingle;
   const isVideo = video.status === CONTENT_STATUS.VIDEO;
   const isLive = video.status === CONTENT_STATUS.LIVE;
   const isUpcoming = video.status === CONTENT_STATUS.UPCOMING;
@@ -65,17 +61,21 @@ const VideoItem: React.FC<VideoItemProps> = ({ video, style, actions }) => {
 
   return (
     <div
-      className={`overflow-hidden relative cursor-pointer ${
-        isFlexStyle ? 'flex gap-3 justify-between' : ''
-      }`}
+      className="overflow-hidden relative cursor-pointer"
       onClick={handleWatchVideo}
     >
-      <div className={`${isSingleItemStyle ? 'flex gap-4' : ''}`}>
-        {/* thumbnail */}
+      <div
+        className={cn(
+          isSingleStyleMobile ? 'flex flex-col gap-4' : 'flex gap-4',
+          isGrid && 'flex-col'
+        )}
+      >
+        {/* 1) thumbnail */}
         <div
-          className={`overflow-hidden aspect-video rounded-lg hover:rounded-none border border-transparent hover:border-primary hover:border-4 transition-all ease-in-out duration-300 ${
-            isSingleItemStyle ? 'md:max-w-[350px] md:min-w-[240px]' : ''
-          } relative`}
+          className={cn(
+            'overflow-hidden aspect-video rounded-lg hover:rounded-none border border-transparent hover:border-primary hover:border-4 transition-all ease-in-out duration-300 relative',
+            !isGrid && 'md:max-w-[350px] md:min-w-[240px]'
+          )}
         >
           {/* live status */}
           {isLive && (
@@ -142,32 +142,34 @@ const VideoItem: React.FC<VideoItemProps> = ({ video, style, actions }) => {
           />
         </div>
 
-        <div className="flex gap-4 mt-3">
-          {style !== VIDEO_ITEM_STYLE.FLEX_ROW && (
-            <AppAvatar url={video?.avatar_file_url || ''} />
+        {/* 2) title, avatar, datetime */}
+        <div
+          className={cn(
+            'flex gap-4 w-full md:w-1/2',
+            isGrid ? 'md:w-full' : ''
           )}
-
-          <div className={`space-y-${isFlexStyle ? '2' : '1'}`}>
+        >
+          {(isSingleStyleMobile || isGrid) && (
+            <AppAvatar classes="w-10 h-10" url={video?.avatar_file_url} />
+          )}
+          <div className="space-y-1 flex-1">
             {/* title - 2 lines at most */}
             <p
               title={video.title}
-              className={`${
-                isFlexStyle ? 'text-base md:text-lg lg:text-xl' : 'text-base'
-              } hover:text-primary font-bold line-clamp-2 text-ellipsis`}
+              className={cn(
+                isSingleStyleMobile ? 'text-lg' : 'text-base md:text-lg',
+                'hover:text-primary font-bold line-clamp-2 text-ellipsis'
+              )}
             >
               {video.title}
             </p>
 
             {/* avatar and streamer name */}
-            <div
-              className={`${
-                isFlexStyle || isFlexStyleMobile
-                  ? 'flex gap-2 items-center'
-                  : 'flex gap-2'
-              }`}
-            >
-              {(isFlexStyle || isFlexStyleMobile) && (
-                <AppAvatar url={video?.avatar_file_url || ''} />
+            <div className="flex gap-2 md:items-center">
+              {!isGrid && (
+                <div className="hidden md:block md:mt-2">
+                  <AppAvatar classes="w-10 h-10" url={video?.avatar_file_url} />
+                </div>
               )}
               <NavLink
                 to={`${STREAMER_PROFILE_PATH}/${video.user_id}`}
@@ -177,35 +179,13 @@ const VideoItem: React.FC<VideoItemProps> = ({ video, style, actions }) => {
               </NavLink>
             </div>
           </div>
+          {!!actions && actions.length > 0 && (
+            <div>
+              <Actions actions={actions} video={video} />
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Actions */}
-      {!!actions && actions.length > 0 && (
-        <div className="flex items-start">
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button variant="ghost" className="px-2.5">
-                <MoreVertical className="w-5 h-5 cursor-pointer text-muted-foreground hover:text-primary" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {actions.map((action, idx) => (
-                <DropdownMenuItem
-                  key={idx}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    action.onClick(video);
-                  }}
-                >
-                  {action.Icon && <action.Icon />}
-                  {action.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )}
     </div>
   );
 };
@@ -221,9 +201,50 @@ const OverlayStats = ({
 }) => {
   return (
     <div
-      className={`absolute bg-black/40 backdrop-blur text-white z-10 text-xs p-1 py-0.5 rounded-[5px] ${classes}`}
+      className={cn(
+        'absolute bg-black/40 backdrop-blur text-white z-10 text-xs p-1 py-0.5 rounded-[5px]',
+        classes
+      )}
     >
       {content}
+    </div>
+  );
+};
+
+const Actions = ({
+  actions,
+  video,
+}: {
+  actions: Array<{
+    Icon?: LucideIcon;
+    label: string;
+    onClick: (video: StreamsResponse) => void;
+  }>;
+  video: StreamsResponse;
+}) => {
+  return (
+    <div className="flex items-start">
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <Button variant="ghost" className="px-2.5">
+            <MoreVertical className="w-5 h-5 cursor-pointer text-muted-foreground hover:text-primary" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          {actions.map((action, idx) => (
+            <DropdownMenuItem
+              key={idx}
+              onClick={(e) => {
+                e.stopPropagation();
+                action.onClick(video);
+              }}
+            >
+              {action.Icon && <action.Icon />}
+              {action.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
