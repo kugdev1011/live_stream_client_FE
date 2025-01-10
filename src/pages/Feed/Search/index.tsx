@@ -5,7 +5,6 @@ import useVideosList from '@/hooks/useVideosList';
 import { useLocation } from 'react-router-dom';
 import NotFoundCentered from '@/components/NotFoundCentered';
 import { VideoOff } from 'lucide-react';
-import { VIDEO_ITEM_STYLE } from '@/data/types/ui/video';
 import { useCallback, useRef, useState } from 'react';
 import EndOfResults from '../../../components/EndOfResults';
 import VideoItem from '@/components/VideoItem';
@@ -66,28 +65,20 @@ const FeedSearch = () => {
 
   return (
     <AppLayout>
-      <div className="md:container lg:px-[10rem] md:mx-auto flex flex-col justify-center gap-4 mt-10">
+      <div className="md:container lg:px-[10rem] md:mx-auto flex flex-col justify-center gap-8 md:gap-4 mt-10">
         {!isFetchingError &&
           videos.length > 0 &&
           videos.map((video, index) => {
             if (videos.length === index + 1)
               return (
-                <div ref={lastVideoElementRef}>
-                  <VideoItem
-                    key={index}
-                    video={video}
-                    style={VIDEO_ITEM_STYLE.FLEX_ROW}
-                  />
+                <div key={index} ref={lastVideoElementRef}>
+                  <VideoItem video={video} />
                 </div>
               );
             else
               return (
-                <div>
-                  <VideoItem
-                    key={index}
-                    video={video}
-                    style={VIDEO_ITEM_STYLE.FLEX_ROW}
-                  />
+                <div key={index}>
+                  <VideoItem video={video} />
                 </div>
               );
           })}

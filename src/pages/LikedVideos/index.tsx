@@ -1,5 +1,4 @@
 import VideoItem from '@/components/VideoItem';
-import { VIDEO_ITEM_STYLE } from '@/data/types/ui/video';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/data/validations';
 import useVideosList from '@/hooks/useVideosList';
 import AppLayout from '@/layouts/AppLayout';
@@ -77,17 +76,15 @@ const LikedVideos = () => {
           <LayoutHeading title={`${title} (${totalItems})`} />
         </div>
 
-        <div className="flex flex-col justify-center gap-4">
+        <div className="flex flex-col justify-center gap-8 md:gap-4">
           {!isFetchingError &&
             videos.length > 0 &&
             videos.map((video, index) => {
               if (videos.length === index + 1)
                 return (
-                  <div ref={lastVideoElementRef}>
+                  <div key={index} ref={lastVideoElementRef}>
                     <VideoItem
-                      key={index}
                       video={video}
-                      style={VIDEO_ITEM_STYLE.FLEX_ROW}
                       actions={[
                         {
                           label: 'Remove from Liked videos',
@@ -99,11 +96,9 @@ const LikedVideos = () => {
                 );
               else
                 return (
-                  <div>
+                  <div key={index}>
                     <VideoItem
-                      key={index}
                       video={video}
-                      style={VIDEO_ITEM_STYLE.FLEX_ROW}
                       actions={[
                         {
                           Icon: Trash2,
