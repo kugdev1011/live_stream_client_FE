@@ -23,6 +23,7 @@ export type VideosListRequest = {
   categoryId3?: number;
   is_me?: boolean;
   is_liked?: boolean;
+  is_history?: boolean;
 };
 
 export interface StreamsResponse {
