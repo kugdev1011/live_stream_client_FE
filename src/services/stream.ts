@@ -11,6 +11,8 @@ import {
   apiSubscribeUnSubscribe,
   apiUpdateComment,
   apiUpdateStreamDetails,
+  apiBookmarkVideo,
+  apiUnBookmarkVideo,
 } from '@/api/stream';
 import {
   ApiResult,
@@ -235,4 +237,22 @@ export const updateComment = async ({
   }
 
   return null;
+};
+
+export const bookmarkVideo = async (
+  videoId: number
+): Promise<SuccessResponse> => {
+  const { data } = await apiBookmarkVideo(videoId);
+  return {
+    success: data && data!.success,
+  };
+};
+
+export const unBookmarkVideo = async (
+  videoId: number
+): Promise<SuccessResponse> => {
+  const { data } = await apiUnBookmarkVideo(videoId);
+  return {
+    success: data && data!.success,
+  };
 };

@@ -1,8 +1,8 @@
 import { USER_ROLE } from '@/data/types/role';
 import {
+  Bookmark,
   Frame,
   History,
-  Import,
   Radio,
   Rss,
   Settings2,
@@ -128,8 +128,8 @@ export const ROUTE_PATH_INFO = {
   },
   [SAVED_VIDEOS_PATH]: {
     path: SAVED_VIDEOS_PATH,
-    title: 'Saved Videos',
-    Icon: <Import />,
+    title: 'Bookmark Videos',
+    Icon: <Bookmark />,
   },
   [LIVE_STREAM_PATH]: {
     path: LIVE_STREAM_PATH,

@@ -2,7 +2,7 @@ import { Navigate, Route, BrowserRouter, Routes } from 'react-router-dom';
 import WatchedHistory from './pages/WatchedHistory';
 import Subscriptions from './pages/Subscriptions';
 import LikedVideos from './pages/LikedVideos';
-import SavedVideos from './pages/SavedVideos';
+import BookmarkVideos from './pages/BookmarkVideos';
 import NotFound from './pages/NotFound';
 import {
   FORGOT_PASSWORD_PATH,
@@ -73,7 +73,7 @@ function App() {
         />
         <Route
           path={SAVED_VIDEOS_PATH}
-          element={<ProtectedRoute element={<SavedVideos />} />}
+          element={<ProtectedRoute element={<BookmarkVideos />} />}
         />
         <Route
           path={LIVE_STREAM_PATH}
