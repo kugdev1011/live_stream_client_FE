@@ -35,6 +35,7 @@ const COMMENT_API = STREAM_API + '/:videoId/comments';
 const COMMENT_CREATE_API = STREAM_API + '/:videoId/create-comment';
 const COMMENT_DELETE_API = STREAM_API + '/delete-comment/:commentId';
 const COMMENT_UPDATE_API = STREAM_API + '/update-comment';
+const BOOKMARK_API = STREAM_API + '/:videoId/bookmark';
 
 export const apiCreateStream = async ({
   title,
@@ -134,6 +135,7 @@ export const apiFetchVideosList = async (
     is_me,
     is_liked,
     is_history,
+    is_saved,
     categoryId1,
     categoryId2,
     categoryId3,
@@ -146,6 +148,7 @@ export const apiFetchVideosList = async (
     is_me,
     is_liked,
     is_history,
+    is_saved,
   });
 
   const categoriesFilter = _.compact([categoryId1, categoryId2, categoryId3])
@@ -400,6 +403,46 @@ export const apiUpdateComment = async ({
 
   return {
     data: rp,
+    message,
+    code,
+  };
+};
+
+export const apiBookmarkVideo = async (
+  videoId: number
+): Promise<ApiResult<SuccessResponse>> => {
+  const request: ApiRequest = {
+    service: ApiService.liveStream,
+    url: BOOKMARK_API.replace(':videoId', videoId.toString()),
+    method: API_METHOD.POST,
+    authToken: true,
+  };
+
+  const apiResponse = await liveStreamApi(request);
+  const { data, code, message } = apiResponse; // success -> data: { message: 'Successful', code: 200 }
+
+  return {
+    data: { success: data?.code === 200 },
+    message,
+    code,
+  };
+};
+
+export const apiUnBookmarkVideo = async (
+  videoId: number
+): Promise<ApiResult<SuccessResponse>> => {
+  const request: ApiRequest = {
+    service: ApiService.liveStream,
+    url: BOOKMARK_API.replace(':videoId', videoId.toString()),
+    method: API_METHOD.DELETE,
+    authToken: true,
+  };
+
+  const apiResponse = await liveStreamApi(request);
+  const { data, code, message } = apiResponse; // success -> data: { message: 'Successful', code: 200 }
+
+  return {
+    data: { success: data?.code === 200 },
     message,
     code,
   };

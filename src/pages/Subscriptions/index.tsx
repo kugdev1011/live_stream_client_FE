@@ -61,7 +61,7 @@ const Subscriptions = () => {
         const oldPrev = prev;
         return oldPrev.filter((d) => d.streamer_id !== streamerId);
       });
-      toast('Subscription Removed!');
+      toast.success('Subscription Removed!');
     }
   };
 

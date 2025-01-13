@@ -32,6 +32,7 @@ interface VideoItemProps {
   isGrid?: boolean;
   actions?: Array<{
     Icon?: LucideIcon;
+    isIconActive?: boolean;
     label: string;
     onClick: (video: StreamsResponse) => void;
   }>;
@@ -217,6 +218,7 @@ const Actions = ({
 }: {
   actions: Array<{
     Icon?: LucideIcon;
+    isIconActive?: boolean;
     label: string;
     onClick: (video: StreamsResponse) => void;
   }>;
@@ -226,20 +228,27 @@ const Actions = ({
     <div className="flex items-start">
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <Button variant="ghost" className="px-2.5">
+          <Button size="icon" variant="ghost" className="px-2.5 outline-none">
             <MoreVertical className="w-5 h-5 cursor-pointer text-muted-foreground hover:text-primary" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          {actions.map((action, idx) => (
+          {actions?.map((action, idx) => (
             <DropdownMenuItem
               key={idx}
+              className="cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 action.onClick(video);
               }}
             >
-              {action.Icon && <action.Icon />}
+              {action.Icon && (
+                <action.Icon
+                  className={cn(
+                    action?.isIconActive ? 'fill-primary text-primary' : ''
+                  )}
+                />
+              )}
               {action.label}
             </DropdownMenuItem>
           ))}

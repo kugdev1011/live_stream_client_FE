@@ -1,7 +1,7 @@
 import React from 'react';
 import { DATA_API_LIMIT, DEFAULT_PAGE } from '@/data/validations';
 import useVideosList from '@/hooks/useVideosList';
-import { VideoOff } from 'lucide-react';
+import { Bookmark, VideoOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import EndOfResults from '../../components/EndOfResults';
 import NotFoundCentered from '@/components/NotFoundCentered';
@@ -14,6 +14,9 @@ import { CONTENT_STATUS } from '@/data/types/stream';
 import { useScreenSize } from '@/hooks/useScreenSize';
 import { Skeleton } from '@/components/ui/skeleton';
 import ApiFetchingError from '@/components/ApiFetchingError';
+import { StreamsResponse } from '@/data/dto/stream';
+import { bookmarkVideo } from '@/services/stream';
+import { toast } from 'sonner';
 
 const FeedPage = () => {
   const screenSize = useScreenSize();
@@ -27,6 +30,7 @@ const FeedPage = () => {
     isLoading,
     error: isFetchingError,
     refetchVideos,
+    setVideos,
   } = useVideosList({
     page: currentPage,
     limit: DATA_API_LIMIT[screenSize], // fetch videos based on screen size
@@ -40,6 +44,30 @@ const FeedPage = () => {
         ? CONTENT_STATUS.LIVE
         : undefined,
   });
+
+  const handleBookmarkVideo = async (video: StreamsResponse) => {
+    if (video && video.id) {
+      const previousVideos = [...videos];
+
+      setVideos((prev) =>
+        prev.map((v) =>
+          v.id === video.id ? { ...v, is_saved: !v.is_saved } : v
+        )
+      );
+
+      const isSuccess = await bookmarkVideo(video.id);
+
+      if (!isSuccess) {
+        setVideos(previousVideos);
+        toast.error('Error saving to Bookmark videos');
+      } else {
+        const message = video.is_saved
+          ? 'Removed from Bookmark videos!'
+          : 'Saved to Bookmark videos!';
+        toast.success(message);
+      }
+    }
+  };
 
   const handleScroll = debounce(() => {
     const scrollHeight = document.documentElement.scrollHeight;
@@ -80,7 +108,19 @@ const FeedPage = () => {
             videos.map((video, index) => {
               return (
                 <div key={index}>
-                  <VideoItem video={video} isSingle={false} isGrid />
+                  <VideoItem
+                    video={video}
+                    isSingle={false}
+                    isGrid
+                    actions={[
+                      {
+                        Icon: Bookmark,
+                        isIconActive: video.is_saved,
+                        label: video.is_saved ? 'Bookmarked' : 'Bookmark',
+                        onClick: () => handleBookmarkVideo(video),
+                      },
+                    ]}
+                  />
                 </div>
               );
             })}

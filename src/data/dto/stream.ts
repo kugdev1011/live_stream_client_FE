@@ -24,6 +24,7 @@ export type VideosListRequest = {
   is_me?: boolean;
   is_liked?: boolean;
   is_history?: boolean;
+  is_saved?: boolean;
 };
 
 export interface StreamsResponse {
@@ -42,6 +43,7 @@ export interface StreamsResponse {
   likes: number;
   comments: number;
   duration: number;
+  is_saved: boolean;
 }
 
 export interface VideoDetailsResponse {
@@ -68,6 +70,7 @@ export interface VideoDetailsResponse {
   is_current_like: boolean;
   is_owner: boolean;
   is_subscribed: boolean;
+  is_saved: boolean;
   duration: number;
 
   categories: CategoryResponse[];

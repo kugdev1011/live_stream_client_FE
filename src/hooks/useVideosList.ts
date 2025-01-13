@@ -15,6 +15,7 @@ const useVideosList = (payload: VideosListRequest = {}) => {
     is_me = undefined,
     is_liked = undefined,
     is_history = undefined,
+    is_saved = undefined,
   } = payload;
 
   const [videos, setVideos] = useState<StreamsResponse[]>([]);
@@ -41,6 +42,7 @@ const useVideosList = (payload: VideosListRequest = {}) => {
           is_me,
           is_liked,
           is_history,
+          is_saved,
           status,
           categoryId1,
           categoryId2,
@@ -84,6 +86,7 @@ const useVideosList = (payload: VideosListRequest = {}) => {
     is_me,
     is_liked,
     is_history,
+    is_saved,
     refetchKey,
   ]);
 
@@ -97,16 +100,18 @@ const useVideosList = (payload: VideosListRequest = {}) => {
     is_me,
     is_liked,
     is_history,
+    is_saved,
   ]);
 
   return {
     videos,
-    setVideos,
     isLoading,
     hasMore,
     totalItems,
     error,
+    setVideos,
     refetchVideos,
+    setTotalItems,
   };
 };
 
