@@ -11,6 +11,7 @@ import {
 } from '@/data/route';
 import { useLocation } from 'react-router-dom';
 import { CategoryProvider } from '@/context/CategoryContext';
+import { NotificationWSProvider } from '@/context/NotificationContext';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -24,28 +25,30 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     GLOBAL_CATEGORY_FILTERABLE_PAGES.includes(pathname);
 
   return (
-    <ThemeProvider>
-      <SearchProvider>
-        <CategoryProvider>
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-              <AppHeader
-                isSearchEnabled={!isSearchDisabled}
-                isCategoryFilterEnabled={isCategoryFilterEnabled}
-              />
-              {/* enable for animation for drawer bounce back */}
-              {/* <div vaul-drawer-wrapper="" className="bg-background"> */}
-              <main className="flex flex-1 flex-col gap-4 p-6 overflow-hidden mt-[56px]">
-                {children}
-                <Toaster />
-              </main>
-              {/* </div> */}
-            </SidebarInset>
-          </SidebarProvider>
-        </CategoryProvider>
-      </SearchProvider>
-    </ThemeProvider>
+    <NotificationWSProvider>
+      <ThemeProvider>
+        <SearchProvider>
+          <CategoryProvider>
+            <SidebarProvider>
+              <AppSidebar />
+              <SidebarInset>
+                <AppHeader
+                  isSearchEnabled={!isSearchDisabled}
+                  isCategoryFilterEnabled={isCategoryFilterEnabled}
+                />
+                {/* enable for animation for drawer bounce back */}
+                {/* <div vaul-drawer-wrapper="" className="bg-background"> */}
+                <main className="flex flex-1 flex-col gap-4 p-6 overflow-hidden mt-[56px]">
+                  {children}
+                  <Toaster />
+                </main>
+                {/* </div> */}
+              </SidebarInset>
+            </SidebarProvider>
+          </CategoryProvider>
+        </SearchProvider>
+      </ThemeProvider>
+    </NotificationWSProvider>
   );
 };
 

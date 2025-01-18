@@ -4,7 +4,7 @@ import DefaultPf from '@/assets/images/pf.png';
 import { Button } from '@/components/ui/button';
 import VideoDescriptionBox from '@/components/VideoDescriptionBox';
 import useVideoDetails from '@/hooks/useVideoDetails';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { formatKMBCount } from '@/lib/utils';
 import Reactions from '@/components/Chat/Reactions';
 import { Reaction, ReactionStats } from '@/data/chat';
@@ -17,8 +17,15 @@ import {
 } from '@/services/stream';
 import { RECORD_VIEW_AFTER_SECONDS } from '@/data/validations';
 import VideoComment from '@/components/VideoComment';
-import { Bookmark, Sparkles, SquarePlay, VideoOff } from 'lucide-react';
-import { FEED_PATH } from '@/data/route';
+import {
+  BellOff,
+  BellRing,
+  Bookmark,
+  Sparkles,
+  SquarePlay,
+  VideoOff,
+} from 'lucide-react';
+import { FEED_PATH, NOT_FOUND_PATH } from '@/data/route';
 import NotFoundCentered from '@/components/NotFoundCentered';
 import FullscreenLoading from '@/components/FullscreenLoading';
 import VideoPlayerMP4 from '@/components/VideoPlayerMP4';
@@ -26,11 +33,18 @@ import { fetchImageWithAuth } from '@/api/image';
 import AppAvatar from '@/components/AppAvatar';
 import AppButton from '@/components/AppButton';
 import { toast } from 'sonner';
+import { API_ERROR } from '@/data/api';
+import { toggleMuteNotificationsFromChannel } from '@/services/subscription';
 
 const WatchVideo = () => {
+  const navigate = useNavigate();
   const { id: videoId } = useParams<{ id: string }>();
 
-  const { videoDetails, isLoading: isFetching } = useVideoDetails({
+  const {
+    videoDetails,
+    isLoading: isFetching,
+    error: apiError,
+  } = useVideoDetails({
     id: videoId || null,
   });
 
@@ -47,6 +61,7 @@ const WatchVideo = () => {
 
   // subscription
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isNotiMuted, setIsNotiMuted] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
   const [subscribedCount, setSubscribedCount] = useState(0);
   // view
@@ -60,11 +75,44 @@ const WatchVideo = () => {
     if (videoDetails && videoDetails?.user_id) {
       const isSuccess = await subscribeUnsubscribe(videoDetails?.user_id);
       if (isSuccess) {
-        if (isSubscribed) setSubscribedCount((prev) => prev - 1);
-        else setSubscribedCount((prev) => prev + 1);
+        if (isSubscribed) {
+          setSubscribedCount((prev) => prev - 1);
+        } else {
+          setSubscribedCount((prev) => prev + 1);
+        }
 
         setIsSubscribed(!isSubscribed);
       }
+    }
+  };
+
+  const handleToggleMuteNotifications = async () => {
+    const oldData = isNotiMuted;
+    const newData = !oldData;
+    setIsNotiMuted(newData);
+
+    try {
+      const isSuccess = await toggleMuteNotificationsFromChannel({
+        isMute: newData,
+        streamerId: Number(videoDetails?.user_id),
+      });
+
+      if (isSuccess?.success) {
+        const action = newData ? 'muted' : 'turned on';
+        toast.success(`Notification ${action}!`);
+      } else {
+        setIsNotiMuted(oldData);
+        toast.error(
+          `Failed to ${newData ? 'mute' : 'turn on'} the notification.`
+        );
+      }
+    } catch {
+      setIsNotiMuted(oldData);
+      toast.error(
+        `An error occurred while ${
+          newData ? 'muting' : 'unmuting'
+        } the notification.`
+      );
     }
   };
 
@@ -103,6 +151,17 @@ const WatchVideo = () => {
       }
     }
   };
+
+  // check if this id is existed
+  useEffect(() => {
+    if (
+      !videoId ||
+      (videoId && isNaN(Number(videoId))) ||
+      (apiError && apiError === API_ERROR.NOT_FOUND)
+    )
+      navigate(NOT_FOUND_PATH);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videoId, apiError]);
 
   // make sure video is always in aspect ratio and when on lg screen sizes, title and uploader info should be appear by default in visible viewport without needing to scroll down
   useEffect(() => {
@@ -167,6 +226,8 @@ const WatchVideo = () => {
     if (videoDetails) {
       setIsSaved(videoDetails?.is_saved);
       setIsSubscribed(videoDetails?.is_subscribed);
+      if (videoDetails && typeof videoDetails?.is_mute !== 'undefined')
+        setIsNotiMuted(videoDetails?.is_mute);
       setSubscribedCount(videoDetails?.subscriptions);
 
       setViewsCount(videoDetails?.views);
@@ -259,7 +320,7 @@ const WatchVideo = () => {
 
         {/* Uploader and Interaction Section */}
         <div ref={streamerAvatarRef} className="flex items-center">
-          <div className="flex items-center space-x-4 flex-1">
+          <div className="flex items-center space-x-2 flex-1">
             <AppAvatar url={videoDetails?.avatar_file_url || DefaultPf} />
             <div>
               <h3 className="text-md font-medium">
@@ -269,22 +330,38 @@ const WatchVideo = () => {
                 {formatKMBCount(subscribedCount)} Subscribers
               </p>
             </div>
-            {!videoDetails?.is_owner && (
-              <Button
-                onClick={handleSubscribeUnsubscribe}
-                variant={`${isSubscribed ? 'secondary' : 'default'}`}
-                className="px-4 py-2 rounded-lg ml-5"
-              >
-                {isSubscribed ? (
-                  <>
-                    <Sparkles className="fill-primary text-primary" />
-                    Subscribed
-                  </>
-                ) : (
-                  'Subscribe'
-                )}
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {!videoDetails?.is_owner && (
+                <Button
+                  onClick={handleSubscribeUnsubscribe}
+                  variant={`${isSubscribed ? 'secondary' : 'default'}`}
+                  className="px-4 py-2 ml-2 rounded-full"
+                >
+                  {isSubscribed ? (
+                    <>
+                      <Sparkles className="fill-primary text-primary" />
+                      Subscribed
+                    </>
+                  ) : (
+                    'Subscribe'
+                  )}
+                </Button>
+              )}
+              {isSubscribed && (
+                <AppButton
+                  className="rounded-full"
+                  Icon={isNotiMuted ? BellOff : BellRing}
+                  isIconActive={false}
+                  label={
+                    isNotiMuted ? 'Unmute Notification' : 'Mute Notification'
+                  }
+                  tooltipOnSmallScreens
+                  size="icon"
+                  variant="secondary"
+                  onClick={() => handleToggleMuteNotifications()}
+                />
+              )}
+            </div>
           </div>
           <div className="flex space-x-2 items-center">
             <AppButton

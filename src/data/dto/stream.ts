@@ -44,6 +44,7 @@ export interface StreamsResponse {
   comments: number;
   duration: number;
   is_saved: boolean;
+  is_mute: boolean;
 }
 
 export interface VideoDetailsResponse {
@@ -70,6 +71,7 @@ export interface VideoDetailsResponse {
   is_current_like: boolean;
   is_owner: boolean;
   is_subscribed: boolean;
+  is_mute: boolean;
   is_saved: boolean;
   duration: number;
 
