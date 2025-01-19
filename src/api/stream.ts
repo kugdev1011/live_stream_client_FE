@@ -195,14 +195,24 @@ export const apiFetchVideoDetails = async (
   const { success, data: responseData, code, message } = apiResponse;
 
   let rp: VideoDetailsResponse | null = null;
+  let error: API_ERROR | undefined = undefined;
   if (success) {
     rp = responseData?.data;
+  } else {
+    switch (code) {
+      case 404:
+        error = API_ERROR.NOT_FOUND;
+        break;
+      default:
+        error = API_ERROR.SERVER_ERROR;
+    }
   }
 
   return {
     data: rp,
     message,
     code,
+    error,
   };
 };
 

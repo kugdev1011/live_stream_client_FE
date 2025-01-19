@@ -7,12 +7,21 @@ import { useNavigate } from 'react-router-dom';
 import {
   CATEGORY_FILTER_KEYWORD,
   FEED_PATH,
+  getFEUrl,
   LIVE_STREAM_PATH,
+  WATCH_LIVE_PATH,
+  WATCH_VIDEO_PATH,
 } from '@/data/route';
 import useUserAccount from '@/hooks/useUserAccount';
 import { USER_ROLE } from '@/data/types/role';
-import React, { useEffect, useMemo, useState } from 'react';
-import { EVENT_EMITTER_NAME, EventEmitter } from '@/lib/event-emitter';
+import React, {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Badge } from '@/components/ui/badge';
 import TooltipComponent from '@/components/TooltipComponent';
 import { useFeedSearch } from '@/context/SearchContext';
@@ -21,9 +30,28 @@ import { useIsMobile } from '@/hooks/useMobile';
 import SearchBox from './SearchBox';
 import CategoryPills from '@/components/CategoryPills';
 import { CategoryResponse } from '@/data/dto/category';
-import { fetchCategories } from '@/services/category';
 import { useCategory } from '@/context/CategoryContext';
 import { FixedCategories } from '@/data/types/category';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useNotificationSheet } from '@/hooks/useNotificationsSheet';
+import { NotificationItem } from '@/components/Notification/Content';
+import { cn } from '@/lib/utils';
+import {
+  readNotification,
+  resetNotificationsCount,
+} from '@/services/notification';
+import { toast } from 'sonner';
+import {
+  NOTIFICATION_TYPE,
+  NotificationResponse,
+} from '@/data/dto/notification';
+import { useNotificationWS } from '@/context/NotificationContext';
+import { useLiveStreamStatus } from '@/hooks/useLiveStreamStatus';
+import useCategories from '@/hooks/useCategories';
+import InlineLoading from '@/components/InlineLoading';
+const LazyNotificationContent = lazy(
+  () => import('@/components/Notification/Content')
+);
 
 const AppHeader = React.memo(
   ({
@@ -35,11 +63,15 @@ const AppHeader = React.memo(
   }) => {
     const isMobile = useIsMobile();
     const navigate = useNavigate();
-    const { setSearchTerm } = useFeedSearch();
     const currentUser = useUserAccount();
     const handleGoLive = () => navigate(LIVE_STREAM_PATH);
 
-    const [isStreamingLive, setIsStreamingLive] = useState(false);
+    const isStreamingLive = useLiveStreamStatus();
+    const { isOpen, openSheet, closeSheet } = useNotificationSheet();
+
+    // ----- ✅ SEARCH ----- //
+    // --------------------- //
+    const { setSearchTerm } = useFeedSearch();
     const [isSmallSearchExpanded, setIsSmallSearchExpanded] = useState(false);
 
     const debouncedSetSearchTerm = useMemo(
@@ -50,31 +82,6 @@ const AppHeader = React.memo(
       [setSearchTerm]
     );
 
-    const handleLiveStart = () => setIsStreamingLive(true);
-    const handleLiveEnd = () => setIsStreamingLive(false);
-
-    // event subscribes
-    EventEmitter.subscribe(
-      EVENT_EMITTER_NAME.LIVE_STREAM_START,
-      handleLiveStart
-    );
-    EventEmitter.subscribe(EVENT_EMITTER_NAME.LIVE_STREAM_END, handleLiveEnd);
-
-    useEffect(() => {
-      // Cleanup subscription on unmount
-      return () => {
-        EventEmitter.unsubscribe(
-          EVENT_EMITTER_NAME.LIVE_STREAM_START,
-          handleLiveStart
-        );
-
-        EventEmitter.unsubscribe(
-          EVENT_EMITTER_NAME.LIVE_STREAM_END,
-          handleLiveEnd
-        );
-      };
-    }, []);
-
     useEffect(() => {
       return () => debouncedSetSearchTerm.cancel();
     }, [debouncedSetSearchTerm]);
@@ -83,12 +90,19 @@ const AppHeader = React.memo(
       if (!isMobile) setIsSmallSearchExpanded(false);
     }, [isMobile]);
 
+    // ----- ✅ CATEGORY ----- //
+    // ----------------------- //
     const { filteredCategory, setFilteredCategory } = useCategory();
-    const [isCategoryFetching, setIsCategoryFetching] = useState(false);
-    const [categoryFetchError, setCategoryFetchError] = useState<string | null>(
-      null
-    );
-    const [_categories, _setCategories] = useState<CategoryResponse[]>([]);
+    const {
+      categories,
+      isLoading: isCategoryFetching,
+      error: categoryFetchError,
+      fetchCategories,
+    } = useCategories({
+      initialFetch: false,
+      addFixedCategories: true,
+    });
+    const memoizedFetchCategories = useCallback(fetchCategories, []);
 
     const handleFilterCategory = (category: CategoryResponse) => {
       setFilteredCategory(category);
@@ -100,37 +114,70 @@ const AppHeader = React.memo(
     };
 
     useEffect(() => {
-      const _fetchCategories = async () => {
-        try {
-          setIsCategoryFetching(true);
-
-          const response = await fetchCategories();
-
-          if (!response) throw new Error('Failed to fetch categories!');
-          if (response && response.length > 0)
-            _setCategories(() => [...FixedCategories, ...response]);
-        } catch (err) {
-          setCategoryFetchError(
-            err instanceof Error ? err.message : 'Failed to fetch categories'
-          );
-        } finally {
-          setIsCategoryFetching(false);
-        }
-      };
-
-      if (isCategoryFilterEnabled) _fetchCategories();
-    }, [isCategoryFilterEnabled]);
+      if (isCategoryFilterEnabled) memoizedFetchCategories();
+    }, [isCategoryFilterEnabled, memoizedFetchCategories]);
 
     useEffect(() => {
       const params = new URLSearchParams(location.search);
       const categoryId = params.get(CATEGORY_FILTER_KEYWORD);
 
       if (categoryId) {
-        const category = _categories.find((c) => String(c.id) === categoryId);
+        const category = categories.find((c) => String(c.id) === categoryId);
         if (category) setFilteredCategory(category);
         else setFilteredCategory(FixedCategories[0]);
       }
-    }, [setFilteredCategory, _categories]);
+    }, [setFilteredCategory, filteredCategory, categories]);
+
+    // ---- ✅ NOTIFICATIONS -----//
+    // -------------------------- //
+    const {
+      newNotifications,
+      count: notiCount,
+      setCount: setNotificationsCount,
+    } = useNotificationWS(); // useNotificationWebSocket()
+
+    const handleResetNotificationsCount = async () => {
+      await resetNotificationsCount();
+      setNotificationsCount(0);
+    };
+
+    const handleMarkAsRead = (noti: NotificationResponse) => {
+      const handleNavigation = async () => {
+        try {
+          switch (noti.type) {
+            case NOTIFICATION_TYPE.SUBSCRIBE_LIVE:
+              navigate(getFEUrl(WATCH_LIVE_PATH, noti.stream_id.toString()));
+              break;
+            case NOTIFICATION_TYPE.SUBSCRIBE_VIDEO:
+              navigate(getFEUrl(WATCH_VIDEO_PATH, noti.stream_id.toString()));
+              break;
+            default:
+              break;
+          }
+
+          if (!noti.is_read) {
+            await readNotification(noti.id);
+          }
+        } finally {
+          //
+        }
+      };
+
+      handleNavigation();
+    };
+
+    useEffect(() => {
+      if (newNotifications?.length > 0)
+        newNotifications?.map((newNoti: NotificationResponse) => {
+          if (!newNoti.is_read)
+            return toast(
+              <NotificationItem
+                notification={newNoti}
+                onMarkAsRead={handleMarkAsRead}
+              />
+            );
+        });
+    }, [newNotifications]);
 
     return (
       <header className="flex flex-col fixed top-0 group-has-[[data-collapsible=icon]]/sidebar-wrapper:py-3 z-50 w-full shrink-0">
@@ -245,15 +292,40 @@ const AppHeader = React.memo(
                       )}
                     </>
                   )}
-                <TooltipComponent
-                  text="Notifications"
-                  align="center"
-                  children={
-                    <Button size="sm" variant="secondary">
-                      <Bell className="w-6 h-6" />
-                    </Button>
-                  }
-                />
+                <Sheet open={isOpen} onOpenChange={closeSheet}>
+                  <SheetTrigger asChild>
+                    <TooltipComponent text="Notifications" align="center">
+                      <Button
+                        size="icon"
+                        className={cn(
+                          'relative rounded-full p-3 px-2 bg-transparent shadow-none dark:bg-transparent hover:bg-muted dark:hover:bg-secondary'
+                        )}
+                        onClick={() => {
+                          openSheet();
+                          handleResetNotificationsCount();
+                        }}
+                      >
+                        <Bell
+                          className="text-black dark:text-white"
+                          style={{ width: '20px', height: '20px' }}
+                        />
+                        {notiCount > 0 && (
+                          <div className="absolute bg-red-500 text-white px-1 max-content rounded-full text-[9px] -top-0.5 right-0 w-5 h-5">
+                            {notiCount < 100 ? notiCount : '99+'}
+                          </div>
+                        )}
+                      </Button>
+                    </TooltipComponent>
+                  </SheetTrigger>
+                  <SheetContent
+                    side="right"
+                    className="w-[500px] p-0 overflow-y-auto"
+                  >
+                    <Suspense fallback={<InlineLoading />}>
+                      <LazyNotificationContent closeSheet={closeSheet} />
+                    </Suspense>
+                  </SheetContent>
+                </Sheet>
                 <UserAvatar />
               </div>
             </div>
@@ -267,7 +339,7 @@ const AppHeader = React.memo(
             <div className="px-6 py-2 bg-background border-b">
               <CategoryPills
                 isLoading={isCategoryFetching}
-                categories={_categories}
+                categories={categories}
                 filteredCategory={filteredCategory}
                 categoryFetchError={categoryFetchError}
                 onSelect={handleFilterCategory}
