@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import AppLayout from '@/layouts/AppLayout';
 import DefaultPf from '@/assets/images/pf.png';
 import { Button } from '@/components/ui/button';
 import VideoDescriptionBox from '@/components/VideoDescriptionBox';
@@ -272,7 +271,7 @@ const WatchVideo = () => {
 
   if (!videoId)
     return (
-      <AppLayout>
+      <div>
         <NotFoundCentered
           Icon={<VideoOff className="text-white" />}
           title="No Video Found!"
@@ -283,19 +282,19 @@ const WatchVideo = () => {
             link: FEED_PATH,
           }}
         />
-      </AppLayout>
+      </div>
     );
 
   if (!videoDetails && isFetching) {
     return (
-      <AppLayout>
+      <div>
         <FullscreenLoading />
-      </AppLayout>
+      </div>
     );
   }
 
   return (
-    <AppLayout>
+    <div>
       <div className="flex flex-col pt-0 space-y-6 min-h-screen">
         {/* Video Section */}
         <div className="w-full flex justify-center bg-black border">
@@ -395,7 +394,7 @@ const WatchVideo = () => {
         {/* Comment box */}
         {videoDetails && <VideoComment videoId={videoDetails?.id} />}
       </div>
-    </AppLayout>
+    </div>
   );
 };
 

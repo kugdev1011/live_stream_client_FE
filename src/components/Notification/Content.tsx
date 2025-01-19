@@ -164,13 +164,15 @@ const NotificationContent = ({ closeSheet }: { closeSheet: () => void }) => {
                     : ''
                 )}
               >
-                <NotificationItem
-                  key={notification.id}
-                  notification={notification}
-                  onMarkAsRead={handleNotificationClick}
-                  onHide={handleHideNotification}
-                  onMuteAll={handleMuteNotificationsFromChannel}
-                />
+                <div onClick={() => closeSheet()}>
+                  <NotificationItem
+                    key={notification.id}
+                    notification={notification}
+                    onMarkAsRead={handleNotificationClick}
+                    onHide={handleHideNotification}
+                    onMuteAll={handleMuteNotificationsFromChannel}
+                  />
+                </div>
               </div>
             ))}
         </ul>

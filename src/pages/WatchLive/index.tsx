@@ -1,5 +1,4 @@
 import useVideoDetails from '@/hooks/useVideoDetails';
-import AppLayout from '@/layouts/AppLayout';
 import { useNavigate, useParams } from 'react-router-dom';
 import LiveIndicator from '../LiveStream/Webcam/LiveIndicator';
 import {
@@ -178,7 +177,7 @@ const WatchLive = () => {
   if (isFetching) return <FullscreenLoading />;
 
   return (
-    <AppLayout>
+    <div>
       <div className="flex flex-col w-full h-full gap-3 overflow-hidden box-border">
         <div className="flex w-full lg:h-full items-center justify-center overflow-hidden">
           {/* Video and Chat Layout */}
@@ -329,7 +328,7 @@ const WatchLive = () => {
         description={notifyModal.description}
         onClose={closeNotifyModal}
       />
-    </AppLayout>
+    </div>
   );
 };
 
