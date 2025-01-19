@@ -7,10 +7,9 @@ import React, {
 } from 'react';
 import logger from '@/lib/logger';
 import { NotificationResponse } from '@/data/dto/notification';
-import { retrieveAuthToken } from '@/data/model/userAccount';
+import { invalidateAccount, retrieveAuthToken } from '@/data/model/userAccount';
 import { fetchNotificationsCount } from '@/services/notification';
-import { useNavigate } from 'react-router-dom';
-// import { LOGOUT_PATH } from '@/data/route';
+import { LOGOUT_PATH } from '@/data/route';
 
 const wsURL = import.meta.env.VITE_WS_NOTIFICATION_URL;
 
@@ -27,7 +26,6 @@ const WebSocketContext = createContext<WebSocketContextType | null>(null);
 export const NotificationWSProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const navigate = useNavigate();
   const [count, setCount] = useState<number>(0);
   const [newNotifications, setNewNotifications] = useState<
     NotificationResponse[]
@@ -38,6 +36,13 @@ export const NotificationWSProvider: React.FC<{
   const token = retrieveAuthToken();
 
   useEffect(() => {
+    console.log('token unavailable, i returned.', token);
+    console.log('wsURL unavailable, i returned.', wsURL);
+    console.log(
+      'wsRef.current && wsRef.current.readyState !== WebSocket.CLOSED',
+      wsRef.current && wsRef.current.readyState !== WebSocket.CLOSED
+    );
+
     if (!wsURL || !token) return;
     if (wsRef.current && wsRef.current.readyState !== WebSocket.CLOSED) return;
 
@@ -74,15 +79,15 @@ export const NotificationWSProvider: React.FC<{
       logger.warn('WebSocket closed:', event);
       setIsConnected(false);
 
-      // invalidateAccount();
-      // navigate(LOGOUT_PATH);
+      invalidateAccount();
+      window.location.href = LOGOUT_PATH;
     };
 
     return () => {
       ws.close();
       logger.log('WebSocket connection closed.');
     };
-  }, [token, navigate]);
+  }, [token]);
 
   useEffect(() => {
     const getContents = async () => {

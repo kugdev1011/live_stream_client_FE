@@ -41,8 +41,6 @@ export const SETTINGS_PATH = APP_PREFIX_PATH + '/settings';
 
 export const NOT_FOUND_PATH = 'not-found';
 
-// Testings
-export const TEST_LIVE_STREAM_PATH = APP_PREFIX_PATH + '/test-live-stream';
 export const PUBLIC_PATH = '/p';
 export const PRIVACY_DOCS_PATH = PUBLIC_PATH + '/privacy';
 export const TERMS_OF_SERVICES_DOCS_PATH = PUBLIC_PATH + '/terms-of-services';
