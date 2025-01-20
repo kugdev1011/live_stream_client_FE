@@ -25,6 +25,7 @@ export type VideosListRequest = {
   is_liked?: boolean;
   is_history?: boolean;
   is_saved?: boolean;
+  streamer_id?: number;
 };
 
 export interface StreamsResponse {

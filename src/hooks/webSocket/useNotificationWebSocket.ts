@@ -23,8 +23,6 @@ export const useNotificationWebSocket = () => {
     if (!wsURL || !token) return;
     if (wsRef.current && wsRef.current.readyState !== WebSocket.CLOSED) return;
 
-    console.log('here 1 -> ', wsRef);
-
     const fullURL = `${wsURL}?token=${token}`;
     const ws = new WebSocket(fullURL);
     wsRef.current = ws;
