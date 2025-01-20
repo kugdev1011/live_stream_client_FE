@@ -139,6 +139,7 @@ export const apiFetchVideosList = async (
     categoryId1,
     categoryId2,
     categoryId3,
+    streamer_id,
   } = payload;
   const queryString = mapToQueryString<VideosListRequest>({
     page,
@@ -149,6 +150,7 @@ export const apiFetchVideosList = async (
     is_liked,
     is_history,
     is_saved,
+    streamer_id,
   });
 
   const categoriesFilter = _.compact([categoryId1, categoryId2, categoryId3])

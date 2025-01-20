@@ -74,3 +74,8 @@ export const mapToQueryString = <T extends Record<string, unknown>>(
 
   return queryParams.toString();
 };
+
+export const getCorrectUnit = (count: number, singleUnit: string) => {
+  if (count > 1) return ' ' + singleUnit + 's';
+  return ' ' + singleUnit;
+};

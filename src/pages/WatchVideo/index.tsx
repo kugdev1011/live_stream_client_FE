@@ -3,8 +3,8 @@ import DefaultPf from '@/assets/images/pf.png';
 import { Button } from '@/components/ui/button';
 import VideoDescriptionBox from '@/components/VideoDescriptionBox';
 import useVideoDetails from '@/hooks/useVideoDetails';
-import { useNavigate, useParams } from 'react-router-dom';
-import { formatKMBCount } from '@/lib/utils';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { formatKMBCount, getAvatarFallbackText } from '@/lib/utils';
 import Reactions from '@/components/Chat/Reactions';
 import { Reaction, ReactionStats } from '@/data/chat';
 import {
@@ -24,7 +24,12 @@ import {
   SquarePlay,
   VideoOff,
 } from 'lucide-react';
-import { FEED_PATH, NOT_FOUND_PATH } from '@/data/route';
+import {
+  FEED_PATH,
+  NOT_FOUND_PATH,
+  RESOURCE_ID,
+  STREAMER_PROFILE_PATH,
+} from '@/data/route';
 import NotFoundCentered from '@/components/NotFoundCentered';
 import FullscreenLoading from '@/components/FullscreenLoading';
 import VideoPlayerMP4 from '@/components/VideoPlayerMP4';
@@ -320,12 +325,32 @@ const WatchVideo = () => {
         {/* Uploader and Interaction Section */}
         <div ref={streamerAvatarRef} className="flex items-center">
           <div className="flex items-center space-x-2 flex-1">
-            <AppAvatar url={videoDetails?.avatar_file_url || DefaultPf} />
+            <Link
+              to={STREAMER_PROFILE_PATH.replace(
+                RESOURCE_ID,
+                videoDetails?.user_id?.toString() || ''
+              )}
+            >
+              <AppAvatar
+                url={videoDetails?.avatar_file_url || DefaultPf}
+                fallback={getAvatarFallbackText(
+                  videoDetails?.display_name || 'PF'
+                )}
+                classes="w-10 h-10"
+              />
+            </Link>
             <div>
-              <h3 className="text-md font-medium">
-                {videoDetails?.display_name}
-              </h3>
-              <p className="text-gray-400 text-sm">
+              <Link
+                to={STREAMER_PROFILE_PATH.replace(
+                  RESOURCE_ID,
+                  videoDetails?.user_id?.toString() || ''
+                )}
+              >
+                <h3 className="text-md font-medium">
+                  {videoDetails?.display_name}
+                </h3>
+              </Link>
+              <p className="text-muted-foreground text-xs">
                 {formatKMBCount(subscribedCount)} Subscribers
               </p>
             </div>

@@ -9,7 +9,7 @@ import {
   ThumbsUp,
 } from 'lucide-react';
 
-const RESOURCE_ID = ':id';
+export const RESOURCE_ID = ':id';
 
 export const RESULTS_PATH_KEYWORD = 'results';
 export const SEARCH_QUERY_KEYWORD = 'q';
@@ -32,7 +32,8 @@ export const LIVE_STREAM_PATH = APP_PREFIX_PATH + '/live';
 export const LIVE_STREAM_WEBCAM_PATH = LIVE_STREAM_PATH + '/webcam';
 export const LIVE_STREAM_SOFTWARE_PATH = LIVE_STREAM_PATH + '/software';
 
-export const STREAMER_PROFILE_PATH = APP_PREFIX_PATH + '/s';
+export const STREAMER_PROFILE_PATH =
+  APP_PREFIX_PATH + '/channel/' + RESOURCE_ID;
 
 export const WATCH_VIDEO_PATH = APP_PREFIX_PATH + '/watch/' + RESOURCE_ID;
 export const WATCH_LIVE_PATH = APP_PREFIX_PATH + '/watch/live/' + RESOURCE_ID;

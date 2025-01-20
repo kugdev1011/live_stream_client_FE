@@ -7,9 +7,12 @@ import React, {
 } from 'react';
 import logger from '@/lib/logger';
 import { NotificationResponse } from '@/data/dto/notification';
-import { invalidateAccount, retrieveAuthToken } from '@/data/model/userAccount';
+import {
+  // invalidateAccount,
+  retrieveAuthToken,
+} from '@/data/model/userAccount';
 import { fetchNotificationsCount } from '@/services/notification';
-import { LOGOUT_PATH } from '@/data/route';
+// import { LOGOUT_PATH } from '@/data/route';
 
 const wsURL = import.meta.env.VITE_WS_NOTIFICATION_URL;
 
@@ -36,13 +39,6 @@ export const NotificationWSProvider: React.FC<{
   const token = retrieveAuthToken();
 
   useEffect(() => {
-    console.log('token unavailable, i returned.', token);
-    console.log('wsURL unavailable, i returned.', wsURL);
-    console.log(
-      'wsRef.current && wsRef.current.readyState !== WebSocket.CLOSED',
-      wsRef.current && wsRef.current.readyState !== WebSocket.CLOSED
-    );
-
     if (!wsURL || !token) return;
     if (wsRef.current && wsRef.current.readyState !== WebSocket.CLOSED) return;
 
@@ -79,8 +75,9 @@ export const NotificationWSProvider: React.FC<{
       logger.warn('WebSocket closed:', event);
       setIsConnected(false);
 
-      invalidateAccount();
-      window.location.href = LOGOUT_PATH;
+      // TODO: commented while development
+      // invalidateAccount();
+      // window.location.href = LOGOUT_PATH;
     };
 
     return () => {

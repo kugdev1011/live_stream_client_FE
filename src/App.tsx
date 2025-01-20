@@ -35,11 +35,11 @@ import React from 'react';
 import Settings from './pages/Settings';
 import ForgotPassword from './pages/Auth/ForgotPassword';
 import Feed from './pages/Feed';
-import UserProfile from './pages/UserProfile';
 import WatchVideo from './pages/WatchVideo';
 import WatchLive from './pages/WatchLive';
 import FeedSearch from './pages/Feed/Search';
 import ProtectedLayout from './layouts/ProtectedLayout';
+import StreamerProfile from './pages/StreamerProfile';
 
 function App() {
   return (
@@ -78,7 +78,10 @@ function App() {
                 <Route path={SETTINGS_PATH} element={<Settings />} />
                 <Route path={WATCH_VIDEO_PATH} element={<WatchVideo />} />
                 <Route path={WATCH_LIVE_PATH} element={<WatchLive />} />
-                <Route path={STREAMER_PROFILE_PATH} element={<UserProfile />} />
+                <Route
+                  path={STREAMER_PROFILE_PATH}
+                  element={<StreamerProfile />}
+                />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </ProtectedLayout>
