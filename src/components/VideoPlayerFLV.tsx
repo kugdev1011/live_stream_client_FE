@@ -126,12 +126,12 @@ const VideoPlayerFLV: React.FC<VideoPlayerProps> = ({
           {scheduledAt && (
             <>
               <p className="text-sm text-gray-300">
-                This stream will start on{' '}
+                This video can be accessed on{' '}
                 {getFormattedDate(new Date(scheduledAt), true)}.
               </p>
-              <div className="flex gap-2 text-sm">
+              <div className="flex gap-2 text-xs font-medium">
                 <span className="bg-red-500 text-white px-2 py-0.5 rounded-full">
-                  Live on:
+                  Available on
                 </span>{' '}
                 <Countdown targetDate={scheduledAt} />
               </div>
