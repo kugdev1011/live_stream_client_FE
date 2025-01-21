@@ -145,6 +145,11 @@ const WatchLive = () => {
       (apiError && apiError === API_ERROR.NOT_FOUND)
     ) {
       navigate(NOT_FOUND_PATH);
+    } else if (
+      videoDetails &&
+      videoDetails?.status === CONTENT_STATUS.UPCOMING
+    ) {
+      //
     } else if (videoDetails && videoDetails?.status !== CONTENT_STATUS.LIVE) {
       navigate(getFEUrl(WATCH_VIDEO_PATH, videoDetails?.id.toString()));
     } else {
@@ -223,7 +228,10 @@ const WatchLive = () => {
                 }}
               >
                 <VideoPlayerFLV
-                  url={videoDetails?.broadcast_url}
+                  videoDetails={videoDetails || null}
+                  // scheduledAt={videoDetails?.scheduled_at}
+                  // status={videoDetails?.status}
+                  // url={videoDetails?.broadcast_url}
                   token={retrieveAuthToken() || ''}
                   poster={thumbnailSrc}
                   videoWidth={videoDimensions.width}
