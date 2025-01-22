@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import DefaultPf from '@/assets/images/pf.png';
 import { Button } from '@/components/ui/button';
 import VideoDescriptionBox from '@/components/VideoDescriptionBox';
 import useVideoDetails from '@/hooks/useVideoDetails';
@@ -358,7 +357,7 @@ const WatchVideo = () => {
               )}
             >
               <AppAvatar
-                url={videoDetails?.avatar_file_url || DefaultPf}
+                url={videoDetails?.avatar_file_url || ''}
                 fallback={getAvatarFallbackText(
                   videoDetails?.display_name || 'PF'
                 )}
