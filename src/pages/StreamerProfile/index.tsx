@@ -32,6 +32,7 @@ import {
 import { useCallback, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import NotFound from '../NotFound';
 
 const StreamerProfile = () => {
   const currentUser = getLoggedInUserInfo();
@@ -124,6 +125,9 @@ const StreamerProfile = () => {
     },
     [isLoading, hasMore]
   );
+
+  if (streamerDetails === null && !isStreamerDetailsFetching)
+    return <NotFound />;
 
   return (
     <div className="md:container lg:px-[10rem] md:mx-auto flex flex-col justify-center">
