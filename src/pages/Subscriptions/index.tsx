@@ -15,6 +15,7 @@ import { modalTexts } from '@/data/subscription';
 import { subscribeUnsubscribe } from '@/services/stream';
 import { toast } from 'sonner';
 import ApiFetchingError from '@/components/ApiFetchingError';
+import { toggleMuteNotificationsFromChannel } from '@/services/subscription';
 
 const title = 'Subscriptions';
 
@@ -66,6 +67,51 @@ const Subscriptions = () => {
     }
   };
 
+  const handleToggleMuteNotifications = async (
+    streamerId: number,
+    isMute: boolean
+  ) => {
+    const oldData = isMute;
+    const newData = !oldData;
+    setSubscriptions((prev) =>
+      prev.map((sub) =>
+        sub.streamer_id === streamerId ? { ...sub, is_mute: newData } : sub
+      )
+    );
+
+    try {
+      const isSuccess = await toggleMuteNotificationsFromChannel({
+        isMute: newData,
+        streamerId,
+      });
+
+      if (isSuccess?.success) {
+        const action = newData ? 'muted' : 'turned on';
+        toast.success(`Notification ${action}!`);
+      } else {
+        setSubscriptions((prev) =>
+          prev.map((sub) =>
+            sub.streamer_id === streamerId ? { ...sub, is_mute: oldData } : sub
+          )
+        );
+        toast.error(
+          `Failed to ${newData ? 'mute' : 'turn on'} the notification.`
+        );
+      }
+    } catch {
+      setSubscriptions((prev) =>
+        prev.map((sub) =>
+          sub.streamer_id === streamerId ? { ...sub, is_mute: oldData } : sub
+        )
+      );
+      toast.error(
+        `An error occurred while ${
+          newData ? 'muting' : 'unmuting'
+        } the notification.`
+      );
+    }
+  };
+
   // Modal dialogs
   const openConfirmModal = (
     title: string,
@@ -113,7 +159,11 @@ const Subscriptions = () => {
                   displayName={sub.streamer_name}
                   subscriptionsCount={sub.num_subscribed}
                   videosCount={sub.num_video}
+                  isNotiMute={sub.is_mute}
                   onSubUnsub={() => handleUnsubscribe(sub.streamer_id)}
+                  onToggleMuteNotifications={() =>
+                    handleToggleMuteNotifications(sub.streamer_id, sub.is_mute)
+                  }
                 />
               </div>
             ))}
