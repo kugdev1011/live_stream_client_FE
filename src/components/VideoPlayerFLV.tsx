@@ -7,7 +7,6 @@ import { Button } from './ui/button';
 import { useNavigate } from 'react-router-dom';
 import { FEED_PATH } from '@/data/route';
 import { Clock, RotateCw, SquarePlay, VideoOff } from 'lucide-react';
-import DefaultThumbnail from '@/assets/images/video-thumbnail.jpg';
 import logger from '@/lib/logger';
 import { CONTENT_STATUS } from '@/data/types/stream';
 import { getFormattedDate } from '@/lib/date-time';
@@ -114,7 +113,9 @@ const VideoPlayerFLV: React.FC<VideoPlayerProps> = ({
       className={`${styles} relative w-full h-full flex justify-center`}
       style={{
         backgroundImage:
-          error && poster ? `url(${poster})` : `url(${DefaultThumbnail})`,
+          (error && poster) || videoDetails?.status === CONTENT_STATUS.UPCOMING
+            ? `url(${poster})`
+            : ``,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}

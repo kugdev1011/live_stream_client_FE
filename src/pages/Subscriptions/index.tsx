@@ -33,10 +33,11 @@ const Subscriptions = () => {
   // fetch subscriptions
   const {
     subscriptions,
-    setSubscriptions,
     totalItems,
     isLoading,
     error: isFetchingError,
+    setSubscriptions,
+    setTotalItems,
     refetchSubscriptions,
   } = useSubscriptions({
     isInfiniteList: false,
@@ -60,6 +61,7 @@ const Subscriptions = () => {
         const oldPrev = prev;
         return oldPrev.filter((d) => d.streamer_id !== streamerId);
       });
+      setTotalItems((prev) => prev - 1);
       toast.success('Subscription Removed!');
     }
   };

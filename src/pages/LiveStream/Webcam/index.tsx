@@ -92,6 +92,7 @@ const LiveStreamWebcam = () => {
     isLiveEndEventReceived,
     liveInitialStats,
     liveViewersCount,
+    liveSharesCount,
     toggleChat,
     openChat,
     sendReaction,
@@ -415,6 +416,9 @@ const LiveStreamWebcam = () => {
                         likeCount={liveInitialStats.like_count}
                         commentCount={liveInitialStats.comments?.length}
                         viewerCount={liveViewersCount}
+                        sharedCount={
+                          liveSharesCount || liveInitialStats.share_count || 0
+                        }
                       />
                     </div>
                   )}

@@ -32,9 +32,11 @@ import {
 } from 'lucide-react';
 import {
   FEED_PATH,
+  getFEUrl,
   NOT_FOUND_PATH,
   RESOURCE_ID,
   STREAMER_PROFILE_PATH,
+  WATCH_VIDEO_PATH,
 } from '@/data/route';
 import NotFoundCentered from '@/components/NotFoundCentered';
 import FullscreenLoading from '@/components/FullscreenLoading';
@@ -171,7 +173,10 @@ const WatchVideo = () => {
       if (data?.is_added) {
         setSharedCount((prev) => prev + 1);
       }
-      copy(videoDetails?.video_url);
+      copy(
+        window.location.origin +
+          getFEUrl(WATCH_VIDEO_PATH, videoDetails.id.toString())
+      );
       if (copiedText) toast.success('Copied to clipboard!');
     }
   };
